@@ -6680,8 +6680,8 @@ targetinfoobj:CreateDropdown({
 		handler.Visible = val == 'new'
 	end
 })																																																		
-TargetInfoMainFrame.Visible = TargetInfoHud == 'old'
-handler.Visible = TargetInfoHud == 'new'
+--TargetInfoMainFrame.Visible = TargetInfoHud == 'old'
+--handler.Visible = TargetInfoHud == 'new'
 targetinfoobj:CreateFont({
 	Name = 'Font',
 	Blacklist = 'Arial',
