@@ -51,7 +51,7 @@ local tween = {
 	tweenstwo = {}
 }
 local uipallet = {
-	Main = Color3.fromRGB(26, 26, 26),
+	Main = Color3.fromRGB(26, 25, 26),
 	Text = Color3.fromRGB(200, 200, 200),
 	Font = Font.fromEnum(Enum.Font.Arial),
 	FontSemiBold = Font.fromEnum(Enum.Font.Arial, Enum.FontWeight.SemiBold),
@@ -77,7 +77,7 @@ local getcustomassets = {
 	['newvape/assets/new/colorpreview.png'] = 'rbxassetid://14368311578',
 	['newvape/assets/new/combaticon.png'] = 'rbxassetid://14368312652',
 	['newvape/assets/new/customsettings.png'] = 'rbxassetid://14403726449',
-	['newvape/assets/new/discord.png'] = 'rbxassetid://95894287348566',
+	['newvape/assets/new/discord.png'] = '',
 	['newvape/assets/new/dots.png'] = 'rbxassetid://14368314459',
 	['newvape/assets/new/edit.png'] = 'rbxassetid://14368315443',
 	['newvape/assets/new/expandicon.png'] = 'rbxassetid://14368353032',
@@ -314,7 +314,7 @@ local function downloadFile(path, func)
 	if not isfile(path) then
 		createDownloader(path)
 		local suc, res = pcall(function()
-			return game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
+			return game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
 		end)
 		if not suc or res == '404: Not Found' then
 			error(res)
@@ -5673,7 +5673,7 @@ local scarcitybanner = Instance.new('TextLabel')
 scarcitybanner.Size = UDim2.fromScale(1, 0.02)
 scarcitybanner.Position = UDim2.fromScale(0, 0.97)
 scarcitybanner.BackgroundTransparency = 1
-scarcitybanner.Text = ''
+scarcitybanner.Text = 'A new discord has been created, click the discord icon to join.'
 scarcitybanner.TextScaled = true
 scarcitybanner.TextColor3 = Color3.new(1, 1, 1)
 scarcitybanner.TextStrokeTransparency = 0.5
@@ -5911,7 +5911,7 @@ general:CreateButton({
 		if shared.VapeDeveloper then
 			loadstring(readfile('newvape/loader.lua'), 'loader')()
 		else
-			loadstring(game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
+			loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
 		end
 	end,
 	Tooltip = 'This will set your profile to the default settings of Vape'
@@ -5930,7 +5930,7 @@ general:CreateButton({
 		if shared.VapeDeveloper then
 			loadstring(readfile('newvape/loader.lua'), 'loader')()
 		else
-			loadstring(game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
+			loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
 		end
 	end,
 	Tooltip = 'Reloads vape for debugging purposes'
@@ -6466,10 +6466,6 @@ targetinfoobj = mainapi:CreateOverlay({
 	end
 })
 
---[[
-	New
-]]
-																																																		
 local targetinfobkg = Instance.new('Frame')
 targetinfobkg.Size = UDim2.fromOffset(240, 89)
 targetinfobkg.BackgroundColor3 = color.Dark(uipallet.Main, 0.1)
@@ -6554,141 +6550,12 @@ local targetinfob = Instance.new('UIStroke')
 targetinfob.Enabled = false
 targetinfob.Color = Color3.fromHSV(0.44, 1, 1)
 targetinfob.Parent = targetinfobkg
-																																																		
---[[
-	Old
-]]
 
-local TargetInfoMainFrame = Instance.new('Frame')
-TargetInfoMainFrame.BackgroundColor3 = Color3.fromRGB(26, 25, 26)
-TargetInfoMainFrame.BorderSizePixel = 0
-TargetInfoMainFrame.BackgroundTransparency = 1
-TargetInfoMainFrame.Size = UDim2.new(0, 220, 0, 72)
-TargetInfoMainFrame.Position = UDim2.new(0, 0, 0, 5)
-TargetInfoMainFrame.Parent = targetinfoobj.Children
-TargetInfoMainFrame.Visible = false
-
-local TargetInfoFrameShadow = Instance.new('ImageLabel')
-TargetInfoFrameShadow.BackgroundTransparency = 1
-TargetInfoFrameShadow.Position = UDim2.fromScale(-0.041, -0.125)
-TargetInfoFrameShadow.Size = UDim2.fromOffset(237, 97)
-TargetInfoFrameShadow.ZIndex = -1
-TargetInfoFrameShadow.Image = 'rbxassetid://123343128195297'
-TargetInfoFrameShadow.Parent = TargetInfoMainFrame
-
-local TargetInfoMainInfo = Instance.new('Frame')
-TargetInfoMainInfo.BackgroundColor3 = Color3.fromRGB(31, 30, 31)
-TargetInfoMainInfo.Size = UDim2.new(0, 220, 0, 80)
-TargetInfoMainInfo.BackgroundTransparency = 0.5
-TargetInfoMainInfo.Position = UDim2.new(0, 0, 0, 0)
-TargetInfoMainInfo.Name = 'MainInfo'
-TargetInfoMainInfo.Parent = TargetInfoMainFrame
-local TargetInfoName = Instance.new('TextLabel')
-TargetInfoName.Font = Enum.Font.Arial
-TargetInfoName.TextColor3 = Color3.fromRGB(182, 182, 182)
-TargetInfoName.Position = UDim2.new(0, 70, 0, 13)
-TargetInfoName.TextStrokeTransparency = 1
-TargetInfoName.BackgroundTransparency = 1
-TargetInfoName.TextSize = 14
-TargetInfoName.Size = UDim2.new(0, 80, 0, 20)
-TargetInfoName.Text = 'None'
-TargetInfoName.ZIndex = 2
-TargetInfoName.TextXAlignment = Enum.TextXAlignment.Left
-TargetInfoName.TextYAlignment = Enum.TextYAlignment.Top
-TargetInfoName.Parent = TargetInfoMainInfo
-local TargetInfoNameShadow = TargetInfoName:Clone()
-TargetInfoNameShadow.Size = UDim2.new(1, 0, 1, 0)
-TargetInfoNameShadow.TextTransparency = 0.5
-TargetInfoNameShadow.TextColor3 = Color3.new()
-TargetInfoNameShadow.ZIndex = 1
-TargetInfoNameShadow.Position = UDim2.new(0, 1, 0, 1)
-TargetInfoName:GetPropertyChangedSignal('Text'):Connect(function()
-	TargetInfoNameShadow.Text = TargetInfoName.Text
-end)
-TargetInfoNameShadow.Parent = TargetInfoName
-local TargetInfoHealthBackground = Instance.new('Frame')
-TargetInfoHealthBackground.BackgroundColor3 = Color3.fromRGB(26, 25, 26)
-TargetInfoHealthBackground.Size = UDim2.new(0, 140, 0, 4)
-TargetInfoHealthBackground.Position = UDim2.new(0, 71, 0, 35)
-TargetInfoHealthBackground.Parent = TargetInfoMainInfo
-local TargetInfoHealthBackgroundShadow = Instance.new('ImageLabel')
-TargetInfoHealthBackgroundShadow.AnchorPoint = Vector2.new(0.5, 0.5)
-TargetInfoHealthBackgroundShadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-TargetInfoHealthBackgroundShadow.Image = 'rbxassetid://13350795660'
-TargetInfoHealthBackgroundShadow.BackgroundTransparency = 1
-TargetInfoHealthBackgroundShadow.ImageTransparency = 0.6
-TargetInfoHealthBackgroundShadow.ZIndex = -1
-TargetInfoHealthBackgroundShadow.Size = UDim2.new(1, 6, 1, 6)
-TargetInfoHealthBackgroundShadow.ImageColor3 = Color3.new()
-TargetInfoHealthBackgroundShadow.ScaleType = Enum.ScaleType.Slice
-TargetInfoHealthBackgroundShadow.SliceCenter = Rect.new(10, 10, 118, 118)
-TargetInfoHealthBackgroundShadow.Parent = TargetInfoHealthBackground
-local TargetInfoHealth = Instance.new('Frame')
-TargetInfoHealth.BackgroundColor3 = Color3.fromRGB(115, 255, 110)
-TargetInfoHealth.Size = UDim2.new(1, 0, 1, 0)
-TargetInfoHealth.ZIndex = 3
-TargetInfoHealth.BorderSizePixel = 0
-TargetInfoHealth.Parent = TargetInfoHealthBackground
-local TargetInfoHealthExtra = Instance.new('Frame')
-TargetInfoHealthExtra.BackgroundColor3 = Color3.fromRGB(255, 170, 0)
-TargetInfoHealthExtra.Size = UDim2.new(0, 0, 1, 0)
-TargetInfoHealthExtra.ZIndex = 4
-TargetInfoHealthExtra.BorderSizePixel = 0
-TargetInfoHealthExtra.AnchorPoint = Vector2.new(1, 0)
-TargetInfoHealthExtra.Position = UDim2.new(1, 0, 0, 0)
-TargetInfoHealthExtra.Parent = TargetInfoHealth
-local TargetInfoImage = Instance.new('ImageLabel')
-TargetInfoImage.Size = UDim2.new(0, 50, 0, 50)
-TargetInfoImage.BackgroundTransparency = 0
-TargetInfoImage.BackgroundColor3 = Color3.fromRGB(26, 25, 26)
-TargetInfoImage.Image = 'rbxthumb://type=AvatarHeadShot&id=1&w=420&h=420'
-TargetInfoImage.Position = UDim2.new(0, 10, 0, 16)
-
-local targetinfoshotflashold = Instance.new('Frame')
-targetinfoshotflashold.Size = UDim2.fromScale(1, 1)
-targetinfoshotflashold.BackgroundTransparency = 1
-targetinfoshotflashold.BackgroundColor3 = Color3.new(1, 0, 0)
-targetinfoshotflashold.Parent = TargetInfoImage
-addCorner(targetinfoshotflashold)
-
-TargetInfoImage.Parent = TargetInfoMainInfo
-local TargetInfoMainInfoCorner = Instance.new('UICorner')
-TargetInfoMainInfoCorner.CornerRadius = UDim.new(0, 6)
-TargetInfoMainInfoCorner.Parent = TargetInfoMainInfo
-local TargetInfoHealthBackgroundCorner = Instance.new('UICorner')
-TargetInfoHealthBackgroundCorner.CornerRadius = UDim.new(0, 2048)
-TargetInfoHealthBackgroundCorner.Parent = TargetInfoHealthBackground
-local TargetInfoHealthCorner = Instance.new('UICorner')
-TargetInfoHealthCorner.CornerRadius = UDim.new(0, 2048)
-TargetInfoHealthCorner.Parent = TargetInfoHealth
-local TargetInfoHealthCorner2 = Instance.new('UICorner')
-TargetInfoHealthCorner2.CornerRadius = UDim.new(0, 2048)
-TargetInfoHealthCorner2.Parent = TargetInfoHealthExtra
-local TargetInfoHealthExtraCorner = Instance.new('UICorner')
-TargetInfoHealthExtraCorner.CornerRadius = UDim.new(0, 8)
-TargetInfoHealthExtraCorner.Parent = TargetInfoImage
-
-local TargetInfoHud = isfile('catrewrite/profiles/hud.txt') and readfile('catrewrite/profiles/hud.txt') or 'new'
-targetinfoobj:CreateDropdown({
-	Name = 'Gui Mode',
-	List = {'old', 'new'},
-	Default = 'new',
-	Function = function(val)
-		TargetInfoHud = val
-		writefile('newvape/profiles/hud.txt', val)
-		TargetInfoMainFrame.Visible = val == 'old'
-		handler.Visible = val == 'new'
-	end
-})																																																		
---TargetInfoMainFrame.Visible = TargetInfoHud == 'old'
---handler.Visible = TargetInfoHud == 'new'
 targetinfoobj:CreateFont({
 	Name = 'Font',
 	Blacklist = 'Arial',
 	Function = function(val)
 		targetinfoname.FontFace = val
-		TargetInfoName.FontFace = val
-		TargetInfoNameShadow.FontFace = val
 	end
 })
 local targetinfobackgroundtransparency = {
