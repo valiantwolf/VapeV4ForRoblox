@@ -8497,7 +8497,7 @@ run(function()
 	local Power = {Value = 50}
 	AirJump = vape.Categories.Blatant:CreateModule({
 		Name = "AirJump",
-		HoverText = HoverText("Let's you jump in the air."),
+		--HoverText = HoverText("Let's you jump in the air."),
 		Function = function(callback)
 			if callback then
 				local connection = inputService.JumpRequest:Connect(function()
