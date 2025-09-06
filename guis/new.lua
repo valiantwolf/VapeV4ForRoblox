@@ -16,7 +16,7 @@ local mainapi = {
 	RainbowSpeed = {Value = 1},
 	RainbowUpdateSpeed = {Value = 60},
 	RainbowTable = {},
-	Scale = {Value = 1},
+	Scale = {Value = 0.7},
 	ThreadFix = setthreadidentity and true or false,
 	ToggleNotifications = {},
 	Version = '4.18',
