@@ -8527,14 +8527,14 @@ run(function()
 			"Velocity"
 		},
 		Default = "State",
-		HoverText = HoverText("Mode to customize the jumping ability."),
+		--HoverText = HoverText("Mode to customize the jumping ability."),
 		Function = function() end
 	})
 	Power = AirJump:CreateSlider({
 		Name = "Power",
 		Min = 1,
 		Max = 100,
-		HoverText = HoverText("Power to boost the velocity."),
+		--HoverText = HoverText("Power to boost the velocity."),
 		Function = function() end,
 		Default = 50
 	})
