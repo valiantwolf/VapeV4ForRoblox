@@ -8492,11 +8492,11 @@ run(function()
 end)
 
 run(function()
-	local InfiniteJump = {Enabled = false}
+	local AirJump = {Enabled = false}
 	local Mode = {Value = "State"}
 	local Power = {Value = 50}
-	InfiniteJump = vape.Categories.Blatant:CreateModule({
-		Name = "InfiniteJump",
+	AirJump = vape.Categories.Blatant:CreateModule({
+		Name = "AirJump",
 		HoverText = HoverText("Let's you jump in the air."),
 		Function = function(callback)
 			if callback then
@@ -8520,7 +8520,7 @@ run(function()
 			return Mode.Value
 		end
 	})
-	Mode = InfiniteJump:CreateDropdown({
+	Mode = AirJump:CreateDropdown({
 		Name = "Mode",
 		List = {
 			"State",
@@ -8530,7 +8530,7 @@ run(function()
 		HoverText = HoverText("Mode to customize the jumping ability."),
 		Function = function() end
 	})
-	Power = InfiniteJump:CreateSlider({
+	Power = AirJump:CreateSlider({
 		Name = "Power",
 		Min = 1,
 		Max = 100,
