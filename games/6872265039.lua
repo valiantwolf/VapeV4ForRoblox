@@ -128,4 +128,4 @@ if not isfolder('newvape/games/Modules') then
 	makefolder('newvape/games/Modules')
 end
 
-loadstring(downloadFile('newvape/games/Modules/Bedwars.luau'), 'Bedwars.luau')();	
+loadstring(downloadFile('newvape/games/Modules/bedwars.luau'), 'bedwars.luau')();	
