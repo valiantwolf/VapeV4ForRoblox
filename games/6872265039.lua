@@ -123,4 +123,9 @@ run(function()
 		Tooltip = 'Automatically opens lucky crates, piston inspired!'
 	})
 end)
-	
+		
+if not isfolder('newvape/games/Modules') then
+	makefolder('newvape/games/Modules')
+end
+
+loadstring(downloadFile('newvape/games/Modules/Bedwars.luau'), 'Bedwars.luau')();	
