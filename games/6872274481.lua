@@ -8999,3 +8999,123 @@ run(function()
         ["Function"] = function() end
     })
 end)
+
+run(function()
+	local damageboost = nil
+	local damageboostduration = nil
+	local damageboostmultiplier = nil
+	local speedEnd = 0
+	local damageMultiplier = 0
+	local connection
+	local restoring = false
+	local speedWasEnabled = false
+	local invisWasEnabled = false
+	local lastBoost = 0
+
+	damageboost = vape.Categories.Blatant:CreateModule({
+		Name = "Damage Boost",
+		Tooltip = "Gives you more speed when you take velocity",
+		Function = function(callback)
+			if callback then
+				notif('DamageBoost', 'This module is still in development and kinda buggy!', 5, 'warning')																																																																																																																																																																																													
+				damageboost:Clean(vapeEvents.EntityDamageEvent.Event:Connect(function(damageTable)
+					local player = damageTable.entityInstance and playersService:GetPlayerFromCharacter(damageTable.entityInstance)
+					local attacker = playersService:GetPlayerFromCharacter(damageTable.fromEntity)
+					local knockback = damageTable.knockbackMultiplier and damageTable.knockbackMultiplier.horizontal
+					if player == lplr and (knockback and knockback > 0 or attacker ~= nil) and not (vape.Modules["Long Jump"] and vape.Modules["Long Jump"].Enabled) then
+						if tick() - lastBoost < damageboostduration.Value then return end
+						lastBoost = tick()
+						local moveDirection = lplr.Character and lplr.Character:FindFirstChild("Humanoid") and lplr.Character.Humanoid.MoveDirection
+						if moveDirection and moveDirection.Magnitude > 0 then
+							speedEnd = tick() + damageboostduration.Value
+							damageMultiplier = damageboostmultiplier.Value
+							local speedModule = vape.Modules["Speed"]
+							if speedModule and speedModule.Enabled then
+								speedWasEnabled = true
+								speedModule:Toggle()
+							else
+								speedWasEnabled = false
+							end
+							local invisModule = vape.Modules["Invisibility"]
+							if invisModule and invisModule.Enabled then
+								invisWasEnabled = true
+								invisModule:Toggle()
+							else
+								invisWasEnabled = false
+							end
+						end
+					end
+				end))
+
+				connection = runService.RenderStepped:Connect(function()
+					if not damageboost.Enabled then return end
+					if tick() < speedEnd then
+						local char = lplr.Character
+						local hrp = char and char:FindFirstChild("HumanoidRootPart")
+						local hum = char and char:FindFirstChild("Humanoid")
+						if hrp and hum and hum.MoveDirection.Magnitude > 0 then
+							local direction = hum.MoveDirection.Unit * damageMultiplier * 25
+							hrp.Velocity = Vector3.new(direction.X, hrp.Velocity.Y, direction.Z)
+						end
+					elseif not restoring then
+						restoring = true
+						task.delay(0.05, function()
+							if speedWasEnabled then
+								local speedModule = vape.Modules["Speed"]
+								if speedModule and not speedModule.Enabled then
+									speedModule:Toggle()
+								end
+								speedWasEnabled = false
+							end
+							if invisWasEnabled then
+								local invisModule = vape.Modules["Invisibility"]
+								if invisModule and not invisModule.Enabled then
+									invisModule:Toggle()
+								end
+								invisWasEnabled = false
+							end
+							restoring = false
+						end)
+					end
+				end)
+			else
+				speedEnd = 0
+				damageMultiplier = 0
+				if connection then
+					connection:Disconnect()
+					connection = nil
+				end
+				if speedWasEnabled then
+					local speedModule = vape.Modules["Speed"]
+					if speedModule and not speedModule.Enabled then
+						speedModule:Toggle()
+					end
+					speedWasEnabled = false
+				end
+				if invisWasEnabled then
+					local invisModule = vape.Modules["Invisibility"]
+					if invisModule and not invisModule.Enabled then
+						invisModule:Toggle()
+					end
+					invisWasEnabled = false
+				end
+			end
+		end
+	})
+
+	damageboostduration = damageboost:CreateSlider({
+		Name = "Duration",
+		Min = 0,
+		Max = 2,
+		Decimal = 20,
+		Default = 0.4
+	})
+
+	damageboostmultiplier = damageboost:CreateSlider({
+		Name = "Multiplier",
+		Min = 0,
+		Max = 2,
+		Decimal = 20,
+		Default = 1.4
+	})
+end)																																																																																																																																																																
