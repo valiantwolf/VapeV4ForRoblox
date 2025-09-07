@@ -9119,3 +9119,32 @@ run(function()
 		Default = 1.4
 	})
 end)																																																																																																																																																																
+
+run(function()
+    local Backtrack
+    local BacktrackDelayValue = 1
+
+    Backtrack = vape.Categories.Blatant:CreateModule({
+        Name = 'Backtrack',
+        Function = function(callback)
+            if callback then
+                Backtrack:Clean(game:GetService("RunService").RenderStepped:Connect(function()
+                    pcall(function()
+                        settings():GetService("NetworkSettings").IncomingReplicationLag = BacktrackDelayValue
+                    end)
+                end))
+            end
+        end
+    })
+
+    BacktrackDelay = Backtrack:CreateSlider({
+        Name = 'Delay',
+        Min = 1,
+        Max = 9,
+        Default = 1,
+        Function = function(val)
+            BacktrackDelayValue = val
+        end
+    })
+end)
+																																																												
