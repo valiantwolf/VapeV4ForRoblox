@@ -9123,16 +9123,22 @@ end)
 run(function()
     local Backtrack
     local BacktrackDelayValue = 1
+    local BacktrackConnection
 
     Backtrack = vape.Categories.Blatant:CreateModule({
         Name = 'Backtrack',
         Function = function(callback)
             if callback then
-                Backtrack:Clean(game:GetService("RunService").RenderStepped:Connect(function()
+                BacktrackConnection = game:GetService("RunService").RenderStepped:Connect(function()
                     pcall(function()
                         settings():GetService("NetworkSettings").IncomingReplicationLag = BacktrackDelayValue
                     end)
-                end))
+                end)
+            else
+                if BacktrackConnection then
+                    BacktrackConnection:Disconnect()
+                    BacktrackConnection = nil
+                end
             end
         end
     })
@@ -9147,4 +9153,3 @@ run(function()
         end
     })
 end)
-																																																												
