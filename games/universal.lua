@@ -14,7 +14,7 @@ end
 local function downloadFile(path, func)
 	if not isfile(path) then
 		local suc, res = pcall(function()
-			return game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
+			return game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
 		end)
 		if not suc or res == '404: Not Found' then
 			error(res)
@@ -7921,4 +7921,38 @@ run(function()
 	})
 	
 end)
-	
+
+run(function()
+    local Backtrack
+    local BacktrackDelayValue = 1
+    local BacktrackConnection
+
+    Backtrack = vape.Categories.Blatant:CreateModule({
+        Name = 'Backtrack',
+        Function = function(callback)
+            if callback then
+                BacktrackConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                    pcall(function()
+                        settings():GetService("NetworkSettings").IncomingReplicationLag = BacktrackDelayValue
+                    end)
+                end)
+            else
+                if BacktrackConnection then
+                    BacktrackConnection:Disconnect()
+                    BacktrackConnection = nil
+                end
+            end
+        end
+    })
+
+    BacktrackDelay = Backtrack:CreateSlider({
+        Name = 'Delay',
+        Min = 1,
+        Max = 9,
+        Default = 1,
+        Function = function(val)
+            BacktrackDelayValue = val
+        end
+    })
+end)
+																																																																																
