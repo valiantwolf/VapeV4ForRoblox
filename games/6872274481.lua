@@ -9120,3 +9120,117 @@ run(function()
 	})
 end)																																																																																																																																																																
 
+run(function()
+    local tppos2 = nil
+    local TweenSpeed = 0.7
+    local HeightOffset = 5
+    local BedTP = {}
+    local TweenService = game:GetService("TweenService")
+
+    local function teleportWithTween(char, destination)
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if root then
+            destination = destination + Vector3.new(0, HeightOffset, 0)
+            local currentPosition = root.Position
+            if (destination - currentPosition).Magnitude > 0.5 then
+                local tweenInfo = TweenInfo.new(TweenSpeed, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+                local goal = {CFrame = CFrame.new(destination)}
+                local tween = TweenService:Create(root, tweenInfo, goal)
+                tween:Play()
+                tween.Completed:Wait()
+                BedTP:Toggle(false)
+            end
+        end
+    end
+
+    local function killPlayer(player)
+        local character = player.Character
+        if character then
+            local humanoid = character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.Health = 0
+            end
+        end
+    end
+
+    local function getEnemyBed(range)
+        range = range or math.huge
+        local bed = nil
+        local player = lplr
+
+        if not isAlive(player, true) then 
+            return nil 
+        end
+
+        local localPos = player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character.HumanoidRootPart.Position or Vector3.zero
+        local playerTeam = player:GetAttribute('Team')
+        local beds = collectionService:GetTagged('bed')
+
+        for _, v in ipairs(beds) do 
+            if v:GetAttribute('PlacedByUserId') == 0 then
+                local bedTeam = v:GetAttribute('id'):sub(1, 1)
+                if bedTeam ~= playerTeam then 
+                    local bedPosition = v.Position
+                    local bedDistance = (localPos - bedPosition).Magnitude
+                    if bedDistance < range then 
+                        bed = v
+                        range = bedDistance
+                    end
+                end
+            end
+        end
+
+        if not bed then 
+            notif("BedTP", "No enemy beds found. Total beds: "..#beds, 5, "warning")
+        else
+            notif("BedTP", "Teleporting to bed at: "..tostring(bed.Position), 3, "info")
+        end
+
+        return bed
+    end
+
+    BedTP = vape.Categories.Blatant:CreateModule({
+        Name = "BedTP",
+        Function = function(callback)
+            if callback then
+                task.spawn(function()
+                    repeat task.wait() until vape.Modules.Invisibility
+                    repeat task.wait() until vape.Modules.GamingChair
+                    if vape.Modules.Invisibility.Enabled and vape.Modules.GamingChair.Enabled then
+                        notif("BedTP", "Turn off Invisibility and GamingChair first!", 3, "error")
+                        BedTP:Toggle(false)
+                        return
+                    end
+                    if vape.Modules.Invisibility.Enabled then
+                        notif("BedTP", "Turn off Invisibility first!", 3, "error")
+                        BedTP:Toggle(false)
+                        return
+                    end
+                    if vape.Modules.GamingChair.Enabled then
+                        notif("BedTP", "Turn off GamingChair first!", 3, "error")
+                        BedTP:Toggle(false)
+                        return
+                    end
+                    BedTP:Clean(lplr.CharacterAdded:Connect(function(char)
+                        if tppos2 then 
+                            task.spawn(function()
+                                local root = char:WaitForChild("HumanoidRootPart", 10)
+                                if root and tppos2 then 
+                                    teleportWithTween(char, tppos2)
+                                    tppos2 = nil
+                                end
+                            end)
+                        end
+                    end))
+                    local bed = getEnemyBed()
+                    if bed then 
+                        tppos2 = bed.Position
+                        killPlayer(lplr)
+                    else
+                        BedTP:Toggle(false)
+                    end
+                end)
+            end
+        end
+    })
+end)
