@@ -5487,7 +5487,7 @@ function mainapi:Load(skipgui, profile)
 	self.Loaded = savecheck
 	self.Categories.Main.Options.Bind:SetBind(self.Keybind)
 
-	--[[if inputService.TouchEnabled and #self.Keybind == 1 and self.Keybind[1] == 'RightShift' then
+	if inputService.TouchEnabled and #self.Keybind == 1 and self.Keybind[1] == 'RightShift' then
 		local button = Instance.new('TextButton')
 		button.Size = UDim2.fromOffset(32, 32)
 		button.Position = UDim2.new(1, -90, 0, 4)
@@ -5521,7 +5521,7 @@ function mainapi:Load(skipgui, profile)
 			self:BlurCheck()
 		end)
 	end
-end--]]
+end
 
 function mainapi:LoadOptions(object, savedoptions)
 	for i, v in savedoptions do
@@ -7007,7 +7007,7 @@ mainapi:Clean(inputService.InputEnded:Connect(function(inputObj)
 	end
 end))
 
-if inputService.TouchEnabled then
+--[[if inputService.TouchEnabled then
 	local button = Instance.new("TextButton")
 	button.Position = UDim2.new(1, -30, 0, 0)
 	button.Text = "Vape"
@@ -7029,6 +7029,6 @@ if inputService.TouchEnabled then
 		mainapi:BlurCheck()
 	end)
 	shared.VapeButton = button
-end
+end--]]
 
 return mainapi
