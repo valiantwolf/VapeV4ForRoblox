@@ -1,7 +1,6 @@
 repeat task.wait() until game:IsLoaded()
 if shared.vape then shared.vape:Uninject() end
 
--- why do exploits fail to implement anything correctly? Is it really that hard?
 if identifyexecutor then
 	if table.find({'Argon', 'Wave'}, ({identifyexecutor()})[1]) then
 		getgenv().setthreadidentity = nil
@@ -16,7 +15,13 @@ local loadstring = function(...)
 	end
 	return res
 end
-local queue_on_teleport = queue_on_teleport or function() end
+
+--why do executors suck ass at queue on teleport 
+local queue_on_teleport = queue_on_teleport 
+	or (syn and syn.queue_on_teleport) 
+	or (fluxus and fluxus.queue_on_teleport) 
+	or function() end
+
 local isfile = isfile or function(file)
 	local suc, res = pcall(function()
 		return readfile(file)
