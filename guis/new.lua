@@ -57,6 +57,14 @@ local uipallet = {
 	FontSemiBold = Font.fromEnum(Enum.Font.Arial, Enum.FontWeight.SemiBold),
 	Tween = TweenInfo.new(0.16, Enum.EasingStyle.Linear)
 }
+--xylex bro where are the checks
+local success, _ = pcall(function()
+    return type(getcustomasset) == "function" and getcustomasset("rbxassetid://0")
+end)
+
+if not success then
+    getcustomasset = nil
+end
 
 local getcustomassets = {
 	['newvape/assets/new/add.png'] = 'rbxassetid://14368300605',
