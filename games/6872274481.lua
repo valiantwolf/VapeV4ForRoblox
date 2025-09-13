@@ -10339,8 +10339,8 @@ run(function()
 				local startCFrame = entityLibrary.isAlive and entityLibrary.character.HumanoidRootPart.CFrame
 				RunLoops:BindToHeartbeat("GrappleExploit", function(delta)
 					if --GuiLibrary.ObjectsThatCanBeSaved["Lobby CheckToggle"].Api.Enabled then
-						if bedwars.matchState == 0 then return end
-					end
+						--if bedwars.matchState == 0 then return end
+					--end
 					if entityLibrary.isAlive then
 						entityLibrary.character.HumanoidRootPart.Velocity = Vector3.zero
 						entityLibrary.character.HumanoidRootPart.CFrame = startCFrame
