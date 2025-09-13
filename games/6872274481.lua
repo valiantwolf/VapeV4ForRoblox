@@ -9588,3 +9588,106 @@ run(function()
 	})
 	effectholder.Parent = effecthud.GetCustomChildren();
 end);
+--CREDITS TO LUNAR VAPE
+run(function()
+  if not Vape.ThreadFix then return end
+
+  local TexturePack
+  local TexturePacks
+
+  local ogtxtpack, melotxtpack, azzatxtpack
+  if Vape.ThreadFix then
+    local old = getthreadidentity()
+    setthreadidentity(2)
+    local ogpackloader = game:GetObjects("rbxassetid://14027120450")
+    ogtxtpack = ogpackloader[1]
+    ogtxtpack.Name = "OG Pack"
+    ogtxtpack.Parent = replicatedStorage
+    task.wait()
+    local melopackloader = game:GetObjects("rbxassetid://14774202839")
+    melotxtpack = melopackloader[1]
+    melotxtpack.Name = "Melo's Pack"
+    melotxtpack.Parent = replicatedStorage
+    task.wait()
+    local azzapackloader = game:GetObjects("rbxassetid://14803122185")
+    azzatxtpack = azzapackloader[1]
+    azzatxtpack.Name = "4zze's Pack"
+    azzatxtpack.Parent = replicatedStorage
+    setthreadidentity(old)
+  end
+
+  local textures = {
+    ["OG Pack"] = ogtxtpack,
+    ["Melo's Pack"] = melotxtpack,
+    ["4zze's Pack"] = azzatxtpack
+  }
+
+  local function refreshViewmodel(child)
+    if not entitylib.character then return end
+    for _,v1 in textures[TexturePacks.Value]:GetChildren() do
+      if not (string.lower(v1.Name) == child.Name and child.Parent.Name ~= child.Name) then continue end
+      -- first person viewmodel check
+      for _,v2 in child:GetDescendants() do
+        if v2:IsA("Part") or v2:IsA("MeshPart") then
+          v2.Transparency = 1
+        end
+      end
+      -- third person viewmodel check
+      for _,v2 in lplr.Character:GetChildren() do
+        if v2.Name == string.lower(v1.Name) then
+          for _,v3 in v2:GetDescendants() do
+            if v3.Name ~= child.Name then
+              if v3:IsA("Part") or v3:IsA("MeshPart") then
+                v3.Transparency = 1
+                v3:GetPropertyChangedSignal("Transparency"):Connect(function() v3.Transparency = 1 end)
+              end
+            end
+          end
+        end
+      end
+      -- first person txtpack renderer
+      local vmmodel = v1:Clone()
+      vmmodel.CFrame = child.Handle.CFrame 
+      vmmodel.CFrame = vmmodel.CFrame * (TexturePacks.Value == "OG Pack" and CFrame.new(0, -0.2, 0) or TexturePacks.Value == "Melo's Pack" and CFrame.new(0.2, -0.2, 0) or TexturePacks.Value == "4zze's Pack" and CFrame.new(0.8,0.1,0.7)) * CFrame.Angles(math.rad(90),math.rad(-130),math.rad(0))
+      if string.lower(child.Name) == "rageblade" then vmmodel.CFrame = vmmodel.CFrame * CFrame.Angles(math.rad(-180),math.rad(100),math.rad(0)) end
+      if string.lower(child.Name):find("pickaxe") then vmmodel.CFrame = vmmodel.CFrame * CFrame.Angles(math.rad(-55),math.rad(-30),math.rad(50)) end
+      if string.lower(child.Name):find("scythe") then vmmodel.CFrame = vmmodel.CFrame * CFrame.Angles(math.rad(-65),math.rad(-80),math.rad(100)) * CFrame.new(-2.8,0.4,-0.8) end
+      if (string.lower(child.Name):find("axe")) and not (string.lower(child.Name):find("pickaxe")) then vmmodel.CFrame = vmmodel.CFrame * CFrame.Angles(math.rad(-55),math.rad(-30),math.rad(50)) * (TexturePacks.Value == "Melo's Pack" and CFrame.new(-0.2,0,0.2) or TexturePacks.Value == "4zze's Pack" and CFrame.new(-1.5,0,-0.8)) end
+      vmmodel.Parent = child
+      local vmmodelweld = Instance.new("WeldConstraint",vmmodel)
+      vmmodelweld.Part0 = vmmodelweld.Parent
+      vmmodelweld.Part1 = child.Handle
+      -- third person txtpack renderer
+      local charmodel = v1:Clone()
+      charmodel.CFrame = lplr.Character[child.Name]:FindFirstChild("Handle").CFrame
+      charmodel.CFrame = charmodel.CFrame * (TexturePacks.Value == "OG Pack" and CFrame.new(0, -0.5, 0) or TexturePacks.Value == "Melo's Pack" and CFrame.new(0.2, -0.9, 0) or TexturePacks.Value == "4zze's Pack" and CFrame.new(0.1,-1.2,0)) * CFrame.Angles(math.rad(90),math.rad(-130),math.rad(0))
+      if string.lower(child.Name) == "rageblade" then charmodel.CFrame = charmodel.CFrame * CFrame.Angles(math.rad(-180),math.rad(100),math.rad(0)) * CFrame.new(0.8,0,-1.1) end
+      if string.lower(child.Name):find("pickaxe") then charmodel.CFrame = charmodel.CFrame * CFrame.Angles(math.rad(-55),math.rad(-30),math.rad(50)) * CFrame.new(-0.8,-0.2,1.1) end
+      if string.lower(child.Name):find("scythe") then charmodel.CFrame = charmodel.CFrame * CFrame.Angles(math.rad(-65),math.rad(-80),math.rad(100)) * CFrame.new(-1.8,-0.5,0) end
+      if (string.lower(child.Name):find("axe")) and not (string.lower(child.Name):find("pickaxe")) then charmodel.CFrame = charmodel.CFrame * CFrame.Angles(math.rad(-55),math.rad(-30),math.rad(50)) * CFrame.new(-1.4,-0.2,0.6) end
+      charmodel.Anchored = false
+      charmodel.CanCollide = false
+      charmodel.Parent = playersService.LocalPlayer.Character[child.Name]
+      local charmodelweld = Instance.new("WeldConstraint",charmodel)
+      charmodelweld.Part0 = charmodelweld.Parent
+      charmodelweld.Part1 = playersService.LocalPlayer.Character[child.Name].Handle
+    end
+  end
+
+  TexturePack = LunarVape.Categories.Utility:CreateModule({
+    Name = "TexturePack",
+    HoverText = "Modifies your renderer",
+    Function = function(callback)
+      if callback then
+        if gameCamera.Viewmodel:FindFirstChildWhichIsA("Accessory") then refreshViewmodel(gameCamera.Viewmodel:FindFirstChildWhichIsA("Accessory")) end
+        TexturePack:Clean(gameCamera.Viewmodel.ChildAdded:Connect(refreshViewmodel))
+      end
+    end,
+    ExtraText = function() return TexturePacks.Value end
+    })
+  TexturePacks = TexturePack:CreateDropdown({
+    Name = "Texture",
+    List = {"OG Pack","Melo's Pack","4zze's Pack"},
+    Function = function() end
+  })
+end)																																																																																																																																																																		
