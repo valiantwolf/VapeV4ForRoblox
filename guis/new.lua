@@ -57,14 +57,14 @@ local uipallet = {
 	FontSemiBold = Font.fromEnum(Enum.Font.Arial, Enum.FontWeight.SemiBold),
 	Tween = TweenInfo.new(0.16, Enum.EasingStyle.Linear)
 }
---xylex bro where are the checks
-local s, _ = pcall(function()
+--xylex bro where are the checks --i think it lag me D:
+--[[local s, _ = pcall(function()
     return type(getcustomasset) == "function" and getcustomasset("rbxassetid://0")
 end)
 
 if not s then
     getcustomasset = nil
-end
+end--]]
 
 local getcustomassets = {
 	['newvape/assets/new/add.png'] = 'rbxassetid://14368300605',
