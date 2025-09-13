@@ -7015,7 +7015,7 @@ mainapi:Clean(inputService.InputEnded:Connect(function(inputObj)
 	end
 end))
 
---[[if inputService.TouchEnabled then
+if inputService.TouchEnabled then
 	local button = Instance.new("TextButton")
 	button.Position = UDim2.new(1, -30, 0, 0)
 	button.Text = "Vape"
@@ -7037,6 +7037,6 @@ end))
 		mainapi:BlurCheck()
 	end)
 	shared.VapeButton = button
-end--]]
+end
 
 return mainapi
