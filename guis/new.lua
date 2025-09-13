@@ -58,11 +58,11 @@ local uipallet = {
 	Tween = TweenInfo.new(0.16, Enum.EasingStyle.Linear)
 }
 --xylex bro where are the checks
-local success, _ = pcall(function()
+local s, _ = pcall(function()
     return type(getcustomasset) == "function" and getcustomasset("rbxassetid://0")
 end)
 
-if not success then
+if not s then
     getcustomasset = nil
 end
 
