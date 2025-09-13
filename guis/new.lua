@@ -7017,7 +7017,7 @@ end))
 
 if inputService.TouchEnabled then
 	local button = Instance.new("TextButton")
-	button.Position = UDim2.new(1, -30, 0, 0)
+	button.Position = UDim2.new(1, -30, 0, 56)
 	button.Text = "Vape"
 	button.BackgroundColor3 = Color3.fromRGB(26, 25, 26)
 	button.TextColor3 = Color3.new(1, 1, 1)
