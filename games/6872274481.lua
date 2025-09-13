@@ -9235,7 +9235,7 @@ run(function()
     })
 end)
 
-run(function()
+--[[run(function()
 	local HotbarVisuals: table = {}
 	local HotbarRounding: table  = {}
 	local HotbarHighlight: table  = {}
@@ -9423,7 +9423,7 @@ run(function()
 	HotbarColor.Object.Visible = false;
 	HotbarRoundRadius.Object.Visible = false;
 	HotbarHighlightColor.Object.Visible = false;
-end);
+end);--]]
             
 run(function()
 	local effecthud: vapemodule = {};
