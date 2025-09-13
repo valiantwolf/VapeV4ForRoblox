@@ -9237,13 +9237,13 @@ end)
             					
 --CREDITS TO LUNAR VAPE
 run(function()
-  if not Vape.ThreadFix then return end
+  --if not Vape.ThreadFix then return end
 
   local TexturePack
   local TexturePacks
 
   local ogtxtpack, melotxtpack, azzatxtpack
-  if Vape.ThreadFix then
+  --if Vape.ThreadFix then
     local old = getthreadidentity()
     setthreadidentity(2)
     local ogpackloader = game:GetObjects("rbxassetid://14027120450")
