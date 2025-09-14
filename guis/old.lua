@@ -58,6 +58,15 @@ local uipallet = {
 	Tween = TweenInfo.new(0.16, Enum.EasingStyle.Linear)
 }
 
+--xylex bro where are the checks 
+local s, _ = pcall(function()
+    return type(getcustomasset) == "function" and getcustomasset("rbxassetid://0")
+end)
+
+if not s then
+    getcustomasset = nil
+end
+
 local getcustomassets = {
 	['newvape/assets/old/barlogo.png'] = 'rbxasset://barlogo.png',
 	['newvape/assets/old/blatanticon.png'] = 'rbxasset://blatanticon.png',
@@ -221,7 +230,7 @@ local function downloadFile(path, func)
 	if not isfile(path) then
 		createDownloader(path)
 		local suc, res = pcall(function()
-			return game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
+			return game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
 		end)
 		if not suc or res == '404: Not Found' then
 			error(res)
@@ -3211,20 +3220,16 @@ function mainapi:Load(skipgui, profile)
 	self.Categories.TopBar.Options.Bind:SetBind(self.Keybind)
 
 	if inputService.TouchEnabled and #self.Keybind == 1 and self.Keybind[1] == 'RightShift' then
-		local button = Instance.new('TextButton')
-		button.Size = UDim2.fromOffset(32, 32)
-		button.Position = UDim2.new(1, -90, 0, 4)
-		button.BackgroundColor3 = Color3.new()
-		button.Text = ''
-		button.Parent = gui
-		local image = Instance.new('ImageLabel')
-		image.Size = UDim2.fromOffset(26, 26)
-		image.Position = UDim2.fromOffset(3, 3)
-		image.BackgroundTransparency = 1
-		image.Image = getcustomasset('newvape/assets/old/vape.png')
-		image.Parent = button
-		self.VapeButton = button
-		button.MouseButton1Click:Connect(function()
+		local button = Instance.new("TextButton")
+	button.Position = UDim2.new(1, -30, 0, 56)
+	button.Text = "Vape"
+	button.BackgroundColor3 = Color3.fromRGB(26, 25, 26)
+	button.TextColor3 = Color3.new(1, 1, 1)
+	button.Size = UDim2.new(0, 30, 0, 20)
+	button.BorderSizePixel = 0
+	button.BackgroundTransparency = 0.5
+	button.Parent = gui
+	button.MouseButton1Click:Connect(function()
 			if self.ThreadFix then
 				setthreadidentity(8)
 			end
@@ -3729,7 +3734,7 @@ topbar:CreateDropdown({
 			if shared.VapeDeveloper then
 				loadstring(readfile('newvape/loader.lua'), 'loader')()
 			else
-				loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
+				loadstring(game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
 			end
 		end
 	end,
@@ -3767,7 +3772,7 @@ topbar:CreateButton({
 		if shared.VapeDeveloper then
 			loadstring(readfile('newvape/loader.lua'), 'loader')()
 		else
-			loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
+			loadstring(game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
 		end
 	end,
 	Tooltip = 'This will set your profile to the default settings of Vape'
@@ -3831,7 +3836,7 @@ topbar:CreateButton({
 		if shared.VapeDeveloper then
 			loadstring(readfile('newvape/loader.lua'), 'loader')()
 		else
-			loadstring(game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
+			loadstring(game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true))()
 		end
 	end,
 	Tooltip = 'Reloads vape for debugging purposes'
