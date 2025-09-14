@@ -10310,3 +10310,51 @@ run(function()
     })
 end)
 
+run(function()
+	local function newchar(char)
+		task.spawn(function()
+			if char then
+				local nametag = char:WaitForChild("Head", 9e9):WaitForChild("Nametag", 9e9)
+				if not nametag then
+					--createwarning("Vape", char.Name .. " has no name tag.", 8)
+				end
+			end
+		end)
+	end
+
+	local HackerDetector = {Enabled = false}
+	HackerDetector = vape.Categories.Utility:CreateModule({
+		Name = "HackerDetector",
+		HoverText = "Detects hackers, simple.",
+		Function = function(callback)
+			if callback then
+				for _, player in ipairs(game.Players:GetPlayers()) do
+					if player ~= game.Players.LocalPlayer then
+						local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+						if humanoid then
+							local nofall = player.Character:FindFirstChild("NoFall")
+							local spider = player.Character:FindFirstChild("Spider")
+							local phase = player.Character:FindFirstChild("Phase")
+							local speed = humanoid.WalkSpeed
+							local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+							if rootPart then
+								local cframeSpeed = rootPart.Velocity.Magnitude
+								if cframeSpeed > 23 or speed > 23 then
+									notif("Vape", player.Name .. " is using vape!", 60, "warning")
+								elseif nofall then
+									notif("Vape", player.Name .. " is using vape!", 60, "warning")
+								elseif spider then
+									notif("Vape", player.Name .. " is using vape!", 60, "warning")
+								elseif phase then
+									notif("Vape", player.Name .. " is using vape!", 60, "warning")
+								end
+							end
+						end
+					end
+				end
+				newchar(game.Players.LocalPlayer.Character)
+				table.insert(HackerDetector.Connections, game.Players.LocalPlayer.CharacterAdded:Connect(newchar))
+			end
+		end
+	})
+end)
