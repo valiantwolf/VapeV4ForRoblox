@@ -119,6 +119,15 @@ local themecolors = {
 	Color3.fromRGB(100, 100, 110)
 }
 
+--xylex bro where are the checks 
+local s, _ = pcall(function()
+    return type(getcustomasset) == "function" and getcustomasset("rbxassetid://0")
+end)
+
+if not s then
+    getcustomasset = nil
+end
+
 local getcustomassets = {
 	['newvape/assets/rise/slice.png'] = 'rbxasset://risesix/slice.png',
 	['newvape/assets/rise/blur.png'] = 'rbxasset://risesix/blur.png',
