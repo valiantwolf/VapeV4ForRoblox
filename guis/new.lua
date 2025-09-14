@@ -6466,91 +6466,115 @@ targetinfoobj = mainapi:CreateOverlay({
 		end
 	end
 })
+																																										
+local TargetInfoMainFrame = Instance.new('Frame')
+TargetInfoMainFrame.BackgroundColor3 = Color3.fromRGB(26, 25, 26)
+TargetInfoMainFrame.BorderSizePixel = 0
+TargetInfoMainFrame.BackgroundTransparency = 1
+TargetInfoMainFrame.Size = UDim2.new(0, 220, 0, 72)
+TargetInfoMainFrame.Position = UDim2.new(0, 0, 0, 5)
+TargetInfoMainFrame.Parent = targetinfoobj.Children
+TargetInfoMainFrame.Visible = false
 
-local targetinfobkg = Instance.new('Frame')
-targetinfobkg.Size = UDim2.fromOffset(240, 89)
-targetinfobkg.BackgroundColor3 = color.Dark(uipallet.Main, 0.1)
-targetinfobkg.BackgroundTransparency = 0.5
-targetinfobkg.Parent = targetinfoobj.Children
-local targetinfoblurobj = addBlur(targetinfobkg)
-targetinfoblurobj.Visible = false
-addCorner(targetinfobkg)
-local targetinfoshot = Instance.new('ImageLabel')
-targetinfoshot.Size = UDim2.fromOffset(26, 27)
-targetinfoshot.Position = UDim2.fromOffset(19, 17)
-targetinfoshot.BackgroundColor3 = uipallet.Main
-targetinfoshot.Image = 'rbxthumb://type=AvatarHeadShot&id=1&w=420&h=420'
-targetinfoshot.Parent = targetinfobkg
-local targetinfoshotflash = Instance.new('Frame')
-targetinfoshotflash.Size = UDim2.fromScale(1, 1)
-targetinfoshotflash.BackgroundTransparency = 1
-targetinfoshotflash.BackgroundColor3 = Color3.new(1, 0, 0)
-targetinfoshotflash.Parent = targetinfoshot
-addCorner(targetinfoshotflash)
-local targetinfoshotblur = addBlur(targetinfoshot)
-targetinfoshotblur.Visible = false
-addCorner(targetinfoshot)
-local targetinfoname = Instance.new('TextLabel')
-targetinfoname.Size = UDim2.fromOffset(145, 20)
-targetinfoname.Position = UDim2.fromOffset(54, 20)
-targetinfoname.BackgroundTransparency = 1
-targetinfoname.Text = 'Target name'
-targetinfoname.TextXAlignment = Enum.TextXAlignment.Left
-targetinfoname.TextYAlignment = Enum.TextYAlignment.Top
-targetinfoname.TextScaled = true
-targetinfoname.TextColor3 = color.Light(uipallet.Text, 0.4)
-targetinfoname.TextStrokeTransparency = 1
-targetinfoname.FontFace = uipallet.Font
-local targetinfoshadow = targetinfoname:Clone()
-targetinfoshadow.Position = UDim2.fromOffset(55, 21)
-targetinfoshadow.TextColor3 = Color3.new()
-targetinfoshadow.TextTransparency = 0.65
-targetinfoshadow.Visible = false
-targetinfoshadow.Parent = targetinfobkg
-targetinfoname:GetPropertyChangedSignal('Size'):Connect(function()
-	targetinfoshadow.Size = targetinfoname.Size
+local TargetInfoFrameShadow = Instance.new('ImageLabel')
+TargetInfoFrameShadow.BackgroundTransparency = 1
+TargetInfoFrameShadow.Position = UDim2.fromScale(-0.041, -0.125)
+TargetInfoFrameShadow.Size = UDim2.fromOffset(237, 97)
+TargetInfoFrameShadow.ZIndex = -1
+TargetInfoFrameShadow.Image = 'rbxassetid://123343128195297'
+TargetInfoFrameShadow.Parent = TargetInfoMainFrame
+
+local TargetInfoMainInfo = Instance.new('Frame')
+TargetInfoMainInfo.BackgroundColor3 = Color3.fromRGB(31, 30, 31)
+TargetInfoMainInfo.Size = UDim2.new(0, 220, 0, 80)
+TargetInfoMainInfo.BackgroundTransparency = 0.5
+TargetInfoMainInfo.Position = UDim2.new(0, 0, 0, 0)
+TargetInfoMainInfo.Name = 'MainInfo'
+TargetInfoMainInfo.Parent = TargetInfoMainFrame
+local TargetInfoName = Instance.new('TextLabel')
+TargetInfoName.Font = Enum.Font.Arial
+TargetInfoName.TextColor3 = Color3.fromRGB(182, 182, 182)
+TargetInfoName.Position = UDim2.new(0, 70, 0, 13)
+TargetInfoName.TextStrokeTransparency = 1
+TargetInfoName.BackgroundTransparency = 1
+TargetInfoName.TextSize = 14
+TargetInfoName.Size = UDim2.new(0, 80, 0, 20)
+TargetInfoName.Text = 'None'
+TargetInfoName.ZIndex = 2
+TargetInfoName.TextXAlignment = Enum.TextXAlignment.Left
+TargetInfoName.TextYAlignment = Enum.TextYAlignment.Top
+TargetInfoName.Parent = TargetInfoMainInfo
+local TargetInfoNameShadow = TargetInfoName:Clone()
+TargetInfoNameShadow.Size = UDim2.new(1, 0, 1, 0)
+TargetInfoNameShadow.TextTransparency = 0.5
+TargetInfoNameShadow.TextColor3 = Color3.new()
+TargetInfoNameShadow.ZIndex = 1
+TargetInfoNameShadow.Position = UDim2.new(0, 1, 0, 1)
+TargetInfoName:GetPropertyChangedSignal('Text'):Connect(function()
+	TargetInfoNameShadow.Text = TargetInfoName.Text
 end)
-targetinfoname:GetPropertyChangedSignal('Text'):Connect(function()
-	targetinfoshadow.Text = targetinfoname.Text
-end)
-targetinfoname:GetPropertyChangedSignal('FontFace'):Connect(function()
-	targetinfoshadow.FontFace = targetinfoname.FontFace
-end)
-targetinfoname.Parent = targetinfobkg
-local targetinfohealthbkg = Instance.new('Frame')
-targetinfohealthbkg.Name = 'HealthBKG'
-targetinfohealthbkg.Size = UDim2.fromOffset(200, 9)
-targetinfohealthbkg.Position = UDim2.fromOffset(20, 56)
-targetinfohealthbkg.BackgroundColor3 = uipallet.Main
-targetinfohealthbkg.BorderSizePixel = 0
-targetinfohealthbkg.Parent = targetinfobkg
-addCorner(targetinfohealthbkg, UDim.new(1, 0))
-local targetinfohealth = targetinfohealthbkg:Clone()
-targetinfohealth.Size = UDim2.fromScale(0.8, 1)
-targetinfohealth.Position = UDim2.new()
-targetinfohealth.BackgroundColor3 = Color3.fromHSV(1 / 2.5, 0.89, 0.75)
-targetinfohealth.Parent = targetinfohealthbkg
-targetinfohealth:GetPropertyChangedSignal('Size'):Connect(function()
-	targetinfohealth.Visible = targetinfohealth.Size.X.Scale > 0.01
-end)
-local targetinfohealthextra = targetinfohealth:Clone()
-targetinfohealthextra.Size = UDim2.new()
-targetinfohealthextra.Position = UDim2.fromScale(1, 0)
-targetinfohealthextra.AnchorPoint = Vector2.new(1, 0)
-targetinfohealthextra.BackgroundColor3 = Color3.fromRGB(255, 170, 0)
-targetinfohealthextra.Visible = false
-targetinfohealthextra.Parent = targetinfohealthbkg
-targetinfohealthextra:GetPropertyChangedSignal('Size'):Connect(function()
-	targetinfohealthextra.Visible = targetinfohealthextra.Size.X.Scale > 0.01
-end)
-local targetinfohealthblur = addBlur(targetinfohealthbkg)
-targetinfohealthblur.SliceCenter = Rect.new(52, 31, 261, 510)
-targetinfohealthblur.ImageColor3 = Color3.new()
-targetinfohealthblur.Visible = false
-local targetinfob = Instance.new('UIStroke')
-targetinfob.Enabled = false
-targetinfob.Color = Color3.fromHSV(0.44, 1, 1)
-targetinfob.Parent = targetinfobkg
+TargetInfoNameShadow.Parent = TargetInfoName
+local TargetInfoHealthBackground = Instance.new('Frame')
+TargetInfoHealthBackground.BackgroundColor3 = Color3.fromRGB(26, 25, 26)
+TargetInfoHealthBackground.Size = UDim2.new(0, 140, 0, 4)
+TargetInfoHealthBackground.Position = UDim2.new(0, 71, 0, 35)
+TargetInfoHealthBackground.Parent = TargetInfoMainInfo
+local TargetInfoHealthBackgroundShadow = Instance.new('ImageLabel')
+TargetInfoHealthBackgroundShadow.AnchorPoint = Vector2.new(0.5, 0.5)
+TargetInfoHealthBackgroundShadow.Position = UDim2.new(0.5, 0, 0.5, 0)
+TargetInfoHealthBackgroundShadow.Image = 'rbxassetid://13350795660'
+TargetInfoHealthBackgroundShadow.BackgroundTransparency = 1
+TargetInfoHealthBackgroundShadow.ImageTransparency = 0.6
+TargetInfoHealthBackgroundShadow.ZIndex = -1
+TargetInfoHealthBackgroundShadow.Size = UDim2.new(1, 6, 1, 6)
+TargetInfoHealthBackgroundShadow.ImageColor3 = Color3.new()
+TargetInfoHealthBackgroundShadow.ScaleType = Enum.ScaleType.Slice
+TargetInfoHealthBackgroundShadow.SliceCenter = Rect.new(10, 10, 118, 118)
+TargetInfoHealthBackgroundShadow.Parent = TargetInfoHealthBackground
+local TargetInfoHealth = Instance.new('Frame')
+TargetInfoHealth.BackgroundColor3 = Color3.fromRGB(115, 255, 110)
+TargetInfoHealth.Size = UDim2.new(1, 0, 1, 0)
+TargetInfoHealth.ZIndex = 3
+TargetInfoHealth.BorderSizePixel = 0
+TargetInfoHealth.Parent = TargetInfoHealthBackground
+local TargetInfoHealthExtra = Instance.new('Frame')
+TargetInfoHealthExtra.BackgroundColor3 = Color3.fromRGB(255, 170, 0)
+TargetInfoHealthExtra.Size = UDim2.new(0, 0, 1, 0)
+TargetInfoHealthExtra.ZIndex = 4
+TargetInfoHealthExtra.BorderSizePixel = 0
+TargetInfoHealthExtra.AnchorPoint = Vector2.new(1, 0)
+TargetInfoHealthExtra.Position = UDim2.new(1, 0, 0, 0)
+TargetInfoHealthExtra.Parent = TargetInfoHealth
+local TargetInfoImage = Instance.new('ImageLabel')
+TargetInfoImage.Size = UDim2.new(0, 50, 0, 50)
+TargetInfoImage.BackgroundTransparency = 0
+TargetInfoImage.BackgroundColor3 = Color3.fromRGB(26, 25, 26)
+TargetInfoImage.Image = 'rbxthumb://type=AvatarHeadShot&id=1&w=420&h=420'
+TargetInfoImage.Position = UDim2.new(0, 10, 0, 16)
+
+local targetinfoshotflashold = Instance.new('Frame')
+targetinfoshotflashold.Size = UDim2.fromScale(1, 1)
+targetinfoshotflashold.BackgroundTransparency = 1
+targetinfoshotflashold.BackgroundColor3 = Color3.new(1, 0, 0)
+targetinfoshotflashold.Parent = TargetInfoImage
+addCorner(targetinfoshotflashold)
+
+TargetInfoImage.Parent = TargetInfoMainInfo
+local TargetInfoMainInfoCorner = Instance.new('UICorner')
+TargetInfoMainInfoCorner.CornerRadius = UDim.new(0, 6)
+TargetInfoMainInfoCorner.Parent = TargetInfoMainInfo
+local TargetInfoHealthBackgroundCorner = Instance.new('UICorner')
+TargetInfoHealthBackgroundCorner.CornerRadius = UDim.new(0, 2048)
+TargetInfoHealthBackgroundCorner.Parent = TargetInfoHealthBackground
+local TargetInfoHealthCorner = Instance.new('UICorner')
+TargetInfoHealthCorner.CornerRadius = UDim.new(0, 2048)
+TargetInfoHealthCorner.Parent = TargetInfoHealth
+local TargetInfoHealthCorner2 = Instance.new('UICorner')
+TargetInfoHealthCorner2.CornerRadius = UDim.new(0, 2048)
+TargetInfoHealthCorner2.Parent = TargetInfoHealthExtra
+local TargetInfoHealthExtraCorner = Instance.new('UICorner')
+TargetInfoHealthExtraCorner.CornerRadius = UDim.new(0, 8)
+TargetInfoHealthExtraCorner.Parent = TargetInfoImage
 
 targetinfoobj:CreateFont({
 	Name = 'Font',
