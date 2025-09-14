@@ -10428,7 +10428,7 @@ run(function()
                         teleportBack()
                         Desync:Toggle()
                     else
-                        Desync:Toggle()
+                        --Desync:Toggle()
                     end
                 end))
             else
