@@ -11,6 +11,8 @@ local vapeEvents = setmetatable({}, {
 	end
 })
 
+getgenv().vapeEvents = vapeEvents
+
 local playersService = cloneref(game:GetService('Players'))
 local replicatedStorage = cloneref(game:GetService('ReplicatedStorage'))
 local runService = cloneref(game:GetService('RunService'))
@@ -63,9 +65,13 @@ local store = {
 local Reach = {}
 local HitBoxes = {}
 local InfiniteFly = {}
+getgenv().CancelSwitch = os.clock()
 local TrapDisabler
 local AntiFallPart
+getgenv().FlyLandTick = os.clock()
 local bedwars, remotes, sides, oldinvrender, oldSwing = {}, {}, {}
+
+getgenv().remotes = remotes
 
 local function addBlur(parent)
 	local blur = Instance.new('ImageLabel')
@@ -167,6 +173,8 @@ local function getItem(itemName, inv)
 	return nil
 end
 
+getgenv().getItem = getItem
+
 local function getRoactRender(func)
 	return debug.getupvalue(debug.getupvalue(debug.getupvalue(func, 3).render, 2).render, 1)
 end
@@ -184,6 +192,8 @@ local function getSword()
 	end
 	return bestSword, bestSwordSlot
 end
+
+getgenv().getSword = getSword
 
 local function getTool(breakType)
 	local bestTool, bestToolSlot, bestToolDamage = nil, nil, 0
@@ -206,6 +216,8 @@ local function getWool()
 		end
 	end
 end
+
+getgenv().getWool = getWool
 
 local function getStrength(plr)
 	if not plr.Player then
@@ -231,6 +243,8 @@ local function getPlacedBlock(pos)
 	return bedwars.BlockController:getStore():getBlockAt(roundedPosition), roundedPosition
 end
 
+getgenv().getPlacedBlock = getPlacedBlock
+
 local function getBlocksInPoints(s, e)
 	local blocks, list = bedwars.BlockController:getStore(), {}
 	for x = s.X, e.X do
@@ -245,6 +259,8 @@ local function getBlocksInPoints(s, e)
 	end
 	return list
 end
+
+getgenv().getBlocksInPoints = getBlocksInPoints
 
 local function getNearGround(range)
 	range = Vector3.new(3, 3, 3) * (range or 10)
@@ -316,6 +332,8 @@ local function hotbarSwitch(slot)
 	return false
 end
 
+getgenv().hotbarSwitch = hotbarSwitch
+
 local function isFriend(plr, recolor)
 	if vape.Categories.Friends.Options['Use friends'].Enabled then
 		local friend = table.find(vape.Categories.Friends.ListEnabled, plr.Name) and true
@@ -343,6 +361,8 @@ end
 local function roundPos(vec)
 	return Vector3.new(math.round(vec.X / 3) * 3, math.round(vec.Y / 3) * 3, math.round(vec.Z / 3) * 3)
 end
+
+getgenv().roundPos = roundPos
 
 local function switchItem(tool, delayTime)
 	delayTime = delayTime or 0.05
@@ -773,7 +793,7 @@ run(function()
 	for i, v in remoteNames do
 		local remote = dumpRemote(debug.getconstants(v))
 		if remote == '' then
-			notif('Vape', 'Failed to grab remote ('..i..')', 10, 'alert')
+			notif('Valiant', 'Failed to grab remote ('..i..')', 10, 'alert')
 		end
 		remotes[i] = remote
 	end
