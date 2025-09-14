@@ -10426,7 +10426,7 @@ run(function()
                     if success then
                         task.wait(waitTime.Value)
                         teleportBack()
-                        Desync:Toggle()
+                        --Desync:Toggle()
                     else
                         --Desync:Toggle()
                     end
