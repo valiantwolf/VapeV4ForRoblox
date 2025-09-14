@@ -10392,28 +10392,8 @@ run(function()
     end
 
     local function teleportBack()
-        if not oldroot or not oldroot.Parent or not entitylib.isAlive then return false end
-        lplr.Character.Parent = game
+        if not oldroot or not oldroot.Parent or not entitylib.isAlive then return end
         oldroot.CFrame = clone.CFrame
-        oldroot.Parent = lplr.Character
-        lplr.Character.PrimaryPart = oldroot
-        lplr.Character.Parent = workspace
-        for _, v in lplr.Character:GetDescendants() do
-            if v:IsA("Weld") or v:IsA("Motor6D") then
-                if v.Part0 == clone then v.Part0 = oldroot end
-                if v.Part1 == clone then v.Part1 = oldroot end
-            end
-        end
-        oldroot.CanCollide = true
-        if clone then
-            clone:Destroy()
-            clone = nil
-        end
-        entitylib.character.Humanoid.HipHeight = hip or 2.6
-        oldroot.Transparency = 1
-        oldroot = nil
-        store.rootpart = nil
-        return true
     end
 
     Desync = vape.Categories.Blatant:CreateModule({
@@ -10421,18 +10401,19 @@ run(function()
         Tooltip = "",
         Function = function(call)
             if call then
-                Desync:Clean(task.spawn(function()
-                    local success = createClone()
-                    if success then
-                        task.wait(waitTime.Value)
-                        teleportBack()
-                        --Desync:Toggle()
-                    else
-                        --Desync:Toggle()
-                    end
-                end))
+                if createClone() then
+                    Desync:Clean(task.spawn(function()
+                        while Desync.Enabled do
+                            task.wait(waitTime.Value)
+                            teleportBack()
+                        end
+                    end))
+                end
             else
-                if clone then pcall(function() clone:Destroy() end) clone = nil end
+                if clone then
+                    pcall(function() clone:Destroy() end)
+                    clone = nil
+                end
                 oldroot = nil
                 store.rootpart = nil
             end
@@ -10446,4 +10427,4 @@ run(function()
         Default = 1,
         Function = function(val) waitTime.Value = val end
     })
-end)
+end)                        
