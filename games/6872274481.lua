@@ -10358,3 +10358,92 @@ run(function()
 		end
 	})
 end)
+
+local Desync = {}
+run(function()
+    local oldroot
+    local clone
+    local hip = 2.6
+    local waitTime
+
+    local function createClone()
+        if entitylib.isAlive and entitylib.character.Humanoid.Health > 0 and (not oldroot or not oldroot.Parent) then
+            hip = entitylib.character.Humanoid.HipHeight
+            oldroot = entitylib.character.HumanoidRootPart
+            if not lplr.Character.Parent then return false end
+            lplr.Character.Parent = game
+            clone = oldroot:Clone()
+            clone.Parent = lplr.Character
+            oldroot.Transparency = 0
+            oldroot.Parent = gameCamera
+            store.rootpart = clone
+            bedwars.QueryUtil:setQueryIgnored(oldroot, true)
+            lplr.Character.PrimaryPart = clone
+            lplr.Character.Parent = workspace
+            for _, v in lplr.Character:GetDescendants() do
+                if v:IsA("Weld") or v:IsA("Motor6D") then
+                    if v.Part0 == oldroot then v.Part0 = clone end
+                    if v.Part1 == oldroot then v.Part1 = clone end
+                end
+            end
+            return true
+        end
+        return false
+    end
+
+    local function teleportBack()
+        if not oldroot or not oldroot.Parent or not entitylib.isAlive then return false end
+        lplr.Character.Parent = game
+        oldroot.CFrame = clone.CFrame
+        oldroot.Parent = lplr.Character
+        lplr.Character.PrimaryPart = oldroot
+        lplr.Character.Parent = workspace
+        for _, v in lplr.Character:GetDescendants() do
+            if v:IsA("Weld") or v:IsA("Motor6D") then
+                if v.Part0 == clone then v.Part0 = oldroot end
+                if v.Part1 == clone then v.Part1 = oldroot end
+            end
+        end
+        oldroot.CanCollide = true
+        if clone then
+            clone:Destroy()
+            clone = nil
+        end
+        entitylib.character.Humanoid.HipHeight = hip or 2.6
+        oldroot.Transparency = 1
+        oldroot = nil
+        store.rootpart = nil
+        return true
+    end
+
+    Desync = vape.Categories.Blatant:CreateModule({
+        Name = "Desync",
+        Tooltip = "",
+        Function = function(call)
+            if call then
+                Desync:Clean(task.spawn(function()
+                    local success = createClone()
+                    if success then
+                        task.wait(waitTime.Value)
+                        teleportBack()
+                        Desync:Toggle()
+                    else
+                        Desync:Toggle()
+                    end
+                end))
+            else
+                if clone then pcall(function() clone:Destroy() end) clone = nil end
+                oldroot = nil
+                store.rootpart = nil
+            end
+        end
+    })
+
+    waitTime = Desync:CreateSlider({
+        Name = "Delay",
+        Min = 1,
+        Max = 5,
+        Default = 1,
+        Function = function(val) waitTime.Value = val end
+    })
+end)
