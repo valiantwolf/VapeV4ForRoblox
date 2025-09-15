@@ -8460,12 +8460,12 @@ run(function()
   AntarcticEveningDOF.FocusDistance = 20
   AntarcticEveningDOF.NearIntensity = 0.3
 
-  LunarVape:Clean(GameThemes)
+  vape:Clean(GameThemes)
 
   local timeConnection
   local ThemesModule = { Enabled = false }
   local ThemesDropdown = { Value = 'Antarctic Evening' }
-  ThemesModule = LunarVape.Categories.Render:CreateModule {
+  ThemesModule = vape.Categories.Render:CreateModule {
     Name = 'Themes',
     Tooltip = 'Changes the theme',
     ExtraText = function()
