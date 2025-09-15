@@ -8176,3 +8176,371 @@ run(function()
         end
     })
 end)
+
+run(function()
+  if replicatedStorage:FindFirstChild 'Themes' then
+    replicatedStorage:FindFirstChild('Themes'):Destroy()
+  end
+
+  local backupTechnology = 'ShadowMap'
+  local backupLighting = {}
+  local BackupFolder
+
+  local themeProps = {
+    ['The Milky Way A'] = {
+      Ambient = Color3.fromRGB(107, 107, 107),
+      OutdoorAmbient = Color3.fromRGB(115, 93, 137),
+      ColorShift_Bottom = Color3.fromRGB(219, 3, 246),
+      ColorShift_Top = Color3.fromRGB(144, 6, 177),
+      EnvironmentDiffuseScale = 0.4,
+      EnvironmentSpecularScale = 0.4,
+      Brightness = 0.05,
+      ExposureCompensation = 0.8,
+      GeographicLatitude = 60,
+      ClockTime = 10,
+      GlobalShadows = true,
+      ShadowSoftness = 0.4,
+    },
+    ['The Milky Way B'] = {
+      Ambient = Color3.fromRGB(58, 58, 58),
+      OutdoorAmbient = Color3.fromRGB(127, 116, 79),
+      ColorShift_Bottom = Color3.fromRGB(219, 3, 246),
+      ColorShift_Top = Color3.fromRGB(144, 6, 177),
+      EnvironmentDiffuseScale = 0.5,
+      EnvironmentSpecularScale = 0.5,
+      Brightness = 0.2,
+      ExposureCompensation = 0.6,
+      GeographicLatitude = 310,
+      ClockTime = 13,
+      GlobalShadows = true,
+      ShadowSoftness = 0.6,
+    },
+    ['The Milky Way C'] = {
+      Ambient = Color3.fromRGB(101, 101, 101),
+      OutdoorAmbient = Color3.fromRGB(131, 77, 122),
+      ColorShift_Bottom = Color3.fromRGB(219, 3, 246),
+      ColorShift_Top = Color3.fromRGB(144, 6, 177),
+      EnvironmentDiffuseScale = 0.5,
+      EnvironmentSpecularScale = 0.5,
+      Brightness = 0.2,
+      ExposureCompensation = 0.7,
+      GeographicLatitude = 0,
+      ClockTime = 15.25,
+      GlobalShadows = true,
+      ShadowSoftness = 0.6,
+    },
+    ['Lunar Vape Old'] = {
+      Ambient = Color3.fromRGB(93, 59, 88),
+      OutdoorAmbient = Color3.fromRGB(128, 94, 100),
+      ColorShift_Bottom = Color3.fromRGB(213, 173, 117),
+      ColorShift_Top = Color3.fromRGB(255, 255, 255),
+      EnvironmentDiffuseScale = 0.5,
+      EnvironmentSpecularScale = 0.5,
+      Brightness = 0.2,
+      ExposureCompensation = 0.8,
+      GeographicLatitude = 325,
+      ClockTime = 11,
+      GlobalShadows = true,
+      ShadowSoftness = 0.2,
+    },
+    ['Lunar Vape New'] = {
+      Ambient = Color3.fromRGB(101, 72, 51),
+      OutdoorAmbient = Color3.fromRGB(175, 132, 119),
+      ColorShift_Bottom = Color3.fromRGB(213, 161, 134),
+      ColorShift_Top = Color3.fromRGB(203, 167, 102),
+      EnvironmentDiffuseScale = 0.3,
+      EnvironmentSpecularScale = 0.3,
+      Brightness = 1,
+      ExposureCompensation = 0.7,
+      GeographicLatitude = 326,
+      ClockTime = 16 + (1 / 3),
+      GlobalShadows = true,
+      ShadowSoftness = 0.1,
+    },
+    ['Antarctic Evening'] = {
+      Ambient = Color3.fromRGB(79, 54, 101),
+      OutdoorAmbient = Color3.fromRGB(162, 118, 175),
+      ColorShift_Bottom = Color3.fromRGB(213, 10, 180),
+      ColorShift_Top = Color3.fromRGB(103, 68, 203),
+      EnvironmentDiffuseScale = 0.4,
+      EnvironmentSpecularScale = 0.4,
+      Brightness = 0.2,
+      ExposureCompensation = 1,
+      GeographicLatitude = 306,
+      ClockTime = 10,
+      GlobalShadows = true,
+      ShadowSoftness = 0.6,
+    },
+  }
+
+  local GameThemes = Instance.new('Folder', replicatedStorage)
+  GameThemes.Name = 'Themes'
+
+  local TheMilkyWaySkyA = Instance.new('Sky', GameThemes)
+  TheMilkyWaySkyA.Name = 'The Milky Way A'
+  TheMilkyWaySkyA.CelestialBodiesShown = false
+  TheMilkyWaySkyA.StarCount = 3000
+  TheMilkyWaySkyA.SkyboxUp = 'rbxassetid://5559302033'
+  TheMilkyWaySkyA.SkyboxLf = 'rbxassetid://5559292825'
+  TheMilkyWaySkyA.SkyboxFt = 'rbxassetid://5559300879'
+  TheMilkyWaySkyA.SkyboxBk = 'rbxassetid://5559289158'
+  TheMilkyWaySkyA.SkyboxDn = 'rbxassetid://5559290893'
+  TheMilkyWaySkyA.SkyboxRt = 'rbxassetid://5559302989'
+  TheMilkyWaySkyA.SunTextureId = 'rbxasset://sky/sun.jpg'
+  TheMilkyWaySkyA.SunAngularSize = 1.44
+  TheMilkyWaySkyA.MoonTextureId = 'rbxasset://sky/moon.jpg'
+  TheMilkyWaySkyA.MoonAngularSize = 0.57
+  local TheMilkyWaySkyADOF = Instance.new('DepthOfFieldEffect', TheMilkyWaySkyA)
+  TheMilkyWaySkyADOF.FarIntensity = 0.12
+  TheMilkyWaySkyADOF.NearIntensity = 0.3
+  TheMilkyWaySkyADOF.FocusDistance = 20
+  TheMilkyWaySkyADOF.InFocusRadius = 17
+  local TheMilkyWaySkyACC = Instance.new('ColorCorrectionEffect', TheMilkyWaySkyA)
+  TheMilkyWaySkyACC.TintColor = Color3.fromRGB(245, 200, 245)
+  TheMilkyWaySkyACC.Brightness = 0
+  TheMilkyWaySkyACC.Contrast = 0.2
+  TheMilkyWaySkyACC.Saturation = -0.1
+  local TheMilkyWaySkyABloom = Instance.new('BloomEffect', TheMilkyWaySkyA)
+  TheMilkyWaySkyABloom.Intensity = 0.4
+  TheMilkyWaySkyABloom.Size = 12
+  TheMilkyWaySkyABloom.Threshold = 0.2
+
+  local TheMilkyWaySkyB = Instance.new('Sky', GameThemes)
+  TheMilkyWaySkyB.Name = 'The Milky Way B'
+  TheMilkyWaySkyB.CelestialBodiesShown = false
+  TheMilkyWaySkyB.StarCount = 3000
+  TheMilkyWaySkyB.SkyboxUp = 'http://www.roblox.com/asset?id=232707707'
+  TheMilkyWaySkyB.SkyboxLf = 'http://www.roblox.com/asset?id=232708001'
+  TheMilkyWaySkyB.SkyboxFt = 'http://www.roblox.com/asset?id=232707879'
+  TheMilkyWaySkyB.SkyboxBk = 'http://www.roblox.com/asset?id=232707959'
+  TheMilkyWaySkyB.SkyboxDn = 'http://www.roblox.com/asset?id=232707790'
+  TheMilkyWaySkyB.SkyboxRt = 'http://www.roblox.com/asset?id=232707983'
+  local TheMilkyWaySkyBCC = Instance.new('ColorCorrectionEffect', TheMilkyWaySkyB)
+  TheMilkyWaySkyBCC.TintColor = Color3.fromRGB(255, 255, 255)
+  TheMilkyWaySkyBCC.Brightness = 0
+  TheMilkyWaySkyBCC.Contrast = 0.3
+  TheMilkyWaySkyBCC.Saturation = 0.2
+  local TheMilkyWaySkyBDOF = Instance.new('DepthOfFieldEffect', TheMilkyWaySkyB)
+  TheMilkyWaySkyBDOF.FarIntensity = 0.12
+  TheMilkyWaySkyBDOF.NearIntensity = 0.3
+  TheMilkyWaySkyBDOF.FocusDistance = 20
+  TheMilkyWaySkyBDOF.InFocusRadius = 17
+  local TheMilkyWaySkyBBloom = Instance.new('BloomEffect', TheMilkyWaySkyB)
+  TheMilkyWaySkyBBloom.Intensity = 0.6
+  TheMilkyWaySkyBBloom.Size = 12
+  TheMilkyWaySkyBBloom.Threshold = 0.2
+  local TheMilkyWaySkyBSunRay = Instance.new('SunRaysEffect', TheMilkyWaySkyB)
+  TheMilkyWaySkyBSunRay.Enabled = true
+  TheMilkyWaySkyBSunRay.Intensity = 0.003
+  TheMilkyWaySkyBSunRay.Spread = 1
+
+  local TheMilkyWaySkyC = Instance.new('Sky', GameThemes)
+  TheMilkyWaySkyC.Name = 'The Milky Way C'
+  TheMilkyWaySkyC.CelestialBodiesShown = false
+  TheMilkyWaySkyC.StarCount = 3000
+  TheMilkyWaySkyC.SkyboxUp = 'rbxassetid://1903391299'
+  TheMilkyWaySkyC.SkyboxLf = 'rbxassetid://1903388369'
+  TheMilkyWaySkyC.SkyboxFt = 'rbxassetid://1903389258'
+  TheMilkyWaySkyC.SkyboxBk = 'rbxassetid://1903390348'
+  TheMilkyWaySkyC.SkyboxDn = 'rbxassetid://1903391981'
+  TheMilkyWaySkyC.SkyboxRt = 'rbxassetid://1903387293'
+  TheMilkyWaySkyC.SunTextureId = 'rbxasset://sky/sun.jpg'
+  TheMilkyWaySkyC.SunAngularSize = 21
+  TheMilkyWaySkyC.MoonTextureId = 'rbxasset://sky/moon.jpg'
+  TheMilkyWaySkyC.MoonAngularSize = 11
+  local TheMilkyWaySkyCDOF = Instance.new('DepthOfFieldEffect', TheMilkyWaySkyC)
+  TheMilkyWaySkyCDOF.FarIntensity = 0.12
+  TheMilkyWaySkyCDOF.NearIntensity = 0.3
+  TheMilkyWaySkyCDOF.FocusDistance = 20
+  TheMilkyWaySkyCDOF.InFocusRadius = 17
+  local TheMilkyWaySkyCBloom = Instance.new('BloomEffect', TheMilkyWaySkyC)
+  TheMilkyWaySkyCBloom.Intensity = 0.6
+  TheMilkyWaySkyCBloom.Size = 12
+  TheMilkyWaySkyCBloom.Threshold = 0.2
+  local TheMilkyWaySkyCSunRay = Instance.new('SunRaysEffect', TheMilkyWaySkyC)
+  TheMilkyWaySkyCSunRay.Enabled = true
+  TheMilkyWaySkyCSunRay.Intensity = 0.003
+  TheMilkyWaySkyCSunRay.Spread = 1
+  local TheMilkyWaySkyCCC = Instance.new('ColorCorrectionEffect', TheMilkyWaySkyC)
+  TheMilkyWaySkyCCC.TintColor = Color3.fromRGB(245, 240, 255)
+  TheMilkyWaySkyCCC.Brightness = -0.04
+  TheMilkyWaySkyCCC.Contrast = 0.2
+  TheMilkyWaySkyCCC.Saturation = 0.2
+
+  local LunarVapeOld = Instance.new('Sky', GameThemes)
+  LunarVapeOld.Name = 'Lunar Vape Old'
+  LunarVapeOld.CelestialBodiesShown = false
+  LunarVapeOld.StarCount = 3000
+  LunarVapeOld.SkyboxUp = 'rbxassetid://2670644331'
+  LunarVapeOld.SkyboxLf = 'rbxassetid://2670643070'
+  LunarVapeOld.SkyboxFt = 'rbxassetid://2670643214'
+  LunarVapeOld.SkyboxBk = 'rbxassetid://2670643994'
+  LunarVapeOld.SkyboxDn = 'rbxassetid://2670643365'
+  LunarVapeOld.SkyboxRt = 'rbxassetid://2670644173'
+  LunarVapeOld.SunTextureId = 'rbxasset://sky/sun.jpg'
+  LunarVapeOld.SunAngularSize = 21
+  LunarVapeOld.MoonTextureId = 'rbxassetid://1075087760'
+  LunarVapeOld.MoonAngularSize = 11
+  local LunarVapeOldCC = Instance.new('ColorCorrectionEffect', LunarVapeOld)
+  LunarVapeOldCC.Enabled = true
+  LunarVapeOldCC.Brightness = 0.13
+  LunarVapeOldCC.Contrast = 0.4
+  LunarVapeOldCC.Saturation = 0.06
+  LunarVapeOldCC.TintColor = Color3.fromRGB(255, 230, 245)
+  local LunarVapeOldDOF = Instance.new('DepthOfFieldEffect', LunarVapeOld)
+  LunarVapeOldDOF.FarIntensity = 0.12
+  LunarVapeOldDOF.NearIntensity = 0.3
+  LunarVapeOldDOF.FocusDistance = 20
+  LunarVapeOldDOF.InFocusRadius = 17
+  local LunarVapeOldBloom = Instance.new('BloomEffect', LunarVapeOld)
+  LunarVapeOldBloom.Intensity = 0.8
+  LunarVapeOldBloom.Threshold = 0.4
+  LunarVapeOldBloom.Size = 12
+
+  local LunarVapeNew = Instance.new('Sky', GameThemes)
+  LunarVapeNew.Name = 'Lunar Vape New'
+  LunarVapeNew.CelestialBodiesShown = false
+  LunarVapeNew.StarCount = 0
+  LunarVapeNew.SkyboxUp = 'http://www.roblox.com/asset/?id=458016792'
+  LunarVapeNew.SkyboxLf = 'http://www.roblox.com/asset/?id=458016655'
+  LunarVapeNew.SkyboxFt = 'http://www.roblox.com/asset/?id=458016532'
+  LunarVapeNew.SkyboxBk = 'http://www.roblox.com/asset/?id=458016711'
+  LunarVapeNew.SkyboxDn = 'http://www.roblox.com/asset/?id=458016826'
+  LunarVapeNew.SkyboxRt = 'http://www.roblox.com/asset/?id=458016782'
+  LunarVapeNew.SunTextureId = 'rbxasset://sky/sun.jpg'
+  LunarVapeNew.SunAngularSize = 21
+  LunarVapeNew.MoonTextureId = 'rbxasset://sky/moon.jpg'
+  LunarVapeNew.MoonAngularSize = 11
+  local LunarVapeNewBloom = Instance.new('BloomEffect', LunarVapeNew)
+  LunarVapeNewBloom.Enabled = true
+  LunarVapeNewBloom.Threshold = 0.24
+  LunarVapeNewBloom.Size = 8
+  LunarVapeNewBloom.Intensity = 0.5
+  local LunarVapeNewSunRay = Instance.new('SunRaysEffect', LunarVapeNew)
+  LunarVapeNewSunRay.Enabled = true
+  LunarVapeNewSunRay.Intensity = 0.05
+  LunarVapeNewSunRay.Spread = 0.4
+  local LunarVapeNewCC = Instance.new('ColorCorrectionEffect', LunarVapeNew)
+  LunarVapeNewCC.Saturation = 0.14
+  LunarVapeNewCC.Brightness = -0.1
+  LunarVapeNewCC.Contrast = 0.14
+  local LunarVapeNewDOF = Instance.new('DepthOfFieldEffect', LunarVapeNew)
+  LunarVapeNewDOF.FarIntensity = 0.2
+  LunarVapeNewDOF.InFocusRadius = 17
+  LunarVapeNewDOF.FocusDistance = 20
+  LunarVapeNewDOF.NearIntensity = 0.3
+
+  local AntarcticEvening = Instance.new('Sky', GameThemes)
+  AntarcticEvening.Name = 'Antarctic Evening'
+  AntarcticEvening.CelestialBodiesShown = false
+  AntarcticEvening.StarCount = 3000
+  AntarcticEvening.SkyboxUp = 'http://www.roblox.com/asset/?id=5260824661'
+  AntarcticEvening.SkyboxLf = 'http://www.roblox.com/asset/?id=5260800833'
+  AntarcticEvening.SkyboxFt = 'http://www.roblox.com/asset/?id=5260817288'
+  AntarcticEvening.SkyboxBk = 'http://www.roblox.com/asset/?id=5260808177'
+  AntarcticEvening.SkyboxDn = 'http://www.roblox.com/asset/?id=5260653793'
+  AntarcticEvening.SkyboxRt = 'http://www.roblox.com/asset/?id=5260811073'
+  AntarcticEvening.SunTextureId = 'rbxasset://sky/sun.jpg'
+  AntarcticEvening.SunAngularSize = 21
+  AntarcticEvening.MoonTextureId = 'rbxasset://sky/moon.jpg'
+  AntarcticEvening.MoonAngularSize = 11
+  local AntarcticEveningBloom = Instance.new('BloomEffect', AntarcticEvening)
+  AntarcticEveningBloom.Enabled = true
+  AntarcticEveningBloom.Threshold = 0.4
+  AntarcticEveningBloom.Size = 12
+  AntarcticEveningBloom.Intensity = 0.5
+  local AntarcticEveningCC = Instance.new('ColorCorrectionEffect', AntarcticEvening)
+  AntarcticEveningCC.Brightness = -0.03
+  AntarcticEveningCC.Contrast = 0.16
+  AntarcticEveningCC.Saturation = 0.06
+  AntarcticEveningCC.TintColor = Color3.fromRGB(220, 175, 255)
+  local AntarcticEveningDOF = Instance.new('DepthOfFieldEffect', AntarcticEvening)
+  AntarcticEveningDOF.FarIntensity = 0.12
+  AntarcticEveningDOF.InFocusRadius = 17
+  AntarcticEveningDOF.FocusDistance = 20
+  AntarcticEveningDOF.NearIntensity = 0.3
+
+  LunarVape:Clean(GameThemes)
+
+  local timeConnection
+  local ThemesModule = { Enabled = false }
+  local ThemesDropdown = { Value = 'Antarctic Evening' }
+  ThemesModule = LunarVape.Categories.Render:CreateModule {
+    Name = 'Themes',
+    Tooltip = 'Changes the theme',
+    ExtraText = function()
+      return ThemesDropdown.Value
+    end,
+    Function = function(callback)
+      if callback then
+        BackupFolder = Instance.new('Folder', replicatedStorage)
+        BackupFolder.Name = 'Old'
+        for _, v in lightingService:GetChildren() do
+          if v.ClassName ~= 'BlurEffect' then
+            v.Parent = BackupFolder
+          end
+        end
+
+        local newSky = GameThemes[ThemesDropdown.Value]:Clone()
+        newSky.Parent = lightingService
+        for _, v in newSky:GetChildren() do
+          v.Parent = lightingService
+        end
+
+        for k, v in themeProps[ThemesDropdown.Value] do
+          table.insert(backupLighting, { k, lightingService[k] })
+          lightingService[k] = v
+        end
+        timeConnection = lightingService:GetPropertyChangedSignal('ClockTime'):Connect(function()
+          lightingService.ClockTime = themeProps[ThemesDropdown.Value].Time
+        end)
+
+        -- if gethiddenproperty then backupTechnology = gethiddenproperty(lightingService, 'Technology') end
+        -- if sethiddenproperty then sethiddenproperty(lightingService, 'Technology', 'Future') end
+      else
+        if #backupLighting == 0 then
+          return
+        end
+        if timeConnection then
+          timeConnection:Disconnect()
+        end
+        -- if sethiddenproperty then sethiddenproperty(lightingService, 'Technology', backupTechnology) end
+        for _, v in lightingService:GetChildren() do
+          v:Destroy()
+        end
+
+        for _, v in BackupFolder:GetChildren() do
+          v.Parent = lightingService
+        end
+        BackupFolder:Destroy()
+
+        for _, v in backupLighting do
+          lightingService[v[1]] = v[2]
+        end
+        table.clear(backupLighting)
+      end
+      if LunarVape.ThreadFix then
+        setthreadidentity(old or 8)
+      end
+    end,
+  }
+  ThemesDropdown = ThemesModule:CreateDropdown {
+    Name = 'Theme',
+    List = {
+      'The Milky Way A',
+      'The Milky Way B',
+      'The Milky Way C',
+      'Lunar Vape Old',
+      'Lunar Vape New',
+      'Antarctic Evening',
+    },
+    Default = 'Antarctic Evening',
+    Function = function()
+      if not ThemesModule.Enabled then
+        return
+      end
+      ThemesModule:Toggle()
+      ThemesModule:Toggle()
+    end,
+  }
+end)
