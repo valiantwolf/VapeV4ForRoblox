@@ -53,8 +53,8 @@ local tween = {
 local uipallet = {
 	Main = Color3.fromRGB(26, 25, 26),
 	Text = Color3.fromRGB(200, 200, 200),
-	Font = Font.fromEnum(Enum.Font.gotham),
-	FontSemiBold = Font.fromEnum(Enum.Font.gotham, Enum.FontWeight.SemiBold),
+	Font = Font.fromEnum(Enum.Font.Gotham),
+	FontSemiBold = Font.fromEnum(Enum.Font.Gotham, Enum.FontWeight.SemiBold),
 	Tween = TweenInfo.new(0.16, Enum.EasingStyle.Linear)
 }
 --xylex bro where are the checks 
