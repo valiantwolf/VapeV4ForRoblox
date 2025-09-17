@@ -10396,6 +10396,32 @@ run(function()
         oldroot.CFrame = clone.CFrame
     end
 
+    local function restoreCharacter()
+        if oldroot and oldroot.Parent and entitylib.isAlive then
+            lplr.Character.Parent = game
+            oldroot.Parent = lplr.Character
+            lplr.Character.PrimaryPart = oldroot
+            lplr.Character.Parent = workspace
+            oldroot.CanCollide = true
+            for _, v in lplr.Character:GetDescendants() do
+                if v:IsA("Weld") or v:IsA("Motor6D") then
+                    if v.Part0 == clone then v.Part0 = oldroot end
+                    if v.Part1 == clone then v.Part1 = oldroot end
+                end
+            end
+        end
+        if clone then
+            pcall(function() clone:Destroy() end)
+            clone = nil
+        end
+        if oldroot then
+            oldroot.Transparency = 1
+            entitylib.character.Humanoid.HipHeight = hip or 2.6
+            oldroot = nil
+        end
+        store.rootpart = nil
+    end
+
     Desync = vape.Categories.Blatant:CreateModule({
         Name = "Desync",
         Tooltip = "",
@@ -10404,31 +10430,13 @@ run(function()
                 if createClone() then
                     Desync:Clean(task.spawn(function()
                         while Desync.Enabled do
-                            if oldroot and clone then
-                                if not oldroot:IsDescendantOf(workspace) or not clone:IsDescendantOf(workspace) then
-                                    Desync:Toggle()
-                                    break
-                                end
-                                if not game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart"):GetNetworkOwner() then
-                                    Desync:Toggle()
-                                    break
-                                end
-                                task.wait(waitTime.Value)
-                                teleportBack()
-                            else
-                                Desync:Toggle()
-                                break
-                            end
+                            task.wait(waitTime.Value)
+                            teleportBack()
                         end
                     end))
                 end
             else
-                if clone then
-                    pcall(function() clone:Destroy() end)
-                    clone = nil
-                end
-                oldroot = nil
-                store.rootpart = nil
+                restoreCharacter()
             end
         end
     })
@@ -10440,4 +10448,4 @@ run(function()
         Default = 1,
         Function = function(val) waitTime.Value = val end
     })
-end)                
+end)
