@@ -3867,9 +3867,12 @@ function mainapi:CreateCategory(categorysettings)
 			bindicon.ImageColor3 = color.Dark(uipallet.Text, 0.43)
 			bindtext.TextColor3 = color.Dark(uipallet.Text, 0.43)
 			if not self.Enabled then
-				for _, v in self.Connections do
-					v:Disconnect()
-				end
+	for _, v in self.Connections do
+		if typeof(v) == "RBXScriptConnection" then
+			v:Disconnect()
+		end
+	end
+end
 				table.clear(self.Connections)
 			end
 			if not multiple then
