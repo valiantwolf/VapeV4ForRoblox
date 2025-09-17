@@ -10371,6 +10371,7 @@ run(function()
             hip = entitylib.character.Humanoid.HipHeight
             oldroot = entitylib.character.HumanoidRootPart
             if not lplr.Character.Parent then return false end
+
             lplr.Character.Parent = game
             clone = oldroot:Clone()
             clone.Parent = lplr.Character
@@ -10380,6 +10381,7 @@ run(function()
             bedwars.QueryUtil:setQueryIgnored(oldroot, true)
             lplr.Character.PrimaryPart = clone
             lplr.Character.Parent = workspace
+
             for _, v in lplr.Character:GetDescendants() do
                 if v:IsA("Weld") or v:IsA("Motor6D") then
                     if v.Part0 == oldroot then v.Part0 = clone end
@@ -10392,33 +10394,35 @@ run(function()
     end
 
     local function teleportBack()
-        if not oldroot or not oldroot.Parent or not entitylib.isAlive then return end
-        oldroot.CFrame = clone.CFrame
+        if oldroot and oldroot.Parent and entitylib.isAlive then
+            oldroot.CFrame = clone.CFrame
+        end
     end
 
     local function restoreCharacter()
-        if oldroot and oldroot.Parent and entitylib.isAlive then
+        if oldroot then
             lplr.Character.Parent = game
             oldroot.Parent = lplr.Character
             lplr.Character.PrimaryPart = oldroot
             lplr.Character.Parent = workspace
-            oldroot.CanCollide = true
+
             for _, v in lplr.Character:GetDescendants() do
                 if v:IsA("Weld") or v:IsA("Motor6D") then
                     if v.Part0 == clone then v.Part0 = oldroot end
                     if v.Part1 == clone then v.Part1 = oldroot end
                 end
             end
+
+            entitylib.character.Humanoid.HipHeight = hip or 2.6
+            oldroot.Transparency = 1
         end
+
         if clone then
             pcall(function() clone:Destroy() end)
             clone = nil
         end
-        if oldroot then
-            oldroot.Transparency = 1
-            entitylib.character.Humanoid.HipHeight = hip or 2.6
-            oldroot = nil
-        end
+
+        oldroot = nil
         store.rootpart = nil
     end
 
@@ -10435,6 +10439,9 @@ run(function()
                         end
                     end))
                 end
+                Desync:Clean(function()
+                    restoreCharacter()
+                end)
             else
                 restoreCharacter()
             end
