@@ -57,3 +57,4 @@ if not shared.VapeDeveloper then
 end
 
 return loadstring(downloadFile('newvape/main.lua'), 'main')()
+--no
