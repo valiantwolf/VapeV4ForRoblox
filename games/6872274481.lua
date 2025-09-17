@@ -10404,8 +10404,21 @@ run(function()
                 if createClone() then
                     Desync:Clean(task.spawn(function()
                         while Desync.Enabled do
-                            task.wait(waitTime.Value)
-                            teleportBack()
+                            if oldroot and clone then
+                                if not oldroot:IsDescendantOf(workspace) or not clone:IsDescendantOf(workspace) then
+                                    Desync:Toggle()
+                                    break
+                                end
+                                if not game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart"):GetNetworkOwner() then
+                                    Desync:Toggle()
+                                    break
+                                end
+                                task.wait(waitTime.Value)
+                                teleportBack()
+                            else
+                                Desync:Toggle()
+                                break
+                            end
                         end
                     end))
                 end
@@ -10427,4 +10440,4 @@ run(function()
         Default = 1,
         Function = function(val) waitTime.Value = val end
     })
-end)                        
+end)                
