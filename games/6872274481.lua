@@ -2255,15 +2255,15 @@ run(function()
 
 									AttackRemote:FireServer({
 										weapon = sword.tool,
-										chargedAttack = {chargeRatio = 0},
-										lastSwingServerTimeDelta = 0.5,
+										chargedAttack = {chargeRatio = math.random(0, 100) /100},
+										lastSwingServerTimeDelta = math.random(0, 0) / 100,
 										entityInstance = v.Character,
 										validate = {
 											raycast = {
-												cameraPosition = {value = pos},
+												cameraPosition = {value = pos + Vector3.new(math.random(-50, 50)/1000, math.random(-50, 50)/1000)},
 												cursorDirection = {value = dir}
 											},
-											targetPosition = {value = actualRoot.Position},
+											targetPosition = {value = actualRoot.Position + actualRoot.Velocity * 0.005},
 											selfPosition = {value = pos}
 										}
 									})
