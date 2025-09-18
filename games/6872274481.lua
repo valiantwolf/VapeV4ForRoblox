@@ -10424,7 +10424,7 @@ run(function()
 
     Desync = vape.Categories.Blatant:CreateModule({
         Name = "Desync",
-        Tooltip = ",
+        Tooltip = "",
         Function = function(call)
             if call then
                 if createClone() then
