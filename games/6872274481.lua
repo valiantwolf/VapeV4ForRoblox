@@ -10359,6 +10359,7 @@ run(function()
 	})
 end)
 
+--yes this is based off catvape plz don't get angry max
 run(function()
     local Desync = {}
     local oldroot
@@ -10423,9 +10424,9 @@ run(function()
 
     Desync = vape.Categories.Blatant:CreateModule({
         Name = "Desync",
-        Tooltip = "",
-        Function = function(enabled)
-            if enabled then
+        Tooltip = ",
+        Function = function(call)
+            if call then
                 if createClone() then
                     local last = 0
                     local conn = runService.Heartbeat:Connect(function()
@@ -10438,7 +10439,10 @@ run(function()
                             last = tick()
                         end
                     end)
-                    Desync:Clean(conn)
+                    Desync:Clean(function()
+                        if conn then conn:Disconnect() end
+                        restoreCharacter()
+                    end)
                 else
                     Desync:Toggle(false)
                 end
@@ -10455,4 +10459,4 @@ run(function()
         Default = 1,
         Function = function(val) waitTime.Value = val end
     })
-end)						
+end)
