@@ -8638,3 +8638,106 @@ run(function()
                 ["TempText"] = "phrase (to report)"
         });
 end)																																																																																																						
+
+
+--yes this is based off catvape plz don't get angry max
+run(function()
+    local Desync = {}
+    local oldroot
+    local clone
+    local hip = 2.6
+    local waitTime
+
+    local function createClone()
+        if entitylib.isAlive and entitylib.character.Humanoid.Health > 0 and (not oldroot or not oldroot.Parent) then
+            hip = entitylib.character.Humanoid.HipHeight
+            oldroot = entitylib.character.HumanoidRootPart
+            if not lplr.Character.Parent then return false end
+            lplr.Character.Parent = game
+            clone = oldroot:Clone()
+            clone.Parent = lplr.Character
+            oldroot.Transparency = 0
+            local highlight = Instance.new("Highlight")
+            highlight.FillColor = Color3.fromRGB(255, 0, 0)
+            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+            highlight.OutlineTransparency = 0
+            highlight.Parent = oldroot
+            oldroot.Parent = gameCamera
+            store.rootpart = clone
+            bedwars.QueryUtil:setQueryIgnored(oldroot, true)
+            lplr.Character.PrimaryPart = clone
+            lplr.Character.Parent = workspace
+            for _, v in ipairs(lplr.Character:GetDescendants()) do
+                if v:IsA("Weld") or v:IsA("Motor6D") then
+                    if v.Part0 == oldroot then v.Part0 = clone end
+                    if v.Part1 == oldroot then v.Part1 = clone end
+                end
+            end
+            return true
+        end
+        return false
+    end
+
+    local function restoreCharacter()
+        if oldroot and oldroot.Parent then
+            local hl = oldroot:FindFirstChildOfClass("Highlight")
+            if hl then pcall(function() hl:Destroy() end) end
+            lplr.Character.Parent = game
+            oldroot.Parent = lplr.Character
+            lplr.Character.PrimaryPart = oldroot
+            lplr.Character.Parent = workspace
+            for _, v in ipairs(lplr.Character:GetDescendants()) do
+                if v:IsA("Weld") or v:IsA("Motor6D") then
+                    if v.Part0 == clone then v.Part0 = oldroot end
+                    if v.Part1 == clone then v.Part1 = oldroot end
+                end
+            end
+            entitylib.character.Humanoid.HipHeight = hip or 2.6
+            oldroot.Transparency = 1
+        end
+        if clone and clone.Parent then
+            pcall(function() clone:Destroy() end)
+            clone = nil
+        end
+        store.rootpart = nil
+        oldroot = nil
+    end
+
+    Desync = vape.Categories.Blatant:CreateModule({
+        Name = "Desync",
+        Tooltip = "",
+        Function = function(call)
+            if call then
+                if createClone() then
+                    local last = 0
+                    local conn = runService.Heartbeat:Connect(function()
+                        if not Desync.Enabled then return end
+                        if not clone or not oldroot or not oldroot.Parent then return end
+                        if tick() - last >= waitTime.Value then
+                            if entitylib.isAlive then
+                                oldroot.CFrame = clone.CFrame
+                            end
+                            last = tick()
+                        end
+                    end)
+                    Desync:Clean(function()
+                        if conn then conn:Disconnect() end
+                        restoreCharacter()
+                    end)
+                else
+                    Desync:Toggle(false)
+                end
+            else
+                restoreCharacter()
+            end
+        end
+    })
+
+    waitTime = Desync:CreateSlider({
+        Name = "Delay",
+        Min = 1,
+        Max = 5,
+        Default = 1,
+        Function = function(val) waitTime.Value = val end
+    })
+end)																																																																																																																																																																																																																						
