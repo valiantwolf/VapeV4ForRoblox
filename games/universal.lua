@@ -482,8 +482,7 @@ vape.Libraries.auraanims = {
 	    },
 	    Neutral = {
 			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)), Time = 0.05},
-		}
-    }
+	},
 	Random = {},
 	['Horizontal Spin'] = {
 		{CFrame = CFrame.Angles(math.rad(-10), math.rad(-90), math.rad(-80)), Time = 0.12},
