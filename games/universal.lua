@@ -467,7 +467,23 @@ vape.Libraries.auraanims = {
 		Remake4 = {
 			{CFrame = CFrame.new(0.3, -2, 0.5) * CFrame.Angles(-math.rad(190), math.rad(110), -math.rad(90)), Time = 0.3},
 			{CFrame = CFrame.new(0.3, -1.5, 1.5) * CFrame.Angles(math.rad(120), math.rad(140), math.rad(320)), Time = 0.1}
-	},
+        },
+	    AlSploitHeartbeat = {
+			{CFrame = CFrame.new(0.2, 0, -1.3) * CFrame.Angles(math.rad(100), math.rad(100), math.rad(130)), Time = 0.15},
+			{CFrame = CFrame.new(0, -0.2, -1.7) * CFrame.Angles(math.rad(40), math.rad(111), math.rad(180)), Time = 0.15}
+	    },
+	    AlSploitClassic = {
+			{CFrame = CFrame.new(0.2, 0, -1.3) * CFrame.Angles(math.rad(111), math.rad(111), math.rad(130)), Time = 0.17},
+			{CFrame = CFrame.new(0, -0.2, -1.7) * CFrame.Angles(math.rad(30), math.rad(111), math.rad(190)), Time = 0.17}
+    	},
+	    AlSploitOld = {
+			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(220), math.rad(100), math.rad(100)),Time = 0.25},
+			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)), Time = 0.25}
+	    },
+	    Neutral = {
+			{CFrame = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)), Time = 0.05},
+		}
+    }
 	Random = {},
 	['Horizontal Spin'] = {
 		{CFrame = CFrame.Angles(math.rad(-10), math.rad(-90), math.rad(-80)), Time = 0.12},
