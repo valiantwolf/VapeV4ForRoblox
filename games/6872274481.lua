@@ -1,3 +1,4 @@
+--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.
 local run = function(func)
 	func()
 end
@@ -1670,8 +1671,8 @@ run(function()
 		return mag
 	end
 
-	AntiFall = vape.Categories.Blatant:CreateModule({
-		Name = 'AntiFall',
+	AntiFall = vape.Categories.World:CreateModule({
+		Name = 'AntiVoid',
 		Function = function(callback)
 			if callback then
 				repeat task.wait() until store.matchState ~= 0 or (not AntiFall.Enabled)
@@ -2558,10 +2559,10 @@ run(function()
 		end,
 		Tooltip = 'Only attacks when the sword is held'
 	})
-	--[[LegitAura = Killaura:CreateToggle({
+	LegitAura = Killaura:CreateToggle({
 		Name = 'Swing only',
 		Tooltip = 'Only attacks while swinging manually'
-	})]]
+	})
 end)
 	
 run(function()
@@ -5206,7 +5207,7 @@ run(function()
 end)
 	
 run(function()
-	vape.Categories.World:CreateModule({
+	vape.Categories.Utility:CreateModule({
 		Name = 'Anti-AFK',
 		Function = function(callback)
 			if callback then
@@ -5238,7 +5239,7 @@ run(function()
 		return bedwars.BlockController:getBlockPosition(pos) * 3
 	end
 	
-	AutoSuffocate = vape.Categories.World:CreateModule({
+	AutoSuffocate = vape.Categories.Utility:CreateModule({
 		Name = 'AutoSuffocate',
 		Function = function(callback)
 			if callback then
@@ -5440,7 +5441,7 @@ run(function()
 		end
 	end
 	
-	ChestSteal = vape.Categories.World:CreateModule({
+	ChestSteal = vape.Categories.Utility:CreateModule({
 		Name = 'ChestSteal',
 		Function = function(callback)
 			if callback then
@@ -5723,7 +5724,7 @@ run(function()
 	local Targets
 	local Range
 	
-	ArmorSwitch = vape.Categories.Inventory:CreateModule({
+	ArmorSwitch = vape.Categories.Utility:CreateModule({
 		Name = 'ArmorSwitch',
 		Function = function(callback)
 			if callback then
@@ -5857,7 +5858,7 @@ run(function()
 		end
 	end
 	
-	AutoBank = vape.Categories.Inventory:CreateModule({
+	AutoBank = vape.Categories.Utility:CreateModule({
 		Name = 'AutoBank',
 		Function = function(callback)
 			if callback then
@@ -6064,7 +6065,7 @@ run(function()
 		return bought
 	end
 	
-	AutoBuy = vape.Categories.Inventory:CreateModule({
+	AutoBuy = vape.Categories.Utility:CreateModule({
 		Name = 'AutoBuy',
 		Function = function(callback)
 			if callback then
@@ -6290,7 +6291,7 @@ run(function()
 		end
 	end
 	
-	AutoConsume = vape.Categories.Inventory:CreateModule({
+	AutoConsume = vape.Categories.Utility:CreateModule({
 		Name = 'AutoConsume',
 		Function = function(callback)
 			if callback then
@@ -6878,7 +6879,7 @@ run(function()
 		Active = false
 	end
 	
-	AutoHotbar = vape.Categories.Inventory:CreateModule({
+	AutoHotbar = vape.Categories.Utility:CreateModule({
 		Name = 'AutoHotbar',
 		Function = function(callback)
 			if callback then
@@ -6911,7 +6912,7 @@ run(function()
 	local Value
 	local oldclickhold, oldshowprogress
 	
-	local FastConsume = vape.Categories.Inventory:CreateModule({
+	local FastConsume = vape.Categories.Utility:CreateModule({
 		Name = 'FastConsume',
 		Function = function(callback)
 			if callback then
@@ -6982,7 +6983,7 @@ end)
 run(function()
 	local FastDrop
 	
-	FastDrop = vape.Categories.Inventory:CreateModule({
+	FastDrop = vape.Categories.Utility:CreateModule({
 		Name = 'FastDrop',
 		Function = function(callback)
 			if callback then
@@ -7086,7 +7087,7 @@ run(function()
 		end
 	end
 	
-	BedPlates = vape.Categories.Minigames:CreateModule({
+	BedPlates = vape.Categories.World:CreateModule({
 		Name = 'BedPlates',
 		Function = function(callback)
 			if callback then
@@ -7286,8 +7287,8 @@ run(function()
 		return false
 	end
 	
-	Breaker = vape.Categories.Minigames:CreateModule({
-		Name = 'Breaker',
+	Breaker = vape.Categories.World:CreateModule({
+		Name = 'Nuker',
 		Function = function(callback)
 			if callback then
 				for _ = 1, 30 do
