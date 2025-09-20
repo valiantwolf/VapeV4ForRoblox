@@ -5788,7 +5788,7 @@ mainapi:CreateCategory({
 	Icon = getcustomasset('newvape/assets/new/worldicon.png'),
 	Size = UDim2.fromOffset(14, 14)
 })
-mainapi:CreateCategory({
+--[[mainapi:CreateCategory({
 	Name = 'Inventory',
 	Icon = getcustomasset('newvape/assets/new/inventoryicon.png'),
 	Size = UDim2.fromOffset(15, 14)
@@ -5797,7 +5797,7 @@ mainapi:CreateCategory({
 	Name = 'Minigames',
 	Icon = getcustomasset('newvape/assets/new/miniicon.png'),
 	Size = UDim2.fromOffset(19, 12)
-})
+})--]]
 mainapi.Categories.Main:CreateDivider('misc')
 
 --[[
