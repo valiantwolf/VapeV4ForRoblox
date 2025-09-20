@@ -27,6 +27,8 @@ local guiService = cloneref(game:GetService('GuiService'))
 local coreGui = cloneref(game:GetService('CoreGui'))
 local starterGui = cloneref(game:GetService('StarterGui'))
 
+local MomentumUpdate = replicatedStorage.rbxts_include.node_modules["@rbxts"].net.out._NetManaged.MomentumUpdate
+
 local isnetworkowner = identifyexecutor and table.find({'AWP', 'Nihon'}, ({identifyexecutor()})[1]) and isnetworkowner or function()
 	return true
 end
@@ -45,6 +47,7 @@ local whitelist = vape.Libraries.whitelist
 local prediction = vape.Libraries.prediction
 local getfontsize = vape.Libraries.getfontsize
 local getcustomasset = vape.Libraries.getcustomasset
+local cam = gameCamera
 
 local store = {
 	attackReach = 0,
