@@ -5674,7 +5674,7 @@ local scarcitybanner = Instance.new('TextLabel')
 scarcitybanner.Size = UDim2.fromScale(1, 0.02)
 scarcitybanner.Position = UDim2.fromScale(0, 0.97)
 scarcitybanner.BackgroundTransparency = 1
-scarcitybanner.Text = ''
+scarcitybanner.Text = 'Valiant Vape!!!!!!!!!!!! :3'
 scarcitybanner.TextScaled = true
 scarcitybanner.TextColor3 = Color3.new(1, 1, 1)
 scarcitybanner.TextStrokeTransparency = 0.5
@@ -6466,41 +6466,30 @@ targetinfoobj = mainapi:CreateOverlay({
 		end
 	end
 })
-																																										
-local handler = Instance.new('Frame')
-handler.Size = UDim2.fromOffset(240, 89)
-handler.BackgroundColor3 = color.Dark(uipallet.Main, 0.1)
-handler.BackgroundTransparency = 1
-handler.Parent = targetinfoobj.Children
 
-targetinfobkg = Instance.new('Frame')
+local targetinfobkg = Instance.new('Frame')
 targetinfobkg.Size = UDim2.fromOffset(240, 89)
 targetinfobkg.BackgroundColor3 = color.Dark(uipallet.Main, 0.1)
 targetinfobkg.BackgroundTransparency = 0.5
-targetinfobkg.Parent = handler
-
+targetinfobkg.Parent = targetinfoobj.Children
 local targetinfoblurobj = addBlur(targetinfobkg)
-targetinfoblurobj.Visible = true
+targetinfoblurobj.Visible = false
 addCorner(targetinfobkg)
-
 local targetinfoshot = Instance.new('ImageLabel')
 targetinfoshot.Size = UDim2.fromOffset(26, 27)
 targetinfoshot.Position = UDim2.fromOffset(19, 17)
 targetinfoshot.BackgroundColor3 = uipallet.Main
 targetinfoshot.Image = 'rbxthumb://type=AvatarHeadShot&id=1&w=420&h=420'
 targetinfoshot.Parent = targetinfobkg
-
 local targetinfoshotflash = Instance.new('Frame')
 targetinfoshotflash.Size = UDim2.fromScale(1, 1)
 targetinfoshotflash.BackgroundTransparency = 1
 targetinfoshotflash.BackgroundColor3 = Color3.new(1, 0, 0)
 targetinfoshotflash.Parent = targetinfoshot
 addCorner(targetinfoshotflash)
-
 local targetinfoshotblur = addBlur(targetinfoshot)
-targetinfoshotblur.Visible = true
+targetinfoshotblur.Visible = false
 addCorner(targetinfoshot)
-
 local targetinfoname = Instance.new('TextLabel')
 targetinfoname.Size = UDim2.fromOffset(145, 20)
 targetinfoname.Position = UDim2.fromOffset(54, 20)
@@ -6512,15 +6501,12 @@ targetinfoname.TextScaled = true
 targetinfoname.TextColor3 = color.Light(uipallet.Text, 0.4)
 targetinfoname.TextStrokeTransparency = 1
 targetinfoname.FontFace = uipallet.Font
-targetinfoname.Parent = targetinfobkg
-
 local targetinfoshadow = targetinfoname:Clone()
 targetinfoshadow.Position = UDim2.fromOffset(55, 21)
 targetinfoshadow.TextColor3 = Color3.new()
 targetinfoshadow.TextTransparency = 0.65
 targetinfoshadow.Visible = false
 targetinfoshadow.Parent = targetinfobkg
-
 targetinfoname:GetPropertyChangedSignal('Size'):Connect(function()
 	targetinfoshadow.Size = targetinfoname.Size
 end)
@@ -6530,7 +6516,7 @@ end)
 targetinfoname:GetPropertyChangedSignal('FontFace'):Connect(function()
 	targetinfoshadow.FontFace = targetinfoname.FontFace
 end)
-
+targetinfoname.Parent = targetinfobkg
 local targetinfohealthbkg = Instance.new('Frame')
 targetinfohealthbkg.Name = 'HealthBKG'
 targetinfohealthbkg.Size = UDim2.fromOffset(200, 9)
@@ -6539,7 +6525,6 @@ targetinfohealthbkg.BackgroundColor3 = uipallet.Main
 targetinfohealthbkg.BorderSizePixel = 0
 targetinfohealthbkg.Parent = targetinfobkg
 addCorner(targetinfohealthbkg, UDim.new(1, 0))
-
 local targetinfohealth = targetinfohealthbkg:Clone()
 targetinfohealth.Size = UDim2.fromScale(0.8, 1)
 targetinfohealth.Position = UDim2.new()
@@ -6548,7 +6533,6 @@ targetinfohealth.Parent = targetinfohealthbkg
 targetinfohealth:GetPropertyChangedSignal('Size'):Connect(function()
 	targetinfohealth.Visible = targetinfohealth.Size.X.Scale > 0.01
 end)
-
 local targetinfohealthextra = targetinfohealth:Clone()
 targetinfohealthextra.Size = UDim2.new()
 targetinfohealthextra.Position = UDim2.fromScale(1, 0)
@@ -6559,28 +6543,15 @@ targetinfohealthextra.Parent = targetinfohealthbkg
 targetinfohealthextra:GetPropertyChangedSignal('Size'):Connect(function()
 	targetinfohealthextra.Visible = targetinfohealthextra.Size.X.Scale > 0.01
 end)
-
 local targetinfohealthblur = addBlur(targetinfohealthbkg)
 targetinfohealthblur.SliceCenter = Rect.new(52, 31, 261, 510)
 targetinfohealthblur.ImageColor3 = Color3.new()
-targetinfohealthblur.Visible = true
-
+targetinfohealthblur.Visible = false
 local targetinfob = Instance.new('UIStroke')
 targetinfob.Enabled = false
 targetinfob.Color = Color3.fromHSV(0.44, 1, 1)
 targetinfob.Parent = targetinfobkg
-
-local TargetInfoMainFrame = handler
-local TargetInfoMainInfo = targetinfobkg
-local TargetInfoImage = targetinfoshot
-local TargetInfoName = targetinfoname
-local TargetInfoNameShadow = targetinfoshadow
-local TargetInfoHealthBackground = targetinfohealthbkg
-local TargetInfoHealth = targetinfohealth
-local TargetInfoHealthExtra = targetinfohealthextra
-
-local targetinfoshotflashold = targetinfoshotflash
-
+																																																		
 targetinfoobj:CreateFont({
 	Name = 'Font',
 	Blacklist = 'Arial',
