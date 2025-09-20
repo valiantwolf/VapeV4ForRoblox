@@ -6769,7 +6769,7 @@ run(function()
 	local Value
 	local changed, old = false
 	
-	Gravity = vape.Categories.World:CreateModule({
+	Gravity = vape.Categories.Utility:CreateModule({
 		Name = 'Gravity',
 		Function = function(callback)
 			if callback then
@@ -6827,7 +6827,7 @@ end)
 run(function()
 	local Parkour
 	
-	Parkour = vape.Categories.World:CreateModule({
+	Parkour = vape.Categories.Utility:CreateModule({
 		Name = 'Parkour',
 		Function = function(callback)
 			if callback then 
@@ -6969,7 +6969,7 @@ run(function()
 		end
 	end
 	
-	MurderMystery = vape.Categories.Minigames:CreateModule({
+	MurderMystery = vape.Categories.Utility:CreateModule({
 		Name = 'MurderMystery',
 		Function = function(callback)
 			if callback then
