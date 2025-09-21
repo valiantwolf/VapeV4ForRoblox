@@ -959,20 +959,12 @@ components = {
 		return optionapi
 	end,
 	Dropdown = function(optionsettings, children, api)
-    optionsettings = optionsettings or {}
-    local list = {}
-    if typeof(optionsettings.List) == "table" then
-        list = optionsettings.List
-    end
-    local firstValue = (list[1] ~= nil) and list[1] or "None"
-    local optionapi = {
-        Type = "Dropdown",
-        Value = firstValue,
-        Index = 0
-    }
-    api.Options[optionsettings.Name] = optionapi
-    return optionapi
-end
+		local optionapi = {
+			Type = 'Dropdown',
+			Value = optionsettings.List[1] or 'None',
+			Index = 0
+		}
+		
 		local dropdown = Instance.new('TextButton')
 		dropdown.Name = optionsettings.Name..'Dropdown'
 		dropdown.Size = UDim2.new(1, 0, 0, 40)
