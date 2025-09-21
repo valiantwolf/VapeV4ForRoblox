@@ -8550,6 +8550,5 @@ run(function()
 		List = WinEffectName
 	})
 end)
-																																																																																																																																																								
-loadstring(downloadFile('newvape/games/bedwars/modules.luau'), 'modules.luau')();																																																																																																																																																								
+																																																																																																																																																																																																																																																																																																																
 	
