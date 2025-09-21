@@ -14,7 +14,7 @@ end
 local function downloadFile(path, func)
 	if not isfile(path) then
 		local suc, res = pcall(function()
-			return game:HttpGet('https://raw.githubusercontent.com/7GrandDadPGN/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
+			return game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
 		end)
 		if not suc or res == '404: Not Found' then
 			error(res)
@@ -6733,7 +6733,7 @@ run(function()
 		end
 	end
 	
-	MurderMystery = vape.Categories.Minigames:CreateModule({
+	MurderMystery = vape.Categories.Utility:CreateModule({
 		Name = 'MurderMystery',
 		Function = function(callback)
 			if callback then
