@@ -8774,15 +8774,15 @@ run(function()
 	});
 	Font = Card:CreateToggle({
 		["Name"] ='Font',
-		["HoverText"] = 'custom fonts.',
+		--["HoverText"] = 'custom fonts.',
 		["Function"] = function(callback: boolean): void 
 			FontSetting.Object.Visible = callback;
 		end;
 	})
 	FontSetting = Card:CreateDropdown({
 		["Name"] ="Fonts",
-		["List"] = GetItems("Font"),
-		["HoverText"] = "Font of the text.",
+		--["List"] = GetItems("Font"),
+		--["HoverText"] = "Font of the text.",
 		["Function"] = function()
 			if Card["Enabled"] then
 				Card:Toggle();
