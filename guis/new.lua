@@ -964,7 +964,6 @@ components = {
 			Value = optionsettings.List[1] or 'None',
 			Index = 0
 		}
-		
 		local dropdown = Instance.new('TextButton')
 		dropdown.Name = optionsettings.Name..'Dropdown'
 		dropdown.Size = UDim2.new(1, 0, 0, 40)
