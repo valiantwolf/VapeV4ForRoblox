@@ -8656,7 +8656,7 @@ run(function()
     local AirJump: table = {["Enabled"] = false}
 	local Mode: table = {["Value"] = "State"}
 	local Power: table = {["Value"] = 50}
-	AirJump = vape.Categories.Velocity:CreateModule({
+	AirJump = vape.Categories.Blatant:CreateModule({
 		["Name"] = "AirJump",
       --["HoverText"] = HoverText("Let's you jump in the air."),
 		["Function"] = function(callback: boolean): void
