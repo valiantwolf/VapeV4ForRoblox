@@ -3165,82 +3165,131 @@ run(function()
 end)
 	
 run(function()
-	local Speed
-	local Value
-	local WallCheck
-	local AutoJump
-	local AlwaysJump
-	local rayCheck = RaycastParams.new()
-	rayCheck.RespectCanCollide = true
-	
-	Speed = vape.Categories.Blatant:CreateModule({
-		Name = 'Speed',
-		Function = function(callback)
-			frictionTable.Speed = callback or nil
-			updateVelocity()
-			pcall(function()
-				debug.setconstant(bedwars.WindWalkerController.updateSpeed, 7, callback and 'constantSpeedMultiplier' or 'moveSpeedMultiplier')
-			end)
-	
-			if callback then
-				Speed:Clean(runService.PreSimulation:Connect(function(dt)
-					bedwars.StatefulEntityKnockbackController.lastImpulseTime = callback and math.huge or time()
-					if entitylib.isAlive and not Fly.Enabled and not InfiniteFly.Enabled and not LongJump.Enabled and isnetworkowner(entitylib.character.RootPart) then
-						local state = entitylib.character.Humanoid:GetState()
-						if state == Enum.HumanoidStateType.Climbing then return end
-	
-						local root, velo = entitylib.character.RootPart, getSpeed()
-						local moveDirection = AntiFallDirection or entitylib.character.Humanoid.MoveDirection
-						local destination = (moveDirection * math.max(Value.Value - velo, 0) * dt)
-	
-						if WallCheck.Enabled then
-							rayCheck.FilterDescendantsInstances = {lplr.Character, gameCamera}
-							rayCheck.CollisionGroup = root.CollisionGroup
-							local ray = workspace:Raycast(root.Position, destination, rayCheck)
-							if ray then
-								destination = ((ray.Position + ray.Normal) - root.Position)
-							end
-						end
-	
-						root.CFrame += destination
-						root.AssemblyLinearVelocity = (moveDirection * velo) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
-						if AutoJump.Enabled and (state == Enum.HumanoidStateType.Running or state == Enum.HumanoidStateType.Landed) and moveDirection ~= Vector3.zero and (Attacking or AlwaysJump.Enabled) then
-							entitylib.character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-						end
-					end
-				end))
-			end
-		end,
-		ExtraText = function()
-			return 'Heatseeker'
-		end,
-		Tooltip = 'Increases your movement with various methods.'
-	})
-	Value = Speed:CreateSlider({
-		Name = 'Speed',
-		Min = 1,
-		Max = 23,
-		Default = 23,
-		Suffix = function(val)
-			return val == 1 and 'stud' or 'studs'
-		end
-	})
-	WallCheck = Speed:CreateToggle({
-		Name = 'Wall Check',
-		Default = true
-	})
-	AutoJump = Speed:CreateToggle({
-		Name = 'AutoJump',
-		Function = function(callback)
-			AlwaysJump.Object.Visible = callback
-		end
-	})
-	AlwaysJump = Speed:CreateToggle({
-		Name = 'Always Jump',
-		Visible = false,
-		Darker = true
-	})
-end)
+    local Speed
+    local Value
+    local WallCheck
+    local AutoJump
+    local AlwaysJump
+    local JumpHeight
+    local VanillaJump
+    local JumpSound
+    local SlowdownAnim
+
+    local rayCheck = RaycastParams.new()
+    rayCheck.RespectCanCollide = true
+
+    Speed = vape.Categories.Blatant:CreateModule({
+        Name = 'Speed',
+        Function = function(callback)
+            frictionTable.Speed = callback or nil
+            updateVelocity()
+            pcall(function()
+                debug.setconstant(bedwars.WindWalkerController.updateSpeed, 7, callback and 'constantSpeedMultiplier' or 'moveSpeedMultiplier')
+            end)
+
+            if callback then
+                Speed:Clean(runService.PreSimulation:Connect(function(dt)
+                    bedwars.StatefulEntityKnockbackController.lastImpulseTime = callback and math.huge or time()
+                    if entitylib.isAlive and not Fly.Enabled and not InfiniteFly.Enabled and not LongJump.Enabled and isnetworkowner(entitylib.character.RootPart) then
+                        local state = entitylib.character.Humanoid:GetState()
+                        if state == Enum.HumanoidStateType.Climbing then return end
+
+                        if SlowdownAnim.Enabled then
+                            for _, v in pairs(entitylib.character.Humanoid:GetPlayingAnimationTracks()) do
+                                if v.Name == "WalkAnim" or v.Name == "RunAnim" then
+                                    v:AdjustSpeed(entitylib.character.Humanoid.WalkSpeed / 16)
+                                end
+                            end
+                        end
+
+                        local root, velo = entitylib.character.RootPart, getSpeed()
+                        local moveDirection = AntiFallDirection or entitylib.character.Humanoid.MoveDirection
+                        local destination = (moveDirection * math.max(Value.Value - velo, 0) * dt)
+
+                        if WallCheck.Enabled then
+                            rayCheck.FilterDescendantsInstances = {lplr.Character, gameCamera}
+                            rayCheck.CollisionGroup = root.CollisionGroup
+                            local ray = workspace:Raycast(root.Position, destination, rayCheck)
+                            if ray then
+                                destination = ((ray.Position + ray.Normal) - root.Position)
+                            end
+                        end
+
+                        root.CFrame += destination
+                        root.AssemblyLinearVelocity = (moveDirection * velo) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
+
+                        if AutoJump.Enabled and moveDirection ~= Vector3.zero and (state == Enum.HumanoidStateType.Running or state == Enum.HumanoidStateType.Landed) then
+                            if (AlwaysJump.Enabled or Attacking) and entitylib.character.Humanoid.FloorMaterial ~= Enum.Material.Air then
+                                if JumpSound.Enabled then
+                                    pcall(function() entitylib.character.HumanoidRootPart.Jumping:Play() end)
+                                end
+                                if VanillaJump.Enabled then
+                                    entitylib.character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                                else
+                                    entitylib.character.HumanoidRootPart.Velocity = Vector3.new(
+                                        entitylib.character.HumanoidRootPart.Velocity.X,
+                                        JumpHeight.Value,
+                                        entitylib.character.HumanoidRootPart.Velocity.Z
+                                    )
+                                end
+                            end
+                        end
+                    end
+                end))
+            end
+        end,
+        ExtraText = function()
+            return 'Heatseeker'
+        end,
+        Tooltip = 'Increases your movement with various methods.'
+    })
+
+    Value = Speed:CreateSlider({
+        Name = 'Speed',
+        Min = 1,
+        Max = 23,
+        Default = 23,
+        Suffix = function(val)
+            return val == 1 and 'stud' or 'studs'
+        end
+    })
+    WallCheck = Speed:CreateToggle({
+        Name = 'Wall Check',
+        Default = true
+    })
+    AutoJump = Speed:CreateToggle({
+        Name = 'AutoJump',
+        Default = true,
+        Function = function(callback)
+            if JumpHeight.Object then JumpHeight.Object.Visible = callback end
+            if AlwaysJump.Object then AlwaysJump.Object.Visible = callback end
+            if JumpSound.Object then JumpSound.Object.Visible = callback end
+            if VanillaJump.Object then VanillaJump.Object.Visible = callback end
+        end
+    })
+    JumpHeight = Speed:CreateSlider({
+        Name = 'Jump Height',
+        Min = 0,
+        Max = 30,
+        Default = 25
+    })
+    AlwaysJump = Speed:CreateToggle({
+        Name = 'Always Jump',
+        Default = false
+    })
+    JumpSound = Speed:CreateToggle({
+        Name = 'Jump Sound',
+        Default = false
+    })
+    VanillaJump = Speed:CreateToggle({
+        Name = 'Real Jump',
+        Default = false
+    })
+    SlowdownAnim = Speed:CreateToggle({
+        Name = 'Slowdown Anim',
+        Default = false
+    })
+end) 						
 	
 run(function()
 	local BedESP
