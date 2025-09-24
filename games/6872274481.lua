@@ -3163,7 +3163,7 @@ run(function()
 		end
 	})
 end)
-	
+
 run(function()
     local Speed
     local SpeedValue
@@ -3238,7 +3238,7 @@ run(function()
         ExtraText = function()
             return 'Heatseeker'
         end,
-        Tooltip = 'Increases your movement speed with AutoJump options.'
+        Tooltip = 'Increases your movement'
     })
 
     SpeedValue = Speed:CreateSlider({
