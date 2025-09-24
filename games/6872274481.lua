@@ -3156,8 +3156,8 @@ run(function()
 	Range = ProjectileAura:CreateSlider({
 		Name = 'Range',
 		Min = 1,
-		Max = 50,
-		Default = 50,
+		Max = 1000,
+		Default = 1000,
 		Suffix = function(val)
 			return val == 1 and 'stud' or 'studs'
 		end
