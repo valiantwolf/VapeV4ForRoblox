@@ -726,7 +726,7 @@ run(function()
 		end
 	})
 
-	--[[local remoteNames = {
+	local remoteNames = {
 		AfkStatus = debug.getproto(Knit.Controllers.AfkController.KnitStart, 1),
 		AttackEntity = Knit.Controllers.SwordController.sendServerRequest,
 		BeePickup = Knit.Controllers.BeeNetController.trigger,
@@ -776,7 +776,7 @@ run(function()
 			notif('Vape', 'Failed to grab remote ('..i..')', 10, 'alert')
 		end
 		remotes[i] = remote
-	end--]]
+	end
 
 	OldBreak = bedwars.BlockController.isBlockBreakable
 
@@ -2169,8 +2169,8 @@ run(function()
 							}
 						}
 					}
-					--debug.setupvalue(oldSwing or bedwars.SwordController.playSwordEffect, 6, fake)
-					--debug.setupvalue(bedwars.ScytheController.playLocalAnimation, 3, fake)
+					debug.setupvalue(oldSwing or bedwars.SwordController.playSwordEffect, 6, fake)
+					debug.setupvalue(bedwars.ScytheController.playLocalAnimation, 3, fake)
 
 					task.spawn(function()
 						local started = false
