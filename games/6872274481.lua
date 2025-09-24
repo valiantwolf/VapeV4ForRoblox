@@ -3166,13 +3166,13 @@ end)
 	
 run(function()
     local Speed
-    local Value
+    local SpeedValue
     local WallCheck
     local AutoJump
-    local AlwaysJump
     local JumpHeight
-    local VanillaJump
+    local AlwaysJump
     local JumpSound
+    local VanillaJump
     local SlowdownAnim
 
     local rayCheck = RaycastParams.new()
@@ -3194,17 +3194,10 @@ run(function()
                         local state = entitylib.character.Humanoid:GetState()
                         if state == Enum.HumanoidStateType.Climbing then return end
 
-                        if SlowdownAnim.Enabled then
-                            for _, v in pairs(entitylib.character.Humanoid:GetPlayingAnimationTracks()) do
-                                if v.Name == "WalkAnim" or v.Name == "RunAnim" then
-                                    v:AdjustSpeed(entitylib.character.Humanoid.WalkSpeed / 16)
-                                end
-                            end
-                        end
-
-                        local root, velo = entitylib.character.RootPart, getSpeed()
+                        local root = entitylib.character.RootPart
+                        local velo = getSpeed()
                         local moveDirection = AntiFallDirection or entitylib.character.Humanoid.MoveDirection
-                        local destination = (moveDirection * math.max(Value.Value - velo, 0) * dt)
+                        local destination = (moveDirection * math.max(SpeedValue.Value - velo, 0) * dt)
 
                         if WallCheck.Enabled then
                             rayCheck.FilterDescendantsInstances = {lplr.Character, gameCamera}
@@ -3218,19 +3211,23 @@ run(function()
                         root.CFrame += destination
                         root.AssemblyLinearVelocity = (moveDirection * velo) + Vector3.new(0, root.AssemblyLinearVelocity.Y, 0)
 
-                        if AutoJump.Enabled and moveDirection ~= Vector3.zero and (state == Enum.HumanoidStateType.Running or state == Enum.HumanoidStateType.Landed) then
-                            if (AlwaysJump.Enabled or Attacking) and entitylib.character.Humanoid.FloorMaterial ~= Enum.Material.Air then
+                        if SlowdownAnim.Enabled then
+                            for _, anim in pairs(entitylib.character.Humanoid:GetPlayingAnimationTracks()) do
+                                if anim.Name == "WalkAnim" or anim.Name == "RunAnim" then
+                                    anim:AdjustSpeed(entitylib.character.Humanoid.WalkSpeed / 16)
+                                end
+                            end
+                        end
+
+                        if AutoJump.Enabled and (state == Enum.HumanoidStateType.Running or state == Enum.HumanoidStateType.Landed) 
+                           and moveDirection ~= Vector3.zero and (Attacking or AlwaysJump.Enabled) then
+                            if VanillaJump.Enabled then
+                                entitylib.character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                            else
+                                local v = entitylib.character.HumanoidRootPart.Velocity
+                                entitylib.character.HumanoidRootPart.Velocity = Vector3.new(v.X, JumpHeight.Value, v.Z)
                                 if JumpSound.Enabled then
                                     pcall(function() entitylib.character.HumanoidRootPart.Jumping:Play() end)
-                                end
-                                if VanillaJump.Enabled then
-                                    entitylib.character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-                                else
-                                    entitylib.character.HumanoidRootPart.Velocity = Vector3.new(
-                                        entitylib.character.HumanoidRootPart.Velocity.X,
-                                        JumpHeight.Value,
-                                        entitylib.character.HumanoidRootPart.Velocity.Z
-                                    )
                                 end
                             end
                         end
@@ -3241,10 +3238,10 @@ run(function()
         ExtraText = function()
             return 'Heatseeker'
         end,
-        Tooltip = 'Increases your movement with various methods.'
+        Tooltip = 'Increases your movement speed with AutoJump options.'
     })
 
-    Value = Speed:CreateSlider({
+    SpeedValue = Speed:CreateSlider({
         Name = 'Speed',
         Min = 1,
         Max = 23,
@@ -3253,44 +3250,57 @@ run(function()
             return val == 1 and 'stud' or 'studs'
         end
     })
+
     WallCheck = Speed:CreateToggle({
         Name = 'Wall Check',
         Default = true
     })
-    AutoJump = Speed:CreateToggle({
-        Name = 'AutoJump',
-        Default = true,
-        Function = function(callback)
-            if JumpHeight.Object then JumpHeight.Object.Visible = callback end
-            if AlwaysJump.Object then AlwaysJump.Object.Visible = callback end
-            if JumpSound.Object then JumpSound.Object.Visible = callback end
-            if VanillaJump.Object then VanillaJump.Object.Visible = callback end
-        end
-    })
+
     JumpHeight = Speed:CreateSlider({
         Name = 'Jump Height',
         Min = 0,
         Max = 30,
         Default = 25
     })
+
     AlwaysJump = Speed:CreateToggle({
         Name = 'Always Jump',
-        Default = false
+        Default = false,
+        Visible = false,
+        Darker = true
     })
+
     JumpSound = Speed:CreateToggle({
         Name = 'Jump Sound',
-        Default = false
+        Default = false,
+        Visible = false,
+        Darker = true
     })
+
     VanillaJump = Speed:CreateToggle({
         Name = 'Real Jump',
-        Default = false
+        Default = false,
+        Visible = false,
+        Darker = true
     })
+
+    AutoJump = Speed:CreateToggle({
+        Name = 'AutoJump',
+        Default = true,
+        Function = function(callback)
+            JumpHeight.Object.Visible = callback
+            AlwaysJump.Object.Visible = callback
+            JumpSound.Object.Visible = callback
+            VanillaJump.Object.Visible = callback
+        end
+    })
+
     SlowdownAnim = Speed:CreateToggle({
         Name = 'Slowdown Anim',
         Default = false
     })
-end) 						
-	
+end)
+
 run(function()
 	local BedESP
 	local Reference = {}
