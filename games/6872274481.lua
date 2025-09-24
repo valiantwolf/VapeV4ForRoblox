@@ -726,7 +726,7 @@ run(function()
 		end
 	})
 
-	local remoteNames = {
+	--[[local remoteNames = {
 		AfkStatus = debug.getproto(Knit.Controllers.AfkController.KnitStart, 1),
 		AttackEntity = Knit.Controllers.SwordController.sendServerRequest,
 		BeePickup = Knit.Controllers.BeeNetController.trigger,
@@ -757,7 +757,7 @@ run(function()
 		SpawnRaven = debug.getproto(Knit.Controllers.RavenController.KnitStart, 1),
 		SummonerClawAttack = Knit.Controllers.SummonerClawHandController.attack,
 		WarlockTarget = debug.getproto(Knit.Controllers.WarlockStaffController.KnitStart, 2)
-	}
+	}--]]
 
 	local function dumpRemote(tab)
 		local ind
@@ -1283,7 +1283,7 @@ run(function()
 	StrafeIncrease = AimAssist:CreateToggle({Name = 'Strafe increase'})
 end)
 	
-run(function()
+--[[run(function()
 	local old
 	
 	AutoCharge = vape.Categories.Combat:CreateModule({
@@ -1336,7 +1336,7 @@ run(function()
 	    Default = 0.4,
 	    Decimal = 100
 	})
-end)
+end)--]]
 	
 run(function()
 	local AutoClicker
