@@ -9233,6 +9233,70 @@ run(function()
 		Name = 'Safe Mode'
 	})
 end)
+
+run(function()
+	local scaleX = 3
+    local scaleY = 3.18
+    local scaleZ = 3.006
+    local maxDistance = 25
+
+    local function getNearestPlayer()
+        local nearestPlayer = nil
+        local nearestDistance = maxDistance
+
+        for _, player in players:GetChildren() do
+            if player ~= lplr and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local distance = (player.Character.HumanoidRootPart.Position - lplr.Character.HumanoidRootPart.Position).magnitude
+                if distance < nearestDistance then
+                    nearestDistance = distance
+                    nearestPlayer = player
+                end
+            end
+        end
+
+        return nearestPlayer and nearestPlayer.Character.HumanoidRootPart.Position or nil
+    end
+    local freezeaur = {Enabled = false}
+    freezeaur = vape.Categories.Utility:CreateModule({
+        Name = "FreezeAura",
+        Function = function(callback)
+            if callback then
+                task.spawn(function()
+                    repeat task.wait()
+                        local targetPosition = getNearestPlayer()
+                        if targetPosition then
+                            local args = {
+                                [1] = "spider_queen_web_bridge_fire",
+                                [2] = {
+                                    ["direction"] = (targetPosition - lplr.Character.HumanoidRootPart.Position).unit,
+                                    ["scale"] = Vector3.new(scaleX, scaleY, scaleZ)
+                                }
+                            }
+
+                            replicatedstorage["events-@easy-games/game-core:shared/game-core-networking@getEvents.Events"].useAbility:FireServer(unpack(args))
+                        end
+                    until (not freezeaur.Enabled)
+                end)
+            end
+        end
+    })
+end)
+
+run(function()
+	local multiaura = {}
+	multiaura = vape.Categories.Utility:CreateModule({
+		Name = 'BashExploit',
+		Function = function(call)
+			if call then
+				RunLoops:BindToStepped("multi", function()
+					replicatedstorage["events-@easy-games/game-core:shared/game-core-networking@getEvents.Events"].useAbility:FireServer("enter_knight_shield_defensive_stance")
+				end)
+			else
+				RunLoops:UnbindFromStepped("multi")
+			end
+		end
+	})
+end)
 																																																																																																																																																													
 -- credits to catvape + render + snoopy + lunar + lunarvape
 -- IF YOU WANT THEM REMOVED, TELL ME AND I WILL REMOVE
