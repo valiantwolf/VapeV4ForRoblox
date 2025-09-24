@@ -757,7 +757,7 @@ run(function()
 		SpawnRaven = debug.getproto(Knit.Controllers.RavenController.KnitStart, 1),
 		SummonerClawAttack = Knit.Controllers.SummonerClawHandController.attack,
 		WarlockTarget = debug.getproto(Knit.Controllers.WarlockStaffController.KnitStart, 2)
-	}--]]
+	}
 
 	local function dumpRemote(tab)
 		local ind
@@ -776,7 +776,7 @@ run(function()
 			notif('Vape', 'Failed to grab remote ('..i..')', 10, 'alert')
 		end
 		remotes[i] = remote
-	end
+	end--]]
 
 	OldBreak = bedwars.BlockController.isBlockBreakable
 
