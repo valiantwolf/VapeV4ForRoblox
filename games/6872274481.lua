@@ -10358,7 +10358,8 @@ end)
 
 run(function()
     local AntiHit = {}
-    local worldSpace = workspace
+    local physEngine = game:GetService("RunService")
+    local worldSpace = game.Workspace
     local camView = worldSpace.CurrentCamera
     local plyr = lplr
     local entSys = entitylib
@@ -10374,12 +10375,10 @@ run(function()
     shared.evadeFlag = false
 
     local trigSet = {p = true, n = false, w = false}
-    local scanRad = 30
-    local slowmoTime = 0.15
-    local upYValue = 150
-    local downYValue = 0
     local shiftMode = "Up"
-    local lastShift = 0
+    local scanRad = 30
+    local slowMoTime = 0.15
+    local upHeight, downHeight = 150, 0
     local showRootEnabled = false
     local currentHighlight = nil
 
@@ -10390,6 +10389,7 @@ run(function()
         highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
         highlight.FillTransparency = 0
         highlight.OutlineTransparency = 0
+        highlight.Adornee = root
         highlight.Parent = root
         currentHighlight = highlight
     end
@@ -10401,37 +10401,46 @@ run(function()
         end
     end
 
-    local function genTwin()
-        if not entSys.isAlive or not entSys.character then return false end
+    local function showRealRoot()
+        if not entSys.isAlive or not entSys.character then return end
         local hrp = entSys.character:FindFirstChild("HumanoidRootPart")
-        if not hrp then return false end
-        altHeight = entSys.character.Humanoid.HipHeight
-        shared.anchorBase = hrp
-        utilPack.QueryUtil:setQueryIgnored(shared.anchorBase, true)
-        if not plyr.Character or not plyr.Character.Parent then return false end
-        plyr.Character.Parent = game
-        dupeNode = shared.anchorBase:Clone()
-        dupeNode.Parent = plyr.Character
-        shared.anchorBase.Parent = camView
-        dupeNode.CFrame = shared.anchorBase.CFrame
-        plyr.Character.PrimaryPart = dupeNode
-        entSys.character.HumanoidRootPart = dupeNode
-        entSys.character.RootPart = dupeNode
-        plyr.Character.Parent = worldSpace
-        for _, x in plyr.Character:GetDescendants() do
-            if x:IsA('Weld') or x:IsA('Motor6D') then
-                if x.Part0 == shared.anchorBase then x.Part0 = dupeNode end
-                if x.Part1 == shared.anchorBase then x.Part1 = dupeNode end
-            end
-        end
+        if not hrp then return end
         if showRootEnabled then
-            shared.anchorBase.Transparency = 0
-            applyHighlight(shared.anchorBase)
+            hrp.Transparency = 0
+            applyHighlight(hrp)
         else
-            shared.anchorBase.Transparency = 1
+            hrp.Transparency = 1
             removeHighlight()
         end
-        return true
+    end
+
+    local function genTwin()
+        if entSys.isAlive and entSys.character.Humanoid.Health > 0 and entSys.character.HumanoidRootPart then
+            altHeight = entSys.character.Humanoid.HipHeight
+            shared.anchorBase = entSys.character.HumanoidRootPart
+            utilPack.QueryUtil:setQueryIgnored(shared.anchorBase, true)
+            if not plyr.Character or not plyr.Character.Parent then return false end
+
+            plyr.Character.Parent = game
+            dupeNode = shared.anchorBase:Clone()
+            dupeNode.Parent = plyr.Character
+            shared.anchorBase.Parent = camView
+            dupeNode.CFrame = shared.anchorBase.CFrame
+
+            plyr.Character.PrimaryPart = dupeNode
+            entSys.character.HumanoidRootPart = dupeNode
+            entSys.character.RootPart = dupeNode
+            plyr.Character.Parent = worldSpace
+
+            for _, x in plyr.Character:GetDescendants() do
+                if x:IsA('Weld') or x:IsA('Motor6D') then
+                    if x.Part0 == shared.anchorBase then x.Part0 = dupeNode end
+                    if x.Part1 == shared.anchorBase then x.Part1 = dupeNode end
+                end
+            end
+            return true
+        end
+        return false
     end
 
     local function resetCore()
@@ -10440,42 +10449,50 @@ run(function()
             dupeNode = nil
             return false
         end
+
         if not plyr.Character or not plyr.Character.Parent then return false end
+
         plyr.Character.Parent = game
+
         shared.anchorBase.Parent = plyr.Character
         shared.anchorBase.CanCollide = true
         shared.anchorBase.Velocity = Vector3.zero 
         shared.anchorBase.Anchored = false 
+
         plyr.Character.PrimaryPart = shared.anchorBase
         entSys.character.HumanoidRootPart = shared.anchorBase
         entSys.character.RootPart = shared.anchorBase
+
         for _, x in plyr.Character:GetDescendants() do
             if x:IsA('Weld') or x:IsA('Motor6D') then
                 if x.Part0 == dupeNode then x.Part0 = shared.anchorBase end
                 if x.Part1 == dupeNode then x.Part1 = shared.anchorBase end
             end
         end
+
         local prevLoc = dupeNode and dupeNode.CFrame or shared.anchorBase.CFrame
         if dupeNode then
             dupeNode:Destroy()
             dupeNode = nil
         end
+
         plyr.Character.Parent = worldSpace
         shared.anchorBase.CFrame = prevLoc
-        if entSys.character:FindFirstChild("Humanoid") then
+
+        if entSys.character.Humanoid then
             entSys.character.Humanoid.HipHeight = altHeight or 2
         end
-        shared.anchorBase.Transparency = 1
-        removeHighlight()
+
         shared.anchorBase = nil
         shared.evadeFlag = false
         altHeight = nil
+
         return true
     end
 
     local function shiftPos()
-        if tick() - lastShift < slowmoTime then return end
-        lastShift = tick()
+        if not entSys.isAlive or not shared.anchorBase or not AntiHit.on then return end
+
         local hits = entSys.AllPosition({
             Range = scanRad,
             Wallcheck = trigSet.w or nil,
@@ -10484,41 +10501,57 @@ run(function()
             NPCs = trigSet.n,
             Limit = 1
         })
+
         if #hits > 0 and not shared.evadeFlag then
-            shared.evadeFlag = true
             local base = entSys.character.RootPart
             if base then
-                local yVal = shiftMode == "Up" and upYValue or downYValue
-                shared.anchorBase.CFrame = CFrame.new(base.CFrame.X, yVal, base.CFrame.Z)
-                task.wait(slowmoTime)
+                shared.evadeFlag = true
+                local targetY = shiftMode == "Up" and upHeight or downHeight
+                shared.anchorBase.CFrame = CFrame.new(base.CFrame.X, targetY, base.CFrame.Z)
+                task.wait(slowMoTime)
                 shared.anchorBase.CFrame = base.CFrame
                 task.wait(0.05)
+                shared.evadeFlag = false
             end
-            shared.evadeFlag = false
         end
     end
 
     function AntiHit:engage()
         if self.on then return end
         self.on = true
-        while self.on and not genTwin() do task.wait(0.05) end
-        if not self.on then return end
-        Antihit_core:Clean(runService.PreSimulation:Connect(function()
+
+        local ok = genTwin()
+        if not ok then
+            self:disengage()
+            return
+        end
+
+        Antihit_core:Clean(physEngine.PreSimulation:Connect(function()
             if entSys.isAlive and shared.anchorBase and entSys.character.RootPart then
                 local currBase = entSys.character.RootPart
+                local currPos = currBase.CFrame
+
                 if not isnetworkowner(shared.anchorBase) then
                     currBase.CFrame = shared.anchorBase.CFrame
                     currBase.Velocity = shared.anchorBase.Velocity
                     return
                 end
                 if not shared.evadeFlag then
-                    shared.anchorBase.CFrame = currBase.CFrame
+                    shared.anchorBase.CFrame = currPos
                 end
                 shared.anchorBase.Velocity = Vector3.zero
                 shared.anchorBase.CanCollide = false
-                task.spawn(shiftPos)
+                shiftPos()
             else
                 self:disengage() 
+            end
+        end))
+
+        Antihit_core:Clean(entSys.Events.LocalAdded:Connect(function(_)
+            if self.on then
+                self:disengage() 
+                task.wait(0.1) 
+                self:engage() 
             end
         end))
     end
@@ -10539,12 +10572,16 @@ run(function()
                 else
                     AntiHit:disengage()
                 end
+                showRealRoot()
             end)
         end,
         Tooltip = "Dodges attacks."
     })
 
-    Antihit_core:CreateTargets({Players = true, NPCs = false})
+    Antihit_core:CreateTargets({
+        Players = true,
+        NPCs = false
+    })
     Antihit_core:CreateDropdown({
         Name = "Shift Type",
         List = {"Up", "Down"},
@@ -10559,36 +10596,33 @@ run(function()
         Function = function(v) scanRad = v end
     })
     Antihit_core:CreateSlider({
-        Name = "Slowmo",
+        Name = "SlowMo",
         Min = 1,
         Max = 9,
-        Default = 3,
-        Suffix = "s",
-        Function = function(v) slowmoTime = v end
+        Default = 1,
+        Decimal = 10,
+        Function = function(v) slowMoTime = v end
     })
     Antihit_core:CreateTextBox({
-        Name = "Up Value",
+        Name = "Up Height",
         Default = "150",
-        Function = function(v) local num = tonumber(v) if num then upYValue = num end end
+        Function = function(v) upHeight = tonumber(v) or 150 end
     })
     Antihit_core:CreateTextBox({
-        Name = "Down Value",
+        Name = "Down Height",
         Default = "0",
-        Function = function(v) local num = tonumber(v) if num then downYValue = num end end
+        Function = function(v) downHeight = tonumber(v) or 0 end
     })
     Antihit_core:CreateToggle({
         Name = "Show Root",
         Function = function(state)
             showRootEnabled = state
-            if shared.anchorBase then
-                if state then
-                    shared.anchorBase.Transparency = 0
-                    applyHighlight(shared.anchorBase)
-                else
-                    shared.anchorBase.Transparency = 1
-                    removeHighlight()
-                end
-            end
+            showRealRoot()
         end
     })
-end)  
+
+    Antihit_core:Clean(lplr.CharacterAdded:Connect(function()
+        task.wait(0.1)
+        showRealRoot()
+    end))
+end)
