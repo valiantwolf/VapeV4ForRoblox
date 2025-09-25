@@ -8938,7 +8938,8 @@ run(function()
     })
 end)
 
-run(function()
+--Buns																														
+--[[run(function()
     local antihit
     local antihitdelay
     local antihitcloned = false
@@ -9045,7 +9046,7 @@ run(function()
         Default = 9,
         Function = function() end
     })
-end)
+end)--]]
 
 local FlyLandTick = tick()
 local InfiniteFly = {}
