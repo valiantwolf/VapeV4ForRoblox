@@ -6039,7 +6039,7 @@ scaleslider = guipane:CreateSlider({
 })
 guipane:CreateDropdown({
 	Name = 'GUI Theme',
-	List = inputService.TouchEnabled and {'new', 'old', 'rise'} or {'new', 'old', 'rise'},
+	List = inputService.TouchEnabled and {'new', 'old', 'rise', 'wurst'} or {'new', 'old', 'rise', 'wurst'},
 	Function = function(val, mouse)
 		if mouse then
 			writefile('newvape/profiles/gui.txt', val)
