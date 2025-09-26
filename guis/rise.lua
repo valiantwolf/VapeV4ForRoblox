@@ -2605,7 +2605,7 @@ function mainapi:Load(skipgui, profile)
 	end
 	self.Loaded = savecheck
 	if inputService.TouchEnabled and #self.Keybind == 1 and self.Keybind[1] == 'RightShift' then
-	    local button = Instance.new('TextButton')
+		local button = Instance.new('TextButton')
 		button.Size = UDim2.fromOffset(32, 32)
 		button.Position = UDim2.new(1, -90, 0, 4)
 		button.BackgroundColor3 = Color3.new()
@@ -2616,11 +2616,11 @@ function mainapi:Load(skipgui, profile)
 		image.Size = UDim2.fromOffset(26, 26)
 		image.Position = UDim2.fromOffset(3, 3)
 		image.BackgroundTransparency = 1
-		--image.Image = getcustomasset('rust/assets/new/vape.png')
+		image.Image = getcustomasset('newvape/assets/new/vape.png')
 		image.Parent = button
 		local buttoncorner = Instance.new('UICorner')
 		buttoncorner.Parent = button
-		self.RustButton = button
+		self.VapeButton = button
 		button.MouseButton1Click:Connect(function()
 		if mainapi.ThreadFix then
 			setthreadidentity(8)
