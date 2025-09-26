@@ -272,7 +272,7 @@ local function createMobileButton(buttonapi, position)
 	buttonconstraint.MaxTextSize = 16
 	buttonconstraint.Parent = button
 	addCorner(button, UDim.new(1, 0))
-	--makeDraggable(button)
+	makeDraggable(button)
 	button.MouseButton1Down:Connect(function()
 		heldbutton = true
 		local holdtime, holdpos = tick(), inputService:GetMouseLocation()
@@ -325,7 +325,7 @@ local function downloadFile(path, func)
 	if not isfile(path) then
 		createDownloader(path)
 		local suc, res = pcall(function()
-			return game:HttpGet('https://raw.githubusercontent.com/valiantwolf/newvape/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
+			return game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
 		end)
 		if not suc or res == '404: Not Found' then
 			error(res)
@@ -1284,8 +1284,8 @@ components = {
 					if ind then
 						if val ~= 'default' then
 							table.remove(mainapi.Profiles, ind)
-							if isfile('rust/profiles/'..val..mainapi.Place..'.txt') and delfile then
-								delfile('rust/profiles/'..val..mainapi.Place..'.txt')
+							if isfile('newvape/profiles/'..val..mainapi.Place..'.txt') and delfile then
+								delfile('newvape/profiles/'..val..mainapi.Place..'.txt')
 							end
 						end
 					else
@@ -2525,7 +2525,7 @@ function mainapi:Load(skipgui, profile)
 		guidata = loadJson('newvape/profiles/'..game.GameId..'.gui.txt')
 		if not guidata then
 			guidata = {Categories = {}}
-			self:CreateNotification('Vape', 'Failed to load GUI settings.', 10, 'alert')
+			self:CreateNotification('Rise', 'Failed to load GUI settings.', 10, 'alert')
 			savecheck = false
 		end
 
@@ -2621,19 +2621,6 @@ function mainapi:Load(skipgui, profile)
 		local buttoncorner = Instance.new('UICorner')
 		buttoncorner.Parent = button
 		self.VapeButton = button
-		button.MouseButton1Click:Connect(function()
-		if mainapi.ThreadFix then
-			setthreadidentity(8)
-		end
-		for _, v in mainapi.Windows do
-			v.Visible = false
-		end
-		clickgui.Visible = not clickgui.Visible
-		tooltip.Visible = false
-		mainapi:BlurCheck()
-	end)
-	shared.VapeButton = button
-end
 		button.MouseButton1Click:Connect(function()
 			if self.ThreadFix then
 				setthreadidentity(8)
@@ -2779,9 +2766,9 @@ function mainapi:Uninject()
 	mainapi.gui:Destroy()
 	table.clear(mainapi.Libraries)
 	loopClean(mainapi)
-	shared.rust = nil
-	shared.rustreload = nil
-	shared.rustIndependent = nil
+	shared.vape = nil
+	shared.vapereload = nil
+	shared.vapeIndependent = nil
 end
 
 gui = Instance.new('ScreenGui')
@@ -3125,11 +3112,11 @@ scaleslider = mainapi.Categories.Main:CreateSlider({
 })
 mainapi.Categories.Main:CreateDropdown({
 	Name = 'GUI Theme',
-	List = {'rise', 'new', 'old'},
+	List = {'rise', 'new', 'old', 'sigma'},
 	Function = function(val, mouse)
 		if mouse then
 			writefile('newvape/profiles/gui.txt', val)
-			shared.vapereload = true
+			shared.rustreload = true
 		    loadfile("newvape/loader.lua")()
 		end
 	end
@@ -3208,8 +3195,8 @@ mainapi.RainbowUpdateSpeed = mainapi.Categories.Main:CreateSlider({
 mainapi.Categories.Main:CreateButton({
 	Name = 'Reinject',
 	Function = function()
-		shared.vapereload = true
-		loadfile("newvape/loader.lua")()
+		shared.rustreload = true
+		loadfile("rust/init.lua")()
 	end
 })
 mainapi.Categories.Main:CreateButton({
