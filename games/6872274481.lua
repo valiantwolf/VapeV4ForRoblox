@@ -10356,349 +10356,36 @@ run(function()
     })
 end)	
 
---[[run(function()
-    local AntiHit = {}
-    local physEngine = game:GetService("RunService")
-    local worldSpace = game.Workspace
-    local camView = worldSpace.CurrentCamera
-    local plyr = lplr
-    local entSys = entitylib
-    local queryutil = {}
-    function queryutil:setQueryIgnored(part, index)
-        if index == nil then index = true end
-        if part then part:SetAttribute("gamecore_GameQueryIgnore", index) end
-    end
-    local utilPack = {QueryUtil = queryutil}
-
-    local dupeNode, altHeight = nil, nil
-    shared.anchorBase = nil
-    shared.evadeFlag = false
-
-    local trigSet = {p = true, n = false, w = false}
-    local shiftMode = "Up"
-    local scanRad = 30
-    local slowMoTime = 0.15
-    local upHeight, downHeight = 150, 0
-    local showRootEnabled = false
-    local currentHighlight = nil
-
-    local function applyHighlight(root)
-        if currentHighlight then currentHighlight:Destroy() end
-        local highlight = Instance.new("Highlight")
-        highlight.FillColor = Color3.fromRGB(255, 0, 0)
-        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-        highlight.FillTransparency = 0
-        highlight.OutlineTransparency = 0
-        highlight.Adornee = root
-        highlight.Parent = root
-        currentHighlight = highlight
-    end
-
-    local function removeHighlight()
-        if currentHighlight then
-            currentHighlight:Destroy()
-            currentHighlight = nil
-        end
-    end
-
-    local function showRealRoot()
-        if not entSys.isAlive or not entSys.character then return end
-        local hrp = entSys.character:FindFirstChild("HumanoidRootPart")
-        if not hrp then return end
-        if showRootEnabled then
-            hrp.Transparency = 0
-            applyHighlight(hrp)
-        else
-            hrp.Transparency = 1
-            removeHighlight()
-        end
-    end
-
-    local function genTwin()
-        if entSys.isAlive and entSys.character.Humanoid.Health > 0 and entSys.character.HumanoidRootPart then
-            altHeight = entSys.character.Humanoid.HipHeight
-            shared.anchorBase = entSys.character.HumanoidRootPart
-            utilPack.QueryUtil:setQueryIgnored(shared.anchorBase, true)
-            if not plyr.Character or not plyr.Character.Parent then return false end
-
-            plyr.Character.Parent = game
-            dupeNode = shared.anchorBase:Clone()
-            dupeNode.Parent = plyr.Character
-            shared.anchorBase.Parent = camView
-            dupeNode.CFrame = shared.anchorBase.CFrame
-
-            plyr.Character.PrimaryPart = dupeNode
-            entSys.character.HumanoidRootPart = dupeNode
-            entSys.character.RootPart = dupeNode
-            plyr.Character.Parent = worldSpace
-
-            for _, x in plyr.Character:GetDescendants() do
-                if x:IsA('Weld') or x:IsA('Motor6D') then
-                    if x.Part0 == shared.anchorBase then x.Part0 = dupeNode end
-                    if x.Part1 == shared.anchorBase then x.Part1 = dupeNode end
-                end
-            end
-            return true
-        end
-        return false
-    end
-
-    local function resetCore()
-        if not entSys.isAlive or not shared.anchorBase or not shared.anchorBase:IsDescendantOf(game) then
-            shared.anchorBase = nil
-            dupeNode = nil
-            return false
-        end
-
-        if not plyr.Character or not plyr.Character.Parent then return false end
-
-        plyr.Character.Parent = game
-
-        shared.anchorBase.Parent = plyr.Character
-        shared.anchorBase.CanCollide = true
-        shared.anchorBase.Velocity = Vector3.zero 
-        shared.anchorBase.Anchored = false 
-
-        plyr.Character.PrimaryPart = shared.anchorBase
-        entSys.character.HumanoidRootPart = shared.anchorBase
-        entSys.character.RootPart = shared.anchorBase
-
-        for _, x in plyr.Character:GetDescendants() do
-            if x:IsA('Weld') or x:IsA('Motor6D') then
-                if x.Part0 == dupeNode then x.Part0 = shared.anchorBase end
-                if x.Part1 == dupeNode then x.Part1 = shared.anchorBase end
-            end
-        end
-
-        local prevLoc = dupeNode and dupeNode.CFrame or shared.anchorBase.CFrame
-        if dupeNode then
-            dupeNode:Destroy()
-            dupeNode = nil
-        end
-
-        plyr.Character.Parent = worldSpace
-        shared.anchorBase.CFrame = prevLoc
-
-        if entSys.character.Humanoid then
-            entSys.character.Humanoid.HipHeight = altHeight or 2
-        end
-
-        shared.anchorBase = nil
-        shared.evadeFlag = false
-        altHeight = nil
-
-        return true
-    end
-
-    local function shiftPos()
-        if not entSys.isAlive or not shared.anchorBase or not AntiHit.on then return end
-
-        local hits = entSys.AllPosition({
-            Range = scanRad,
-            Wallcheck = trigSet.w or nil,
-            Part = 'RootPart',
-            Players = trigSet.p,
-            NPCs = trigSet.n,
-            Limit = 1
-        })
-
-        if #hits > 0 and not shared.evadeFlag then
-            local base = entSys.character.RootPart
-            if base then
-                shared.evadeFlag = true
-                local targetY = shiftMode == "Up" and upHeight or downHeight
-                shared.anchorBase.CFrame = CFrame.new(base.CFrame.X, targetY, base.CFrame.Z)
-                task.wait(slowMoTime)
-                shared.anchorBase.CFrame = base.CFrame
-                task.wait(0.05)
-                shared.evadeFlag = false
-            end
-        end
-    end
-
-    function AntiHit:engage()
-        if self.on then return end
-        self.on = true
-
-        local ok = genTwin()
-        if not ok then
-            self:disengage()
-            return
-        end
-
-        Antihit_core:Clean(physEngine.PreSimulation:Connect(function()
-            if entSys.isAlive and shared.anchorBase and entSys.character.RootPart then
-                local currBase = entSys.character.RootPart
-                local currPos = currBase.CFrame
-
-                if not isnetworkowner(shared.anchorBase) then
-                    currBase.CFrame = shared.anchorBase.CFrame
-                    currBase.Velocity = shared.anchorBase.Velocity
-                    return
-                end
-                if not shared.evadeFlag then
-                    shared.anchorBase.CFrame = currPos
-                end
-                shared.anchorBase.Velocity = Vector3.zero
-                shared.anchorBase.CanCollide = false
-                shiftPos()
-            else
-                self:disengage() 
-            end
-        end))
-
-        Antihit_core:Clean(entSys.Events.LocalAdded:Connect(function(_)
-            if self.on then
-                self:disengage() 
-                task.wait(0.1) 
-                self:engage() 
-            end
-        end))
-    end
-
-    function AntiHit:disengage()
-        self.on = false
-        pcall(resetCore)
-    end
-
-    Antihit_core = vape.Categories.Blatant:CreateModule({
-        Name = "AntiHit",
-        Function = function(active)
-            task.spawn(function()
-                repeat task.wait() until store.matchState > 0 or not Antihit_core.Enabled
-                if not Antihit_core.Enabled then return end
-                if active then
-                    AntiHit:engage()
-                else
-                    AntiHit:disengage()
-                end
-                showRealRoot()
-            end)
-        end,
-        Tooltip = "Dodges attacks."
-    })
-
-    Antihit_core:CreateTargets({
-        Players = true,
-        NPCs = false
-    })
-    Antihit_core:CreateDropdown({
-        Name = "Shift Type",
-        List = {"Up", "Down"},
-        Value = "Up",
-        Function = function(opt) shiftMode = opt end
-    })
-    Antihit_core:CreateSlider({
-        Name = "Scan Perimeter",
-        Min = 1,
-        Max = 30,
-        Default = 30,
-        Function = function(v) scanRad = v end
-    })
-    Antihit_core:CreateSlider({
-        Name = "SlowMo",
-        Min = 1,
-        Max = 9,
-        Default = 1,
-        Decimal = 10,
-        Function = function(v) slowMoTime = v end
-    })
-    Antihit_core:CreateTextBox({
-        Name = "Up Height",
-        Default = "150",
-        Function = function(v) upHeight = tonumber(v) or 150 end
-    })
-    Antihit_core:CreateTextBox({
-        Name = "Down Height",
-        Default = "0",
-        Function = function(v) downHeight = tonumber(v) or 0 end
-    })
-    Antihit_core:CreateToggle({
-        Name = "Show Root",
-        Function = function(state)
-            showRootEnabled = state
-            showRealRoot()
-        end
-    })
-
-    Antihit_core:Clean(lplr.CharacterAdded:Connect(function()
-        task.wait(0.1)
-        showRealRoot()
-    end))
-end)
-]]
-																																																																																																																																																													
 run(function()
     local AntiHit = {}
-    local physEngine = game:GetService("RunService")
-    local worldSpace = workspace
-    local camView = worldSpace.CurrentCamera
     local plyr = lplr
     local entSys = entitylib
+    local camView = workspace.CurrentCamera
 
-    local dupeNode, altHeight
+    local dupeNode
+    local altHeight
     local shiftMode = "Up"
     local scanRad = 30
-    local slowModeVal = 0.15
-    local upHeight, downHeight = 150, 0
-    local showRootEnabled = false
-    local highlightInstance
-
-    local function applyHighlight(hrp)
-        if not highlightInstance or highlightInstance.Parent ~= hrp then
-            if highlightInstance then highlightInstance:Destroy() end
-            highlightInstance = Instance.new("Highlight")
-            highlightInstance.FillColor = Color3.fromRGB(255, 0, 0)
-            highlightInstance.FillTransparency = 0
-            highlightInstance.OutlineColor = Color3.fromRGB(255, 255, 255)
-            highlightInstance.OutlineTransparency = 0
-            highlightInstance.Parent = hrp
-        end
-    end
-
-    local function removeHighlight()
-        if highlightInstance then
-            highlightInstance:Destroy()
-            highlightInstance = nil
-        end
-    end
-
-    local function showRealRoot()
-        local char = plyr.Character
-        if not char or not char.Parent then
-            removeHighlight()
-            return
-        end
-        local hrp = char:FindFirstChild("HumanoidRootPart")
-        if not hrp then
-            removeHighlight()
-            return
-        end
-        if showRootEnabled then
-            hrp.Transparency = 0
-            applyHighlight(hrp)
-        else
-            hrp.Transparency = 1
-            removeHighlight()
-        end
-    end
+    local upValue = 150
+    local downValue = 0
+    local slowMo = 0.15
+    local autoFixEnabled = true
 
     local function genTwin()
-        if entSys.isAlive and entSys.character.Humanoid.Health > 0 and entSys.character.HumanoidRootPart then
+        if entSys.isAlive and entSys.character.Humanoid.Health > 0 and entSys.character:FindFirstChild("HumanoidRootPart") then
             altHeight = entSys.character.Humanoid.HipHeight
             local anchor = entSys.character.HumanoidRootPart
             if not plyr.Character or not plyr.Character.Parent then return false end
 
-            plyr.Character.Parent = game
             dupeNode = anchor:Clone()
-            dupeNode.Parent = plyr.Character
-            anchor.Parent = camView
+            dupeNode.Anchored = false
+            dupeNode.CanCollide = false
             dupeNode.CFrame = anchor.CFrame
+            dupeNode.Parent = camView
 
             plyr.Character.PrimaryPart = dupeNode
             entSys.character.HumanoidRootPart = dupeNode
             entSys.character.RootPart = dupeNode
-            plyr.Character.Parent = worldSpace
 
             for _, x in plyr.Character:GetDescendants() do
                 if x:IsA('Weld') or x:IsA('Motor6D') then
@@ -10713,17 +10400,10 @@ run(function()
 
     local function resetCore()
         local anchor = plyr.Character and plyr.Character:FindFirstChild("HumanoidRootPart")
-        if not entSys.isAlive or not anchor or not dupeNode then
+        if not entSys.isAlive or not dupeNode or not anchor then
             dupeNode = nil
             return false
         end
-        if not plyr.Character or not plyr.Character.Parent then return false end
-
-        plyr.Character.Parent = game
-        anchor.Parent = plyr.Character
-        anchor.CanCollide = true
-        anchor.Velocity = Vector3.zero
-        anchor.Anchored = false
 
         plyr.Character.PrimaryPart = anchor
         entSys.character.HumanoidRootPart = anchor
@@ -10736,14 +10416,10 @@ run(function()
             end
         end
 
-        local prevLoc = dupeNode and dupeNode.CFrame or anchor.CFrame
         if dupeNode then
             dupeNode:Destroy()
             dupeNode = nil
         end
-
-        plyr.Character.Parent = worldSpace
-        anchor.CFrame = prevLoc
 
         if entSys.character.Humanoid then
             entSys.character.Humanoid.HipHeight = altHeight or 2
@@ -10753,68 +10429,70 @@ run(function()
     end
 
     local function shiftPos()
-        if not entSys.isAlive or not dupeNode then return end
+        if not entSys.isAlive or not dupeNode or not AntiHit.on then return end
         local hits = entSys.AllPosition({
             Range = scanRad,
-            Wallcheck = nil,
+            Wallcheck = true,
             Part = 'RootPart',
             Players = true,
             NPCs = false,
             Limit = 1
         })
+
         if #hits > 0 then
             local base = entSys.character.RootPart
             if base then
-                local height = (shiftMode == "Up") and upHeight or downHeight
-                dupeNode.CFrame = CFrame.new(base.CFrame.X, height, base.CFrame.Z)
-                task.wait(slowModeVal)
+                local targetY = shiftMode == "Up" and upValue or downValue
+                dupeNode.CFrame = CFrame.new(base.CFrame.X, targetY, base.CFrame.Z)
+                task.wait(slowMo)
                 dupeNode.CFrame = base.CFrame
+                task.wait(0.05)
             end
         end
     end
 
-    function AntiHit:engage()
-        if self.on then return end
-        self.on = true
-        showRealRoot()
-
-        local ok = genTwin()
-        if not ok then
-            self:disengage()
-            return
-        end
-
-        AntiHit.CleanHandle = AntiHit.CleanHandle or {}
-        AntiHit.CleanHandle.Heartbeat = physEngine.PreSimulation:Connect(function()
-            if not entSys.isAlive then
-                self:disengage()
+    function AntiHit:antihitting(state)
+        if state then
+            if self.on then return end
+            self.on = true
+            if not genTwin() then
+                self:antihitting(false)
                 return
             end
-            if dupeNode then
-                shiftPos()
-            end
-            showRealRoot()
-        end)
-    end
 
-    function AntiHit:disengage()
-        self.on = false
-        pcall(resetCore)
-        if AntiHit.CleanHandle and AntiHit.CleanHandle.Heartbeat then
-            AntiHit.CleanHandle.Heartbeat:Disconnect()
-            AntiHit.CleanHandle.Heartbeat = nil
+            Antihit_core:Clean(runService.PreSimulation:Connect(function(dt)
+                if entSys.isAlive and dupeNode then
+                    local currBase = entSys.character.RootPart
+                    if not isnetworkowner(dupeNode) then
+                        currBase.CFrame = dupeNode.CFrame
+                        currBase.Velocity = dupeNode.Velocity
+                        return
+                    end
+                    dupeNode.Velocity = Vector3.zero
+                    dupeNode.CanCollide = false
+                    shiftPos()
+                else
+                    self:antihitting(false)
+                end
+            end))
+
+            Antihit_core:Clean(entSys.Events.LocalAdded:Connect(function(_)
+                if self.on and autoFixEnabled then
+                    self:antihitting(false)
+                    task.wait(0.1)
+                    self:antihitting(true)
+                end
+            end))
+        else
+            self.on = false
+            resetCore()
         end
-        showRealRoot()
     end
 
     local Antihit_core = vape.Categories.Blatant:CreateModule({
         Name = "AntiHit",
         Function = function(active)
-            if active then
-                AntiHit:engage()
-            else
-                AntiHit:disengage()
-            end
+            AntiHit:antihitting(active)
         end,
         Tooltip = "Dodges attacks."
     })
@@ -10823,42 +10501,47 @@ run(function()
         Players = true,
         NPCs = false
     })
+
     Antihit_core:CreateDropdown({
         Name = "Shift Type",
-        List = {"Up", "Down"},
+        List = {"Up","Down"},
         Value = "Up",
         Function = function(opt) shiftMode = opt end
     })
+
     Antihit_core:CreateSlider({
         Name = "Scan Perimeter",
         Min = 1,
         Max = 30,
         Default = 30,
-        Suffix = function(v) return v == 1 and "span" or "spans" end,
         Function = function(v) scanRad = v end
     })
+
     Antihit_core:CreateSlider({
-        Name = "Slowmode",
+        Name = "Slow Mo",
         Min = 1,
         Max = 9,
         Default = 1,
-        Function = function(v) slowModeVal = v end
+        Function = function(v) slowMo = v end
     })
+
     Antihit_core:CreateTextBox({
         Name = "Up Height",
         Default = "150",
-        Function = function(val) upHeight = tonumber(val) or 150 end
+        Function = function(v) upValue = tonumber(v) or 150 end
     })
+
     Antihit_core:CreateTextBox({
         Name = "Down Height",
         Default = "0",
-        Function = function(val) downHeight = tonumber(val) or 0 end
+        Function = function(v) downValue = tonumber(v) or 0 end
     })
+
     Antihit_core:CreateToggle({
-        Name = "Show Root",
-        Function = function(val)
-            showRootEnabled = val
-            showRealRoot()
+        Name = "AutoFix",
+        Default = true,
+        Function = function(call)
+            autoFixEnabled = call
         end
     })
-end)																																																																																																																																																													
+end) 
