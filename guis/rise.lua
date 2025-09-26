@@ -272,7 +272,7 @@ local function createMobileButton(buttonapi, position)
 	buttonconstraint.MaxTextSize = 16
 	buttonconstraint.Parent = button
 	addCorner(button, UDim.new(1, 0))
-	makeDraggable(button)
+	--makeDraggable(button)
 	button.MouseButton1Down:Connect(function()
 		heldbutton = true
 		local holdtime, holdpos = tick(), inputService:GetMouseLocation()
