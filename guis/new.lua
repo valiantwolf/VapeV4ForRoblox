@@ -5497,28 +5497,22 @@ function mainapi:Load(skipgui, profile)
 	self.Categories.Main.Options.Bind:SetBind(self.Keybind)
 
 	if inputService.TouchEnabled and #self.Keybind == 1 and self.Keybind[1] == 'RightShift' then
-	local button = Instance.new("TextButton")
-	button.Position = UDim2.new(1, -30, 0.1, 0)
-	button.Text = "Vape"
-	button.BackgroundColor3 = Color3.fromRGB(26, 25, 26)
-	button.TextColor3 = Color3.new(1, 1, 1)
-	button.Size = UDim2.new(0, 30, 0, 20)
-	button.BorderSizePixel = 0
-	button.BackgroundTransparency = 0.5
-	button.Parent = gui
-	button.MouseButton1Click:Connect(function()
-		if mainapi.ThreadFix then
-			setthreadidentity(8)
-		end
-		for _, v in mainapi.Windows do
-			v.Visible = false
-		end
-		clickgui.Visible = not clickgui.Visible
-		tooltip.Visible = false
-		mainapi:BlurCheck()
-	end)
-	shared.VapeButton = button
-end
+	local button = Instance.new('TextButton')
+		button.Size = UDim2.fromOffset(32, 32)
+		button.Position = UDim2.new(1, -90, 0, 4)
+		button.BackgroundColor3 = Color3.new()
+		button.BackgroundTransparency = 0.5
+		button.Text = ''
+		button.Parent = gui
+		local image = Instance.new('ImageLabel')
+		image.Size = UDim2.fromOffset(26, 26)
+		image.Position = UDim2.fromOffset(3, 3)
+		image.BackgroundTransparency = 1
+		image.Image = getcustomasset('newvape/assets/new/vape.png')
+		image.Parent = button
+		local buttoncorner = Instance.new('UICorner')
+		buttoncorner.Parent = button
+		self.VapeButton = button
 		button.MouseButton1Click:Connect(function()
 			if self.ThreadFix then
 				setthreadidentity(8)
