@@ -3112,7 +3112,7 @@ scaleslider = mainapi.Categories.Main:CreateSlider({
 })
 mainapi.Categories.Main:CreateDropdown({
 	Name = 'GUI Theme',
-	List = {'rise', 'new', 'old', 'sigma'},
+	List = {'rise', 'new', 'old', 'wurst'},
 	Function = function(val, mouse)
 		if mouse then
 			writefile('newvape/profiles/gui.txt', val)
@@ -3171,7 +3171,7 @@ mainapi.Categories.Main:CreateDropdown({
 		if mouse then
 			writefile("newvape/profiles/color.txt", httpService:JSONEncode(colors[val]))
 			mainapi:Save()
-			shared.rustreload = true
+			shared.vapereload = true
 			loadfile("newvape/main.lua")()
 		end
 	end
@@ -3195,7 +3195,7 @@ mainapi.RainbowUpdateSpeed = mainapi.Categories.Main:CreateSlider({
 mainapi.Categories.Main:CreateButton({
 	Name = 'Reinject',
 	Function = function()
-		shared.rustreload = true
+		shared.vapereload = true
 		loadfile("newvape/loader.lua")()
 	end
 })
