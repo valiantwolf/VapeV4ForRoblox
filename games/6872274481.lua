@@ -10356,7 +10356,7 @@ run(function()
     })
 end)	
 
-run(function()
+--[[run(function()
     local AntiHit = {}
     local plyr = lplr
     local entSys = entitylib
@@ -10545,3 +10545,195 @@ run(function()
         end
     })
 end) 
+]]
+
+run(function()
+    local AntiHit = {}
+    local plyr = lplr
+    local entSys = entitylib
+    local camView = workspace.CurrentCamera
+
+    local dupeNode
+    local altHeight
+    local shiftMode = "Up"
+    local scanRad = 30
+    local upValue = 150
+    local downValue = 0
+    local slowMo = 0.15
+    local autoFixEnabled = true
+
+    local function genTwin()
+        if entSys.isAlive and entSys.character and entSys.character.Humanoid and entSys.character.Humanoid.Health > 0 and entSys.character.HumanoidRootPart then
+            altHeight = entSys.character.Humanoid.HipHeight
+            local anchor = entSys.character.HumanoidRootPart
+            if not plyr.Character or not plyr.Character.Parent then return false end
+
+            dupeNode = anchor:Clone()
+            dupeNode.Anchored = false
+            dupeNode.CanCollide = false
+            dupeNode.CFrame = anchor.CFrame
+            dupeNode.Parent = camView
+
+            plyr.Character.PrimaryPart = dupeNode
+            entSys.character.HumanoidRootPart = dupeNode
+            entSys.character.RootPart = dupeNode
+
+            for _, x in plyr.Character:GetDescendants() do
+                if x:IsA('Weld') or x:IsA('Motor6D') then
+                    if x.Part0 == anchor then x.Part0 = dupeNode end
+                    if x.Part1 == anchor then x.Part1 = dupeNode end
+                end
+            end
+            return true
+        end
+        return false
+    end
+
+    local function resetCore()
+        local anchor = entSys.isAlive and entSys.character and entSys.character.HumanoidRootPart or nil
+        if not entSys.isAlive or not dupeNode or not anchor then
+            dupeNode = nil
+            return false
+        end
+
+        plyr.Character.PrimaryPart = anchor
+        entSys.character.HumanoidRootPart = anchor
+        entSys.character.RootPart = anchor
+
+        for _, x in plyr.Character:GetDescendants() do
+            if x:IsA('Weld') or x:IsA('Motor6D') then
+                if x.Part0 == dupeNode then x.Part0 = anchor end
+                if x.Part1 == dupeNode then x.Part1 = anchor end
+            end
+        end
+
+        if dupeNode then
+            dupeNode:Destroy()
+            dupeNode = nil
+        end
+
+        if entSys.character.Humanoid then
+            entSys.character.Humanoid.HipHeight = altHeight or 2
+        end
+
+        return true
+    end
+
+    local function shiftPos()
+        if not entSys.isAlive or not dupeNode or not AntiHit.on then return end
+        local hits = entSys.AllPosition({
+            Range = scanRad,
+            Wallcheck = true,
+            Part = 'RootPart',
+            Players = true,
+            NPCs = false,
+            Limit = 1
+        })
+
+        if #hits > 0 then
+            local base = entSys.character.RootPart
+            if base then
+                local targetY = shiftMode == "Up" and upValue or downValue
+                dupeNode.CFrame = CFrame.new(base.CFrame.X, targetY, base.CFrame.Z)
+                task.wait(slowMo)
+                dupeNode.CFrame = base.CFrame
+                task.wait(0.05)
+            end
+        end
+    end
+
+    function AntiHit:antihitting(state)
+        if state then
+            if self.on then return end
+            self.on = true
+            if not genTwin() then
+                self:antihitting(false)
+                return
+            end
+
+            Antihit_core:Clean(runService.PreSimulation:Connect(function(dt)
+                if entSys.isAlive and dupeNode then
+                    local currBase = entSys.character.RootPart
+                    if not isnetworkowner(dupeNode) then
+                        currBase.CFrame = dupeNode.CFrame
+                        currBase.Velocity = dupeNode.Velocity
+                        return
+                    end
+                    dupeNode.Velocity = Vector3.zero
+                    dupeNode.CanCollide = false
+                    shiftPos()
+                else
+                    self:antihitting(false)
+                end
+            end))
+
+            Antihit_core:Clean(entSys.Events.LocalAdded:Connect(function(_)
+                if self.on and autoFixEnabled then
+                    self:antihitting(false)
+                    task.wait(0.1)
+                    self:antihitting(true)
+                end
+            end))
+        else
+            self.on = false
+            resetCore()
+        end
+    end
+
+    local Antihit_core = vape.Categories.Blatant:CreateModule({
+        Name = "AntiHit",
+        Function = function(active)
+            AntiHit:antihitting(active)
+        end,
+        Tooltip = "Dodges attacks."
+    })
+
+    Antihit_core:CreateTargets({
+        Players = true,
+        NPCs = false
+    })
+
+    Antihit_core:CreateDropdown({
+        Name = "Shift Type",
+        List = {"Up","Down"},
+        Value = "Up",
+        Function = function(opt) shiftMode = opt end
+    })
+
+    Antihit_core:CreateSlider({
+        Name = "Scan Perimeter",
+        Min = 1,
+        Max = 30,
+        Default = 30,
+        Function = function(v) scanRad = v end
+    })
+
+    Antihit_core:CreateSlider({
+        Name = "Slow Mo",
+        Min = 1,
+        Max = 9,
+        Default = 1,
+        Function = function(v) slowMo = v end
+    })
+
+    Antihit_core:CreateTextBox({
+        Name = "Up Height",
+        Default = "150",
+        Function = function(v) upValue = tonumber(v) or 150 end
+    })
+
+    Antihit_core:CreateTextBox({
+        Name = "Down Height",
+        Default = "0",
+        Function = function(v) downValue = tonumber(v) or 0 end
+    })
+
+    Antihit_core:CreateToggle({
+        Name = "AutoFix",
+        Default = true,
+        Function = function(call)
+            autoFixEnabled = call
+        end
+    })
+end)
+																																																																																																																																																													
