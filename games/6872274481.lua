@@ -10356,7 +10356,7 @@ run(function()
     })
 end)	
 
-run(function()
+--[[run(function()
     local AntiHit = {}
     local physEngine = game:GetService("RunService")
     local worldSpace = game.Workspace
@@ -10626,3 +10626,239 @@ run(function()
         showRealRoot()
     end))
 end)
+]]
+																																																																																																																																																													
+run(function()
+    local AntiHit = {}
+    local physEngine = game:GetService("RunService")
+    local worldSpace = workspace
+    local camView = worldSpace.CurrentCamera
+    local plyr = lplr
+    local entSys = entitylib
+
+    local dupeNode, altHeight
+    local shiftMode = "Up"
+    local scanRad = 30
+    local slowModeVal = 0.15
+    local upHeight, downHeight = 150, 0
+    local showRootEnabled = false
+    local highlightInstance
+
+    local function applyHighlight(hrp)
+        if not highlightInstance or highlightInstance.Parent ~= hrp then
+            if highlightInstance then highlightInstance:Destroy() end
+            highlightInstance = Instance.new("Highlight")
+            highlightInstance.FillColor = Color3.fromRGB(255, 0, 0)
+            highlightInstance.FillTransparency = 0
+            highlightInstance.OutlineColor = Color3.fromRGB(255, 255, 255)
+            highlightInstance.OutlineTransparency = 0
+            highlightInstance.Parent = hrp
+        end
+    end
+
+    local function removeHighlight()
+        if highlightInstance then
+            highlightInstance:Destroy()
+            highlightInstance = nil
+        end
+    end
+
+    local function showRealRoot()
+        local char = plyr.Character
+        if not char or not char.Parent then
+            removeHighlight()
+            return
+        end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if not hrp then
+            removeHighlight()
+            return
+        end
+        if showRootEnabled then
+            hrp.Transparency = 0
+            applyHighlight(hrp)
+        else
+            hrp.Transparency = 1
+            removeHighlight()
+        end
+    end
+
+    local function genTwin()
+        if entSys.isAlive and entSys.character.Humanoid.Health > 0 and entSys.character.HumanoidRootPart then
+            altHeight = entSys.character.Humanoid.HipHeight
+            local anchor = entSys.character.HumanoidRootPart
+            if not plyr.Character or not plyr.Character.Parent then return false end
+
+            plyr.Character.Parent = game
+            dupeNode = anchor:Clone()
+            dupeNode.Parent = plyr.Character
+            anchor.Parent = camView
+            dupeNode.CFrame = anchor.CFrame
+
+            plyr.Character.PrimaryPart = dupeNode
+            entSys.character.HumanoidRootPart = dupeNode
+            entSys.character.RootPart = dupeNode
+            plyr.Character.Parent = worldSpace
+
+            for _, x in plyr.Character:GetDescendants() do
+                if x:IsA('Weld') or x:IsA('Motor6D') then
+                    if x.Part0 == anchor then x.Part0 = dupeNode end
+                    if x.Part1 == anchor then x.Part1 = dupeNode end
+                end
+            end
+            return true
+        end
+        return false
+    end
+
+    local function resetCore()
+        local anchor = plyr.Character and plyr.Character:FindFirstChild("HumanoidRootPart")
+        if not entSys.isAlive or not anchor or not dupeNode then
+            dupeNode = nil
+            return false
+        end
+        if not plyr.Character or not plyr.Character.Parent then return false end
+
+        plyr.Character.Parent = game
+        anchor.Parent = plyr.Character
+        anchor.CanCollide = true
+        anchor.Velocity = Vector3.zero
+        anchor.Anchored = false
+
+        plyr.Character.PrimaryPart = anchor
+        entSys.character.HumanoidRootPart = anchor
+        entSys.character.RootPart = anchor
+
+        for _, x in plyr.Character:GetDescendants() do
+            if x:IsA('Weld') or x:IsA('Motor6D') then
+                if x.Part0 == dupeNode then x.Part0 = anchor end
+                if x.Part1 == dupeNode then x.Part1 = anchor end
+            end
+        end
+
+        local prevLoc = dupeNode and dupeNode.CFrame or anchor.CFrame
+        if dupeNode then
+            dupeNode:Destroy()
+            dupeNode = nil
+        end
+
+        plyr.Character.Parent = worldSpace
+        anchor.CFrame = prevLoc
+
+        if entSys.character.Humanoid then
+            entSys.character.Humanoid.HipHeight = altHeight or 2
+        end
+
+        return true
+    end
+
+    local function shiftPos()
+        if not entSys.isAlive or not dupeNode then return end
+        local hits = entSys.AllPosition({
+            Range = scanRad,
+            Wallcheck = nil,
+            Part = 'RootPart',
+            Players = true,
+            NPCs = false,
+            Limit = 1
+        })
+        if #hits > 0 then
+            local base = entSys.character.RootPart
+            if base then
+                local height = (shiftMode == "Up") and upHeight or downHeight
+                dupeNode.CFrame = CFrame.new(base.CFrame.X, height, base.CFrame.Z)
+                task.wait(slowModeVal)
+                dupeNode.CFrame = base.CFrame
+            end
+        end
+    end
+
+    function AntiHit:engage()
+        if self.on then return end
+        self.on = true
+        showRealRoot()
+
+        local ok = genTwin()
+        if not ok then
+            self:disengage()
+            return
+        end
+
+        AntiHit.CleanHandle = AntiHit.CleanHandle or {}
+        AntiHit.CleanHandle.Heartbeat = physEngine.PreSimulation:Connect(function()
+            if not entSys.isAlive then
+                self:disengage()
+                return
+            end
+            if dupeNode then
+                shiftPos()
+            end
+            showRealRoot()
+        end)
+    end
+
+    function AntiHit:disengage()
+        self.on = false
+        pcall(resetCore)
+        if AntiHit.CleanHandle and AntiHit.CleanHandle.Heartbeat then
+            AntiHit.CleanHandle.Heartbeat:Disconnect()
+            AntiHit.CleanHandle.Heartbeat = nil
+        end
+        showRealRoot()
+    end
+
+    local Antihit_core = vape.Categories.Blatant:CreateModule({
+        Name = "AntiHit",
+        Function = function(active)
+            if active then
+                AntiHit:engage()
+            else
+                AntiHit:disengage()
+            end
+        end,
+        Tooltip = "Dodges attacks."
+    })
+
+    Antihit_core:CreateTargets({
+        Players = true,
+        NPCs = false
+    })
+    Antihit_core:CreateDropdown({
+        Name = "Shift Type",
+        List = {"Up", "Down"},
+        Value = "Up",
+        Function = function(opt) shiftMode = opt end
+    })
+    Antihit_core:CreateSlider({
+        Name = "Scan Perimeter",
+        Min = 1,
+        Max = 30,
+        Default = 30,
+        Suffix = function(v) return v == 1 and "span" or "spans" end,
+        Function = function(v) scanRad = v end
+    })
+    Antihit_core:CreateSlider({
+        Name = "Slowmode",
+        Min = 1,
+        Max = 9,
+        Default = 1,
+        Function = function(v) slowModeVal = v end
+    })
+    Antihit_core:CreateTextBox({
+        Name = "Up Height",
+        Default = "150",
+        Function = function(val) upHeight = tonumber(val) or 150 end
+    })
+    Antihit_core:CreateTextBox({
+        Name = "Down Height",
+        Default = "0",
+        Function = function(val) downHeight = tonumber(val) or 0 end
+    })
+    Antihit_core:CreateToggle({
+        Name = "Show Root",
+        Function = function(val)
+            showRootEnabled = val
+            showRealRoot()
+        end
+    })
+end)																																																																																																																																																													
