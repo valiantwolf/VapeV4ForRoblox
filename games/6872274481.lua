@@ -10791,8 +10791,8 @@ run(function()
 	local NoFly
 	local oldphys, oldsend
 	
-	Desync = vape.Categories.Utility:CreateModule({
-		Name = 'Desync',
+	Desync = vape.Categories.Blatant:CreateModule({
+		Name = 'Desync V2',
 		Function = function(callback)
 			if callback then
 				local teleported
