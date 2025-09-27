@@ -1337,6 +1337,196 @@ end)
 	    Decimal = 100
 	})
 end)--]]
+
+run(function()
+    local Attacking, AttackRemote = false, {FireServer = function() end}
+    local cachedTargets, lastAttackTime, lastTargetUpdate = {}, {}, 0
+    local Boxes, BoxSwingColor, BoxAttackColor = {}, nil, nil
+    local SwingRange, AttackRange, Face
+
+    task.spawn(function()
+        AttackRemote = bedwars.Client:Get(remotes.AttackEntity).instance
+    end)
+
+    local function getAttackData(mouseCheck, guiCheck, limitCheck)
+        if mouseCheck and not inputService:IsMouseButtonPressed(0) then return false end
+        if guiCheck and bedwars.AppController:isLayerOpen(bedwars.UILayers.MAIN) then return false end
+
+        local sword = limitCheck and store.hand or store.tools.sword
+        if not sword or not sword.tool then return false end
+
+        local meta = bedwars.ItemMeta[sword.tool.Name]
+        if limitCheck and (store.hand.toolType ~= 'sword' or bedwars.DaoController.chargingMaid) then
+            return false
+        end
+        return sword, meta
+    end
+
+    local function updateTargetCache(range, targets, maxTargets, sort)
+        if tick() - lastTargetUpdate < 0.05 then return cachedTargets end
+        cachedTargets = entitylib.AllPosition({
+            Range = range,
+            Wallcheck = targets.Walls.Enabled or nil,
+            Part = 'RootPart',
+            Players = targets.Players.Enabled,
+            NPCs = targets.NPCs.Enabled,
+            Limit = maxTargets * 2,
+            Sort = sortmethods[sort.Value]
+        })
+        lastTargetUpdate = tick()
+        return cachedTargets
+    end
+
+    SilentAura = vape.Categories.Combat:CreateModule({
+        Name = 'SilentAura',
+        Function = function(callback)
+            if callback then
+                local swingCooldown = 0
+                repeat
+                    local attacked, sword, meta = {}, getAttackData(false, false, false)
+                    Attacking = false
+                    if sword then
+                        local plrs = updateTargetCache(SwingRange.Value, {Players = {Enabled = true}, NPCs = {Enabled = true}, Walls = {Enabled = false}}, 5, {Value = 'Distance'})
+                        local selfpos = entitylib.character.RootPart.Position
+                        local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
+                        for i, v in pairs(plrs) do
+                            local delta = (v.RootPart.Position - selfpos)
+                            if delta.Magnitude > SwingRange.Value then continue end
+                            local angle = math.acos(math.max(-1, math.min(1, localfacing:Dot((delta * Vector3.new(1, 0, 1)).Unit))))
+                            if angle > math.rad(360) / 2 then continue end
+
+                            table.insert(attacked, {
+                                Entity = v,
+                                Check = delta.Magnitude > AttackRange.Value and BoxSwingColor or BoxAttackColor
+                            })
+
+                            if not Attacking then
+                                Attacking = true
+                                store.KillauraTarget = v
+                            end
+                        end
+
+                        for _, v in pairs(attacked) do
+                            local delta = (v.Entity.RootPart.Position - selfpos)
+                            if delta.Magnitude > AttackRange.Value then continue end
+                            local lastAtk = lastAttackTime[v.Entity] or 0
+                            if (tick() - lastAtk) < 0.08 then continue end
+                            local actualRoot = v.Entity.Character.PrimaryPart
+                            if actualRoot then
+                                local dir = CFrame.lookAt(selfpos, actualRoot.Position).LookVector
+                                local pos = selfpos + dir * math.max(delta.Magnitude - 14.399, 0)
+                                swingCooldown = tick()
+                                lastAttackTime[v.Entity] = tick()
+                                bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
+                                local attackData = {
+                                    weapon = sword.tool,
+                                    chargedAttack = {chargeRatio = math.random(0, 100) / 100},
+                                    lastSwingServerTimeDelta = math.random(0, 0) / 100,
+                                    entityInstance = v.Entity.Character,
+                                    validate = {
+                                        raycast = {
+                                            cameraPosition = {value = pos},
+                                            cursorDirection = {value = dir}
+                                        },
+                                        targetPosition = {value = actualRoot.Position + actualRoot.Velocity * 0.05},
+                                        selfPosition = {value = pos}
+                                    }
+                                }
+                                AttackRemote:FireServer(attackData)
+                            end
+                        end
+
+                        for i, box in pairs(Boxes) do
+                            box.Adornee = attacked[i] and attacked[i].Entity.RootPart or nil
+                            if box.Adornee then
+                                box.Color3 = Color3.fromHSV(attacked[i].Check.Hue, attacked[i].Check.Sat, attacked[i].Check.Value)
+                                box.Transparency = 1 - attacked[i].Check.Opacity
+                            end
+                        end
+
+                        if Face.Enabled and attacked[1] then
+                            local target = attacked[1].Entity.RootPart
+                            local targetPos = target.Position + target.Velocity * 0.01
+                            local vec = targetPos * Vector3.new(1, 0, 1)
+                            entitylib.character.RootPart.CFrame = CFrame.lookAt(entitylib.character.RootPart.Position, Vector3.new(vec.X, entitylib.character.RootPart.Position.Y + 0.001, vec.Z))
+                        end
+                    end
+                    task.wait(0.03)
+                until not SilentAura.Enabled
+                Attacking = false
+                cachedTargets = {}
+                lastAttackTime = {}
+                for _, v in Boxes do
+                    v.Adornee = nil
+                end
+            else
+                for _, v in Boxes do
+                    v.Adornee = nil
+                end
+                cachedTargets = {}
+                lastAttackTime = {}
+            end
+        end,
+        Tooltip = 'Silently attacks entities around you using the Killaura logic'
+    })
+
+    SwingRange = SilentAura:CreateSlider({
+        Name = 'Swing range',
+        Min = 1,
+        Max = 18,
+        Default = 18,
+        Suffix = function(val)
+            return val == 1 and 'stud' or 'studs'
+        end
+    })
+    AttackRange = SilentAura:CreateSlider({
+        Name = 'Attack range',
+        Min = 1,
+        Max = 18,
+        Default = 18,
+        Suffix = function(val)
+            return val == 1 and 'stud' or 'studs'
+        end
+    })
+    Face = SilentAura:CreateToggle({Name = 'Face target'})
+    SilentAura:CreateToggle({
+        Name = 'Show target',
+        Function = function(callback)
+            BoxSwingColor.Object.Visible = callback
+            BoxAttackColor.Object.Visible = callback
+            if callback then
+                for i = 1, 10 do
+                    local box = Instance.new('BoxHandleAdornment')
+                    box.Adornee = nil
+                    box.AlwaysOnTop = true
+                    box.Size = Vector3.new(3, 5, 3)
+                    box.CFrame = CFrame.new(0, -0.5, 0)
+                    box.ZIndex = 0
+                    box.Parent = vape.gui
+                    Boxes[i] = box
+                end
+            else
+                for _, v in Boxes do
+                    v:Destroy()
+                end
+                table.clear(Boxes)
+            end
+        end
+    })
+    BoxSwingColor = SilentAura:CreateColorSlider({
+        Name = 'Target Color',
+        Darker = true,
+        DefaultHue = 0.6,
+        DefaultOpacity = 0.5,
+        Visible = false
+    })
+    BoxAttackColor = SilentAura:CreateColorSlider({
+        Name = 'Attack Color',
+        Darker = true,
+        DefaultOpacity = 0.5,
+        Visible = false
+    })
+end)
 	
 run(function()
 	local AutoClicker
