@@ -10783,3 +10783,69 @@ run(function()
 	})
 end)
 																																																																																																																																																													
+run(function()
+	local Desync
+	local Type
+	local AutoSend
+	local AutoSendLength
+	local NoFly
+	local oldphys, oldsend
+	
+	Desync = vape.Categories.Utility:CreateModule({
+		Name = 'Desync',
+		Function = function(callback)
+			if callback then
+				local teleported
+				Desync:Clean(lplr.OnTeleport:Connect(function()
+					setfflag('S2PhysicsSenderRate', '15')
+					setfflag('DataSenderRate', '60')
+					teleported = true
+				end))
+	
+				repeat
+					local physicsrate, senderrate = '0', Type.Value == 'All' and '-1' or '60'
+					if (vape.Modules.Fly.Enabled) and NoFly.Enabled then
+						setfflag('S2PhysicsSenderRate', '15')
+						setfflag('DataSenderRate', '60')
+						oldphys, oldsend = nil, nil
+					else
+						if tick() % (AutoSendLength.Value + 0.1) > AutoSendLength.Value then
+							physicsrate, senderrate = '15', '60'
+						end
+		
+						if physicsrate ~= oldphys or senderrate ~= oldsend then
+							setfflag('S2PhysicsSenderRate', physicsrate)
+							setfflag('DataSenderRate', senderrate)
+							oldphys, oldsend = physicsrate, oldsend
+						end
+					end
+					
+					task.wait(0.03)
+				until (not Desync.Enabled and not teleported)
+			else
+				setfflag('S2PhysicsSenderRate', '15')
+				setfflag('DataSenderRate', '60')
+				oldphys, oldsend = nil, nil
+			end
+		end,
+		Tooltip = 'Desyncs ur character.\n (does not affect your pov)'
+	})
+	Type = Desync:CreateDropdown({
+		Name = 'Type',
+		List = {'Movement Only', 'All'},
+		Tooltip = 'Movement Only - Only chokes movement packets\nAll - Chokes remotes & movement'
+	})
+	AutoSendLength = Desync:CreateSlider({
+		Name = 'Send delay',
+		Min = 0,
+		Max = 1,
+		Decimal = 100,
+		Suffix = function(val)
+			return val == 1 and 'second' or 'seconds'
+		end
+	})
+	NoFly = Desync:CreateToggle({
+		Name = 'Disable when flying',
+		Default = true
+	})
+end)
