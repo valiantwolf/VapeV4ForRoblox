@@ -144,7 +144,7 @@ end
 
 local getfontsize = function(text, size, font)
     local execName = identifyexecutor and ({identifyexecutor()})[1] or "Unknown"
-    if execName ~= "Krnl" and execName ~= "Codex" and execName ~= "Trigon" then --( (not execName) == "Delta" ) or--
+    if execName ~= "Krnl" and execName ~= "Codex" and execName ~= "Trigon" and execName ~= "Delta" then --( (not execName) == "Delta" ) or--
         fontsize.Text = text
         fontsize.Size = size
         if typeof(font) == 'Font' then
