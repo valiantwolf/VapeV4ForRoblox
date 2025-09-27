@@ -10556,7 +10556,7 @@ run(function()
         ["Function"] = function() end
     })
 end) 
-																																																																																																																																																													
+
 run(function()
 	local AntiHit = {}
 	local physEngine = game:GetService("RunService")
@@ -10578,35 +10578,40 @@ run(function()
 	local trigSet = {p = true, n = false, w = false}
 	local shiftMode = "Up"
 	local scanRad = 30
-	local slowmoTime = 0.15 
+	local slowmoTime = 0.15
+
+	local function waitForCharacter()
+		repeat task.wait() until plyr.Character and plyr.Character:FindFirstChild("HumanoidRootPart") and plyr.Character:FindFirstChild("Humanoid")
+		return plyr.Character
+	end
 
 	local function genTwin()
-		if entSys.isAlive and entSys.character.Humanoid.Health > 0 and entSys.character.HumanoidRootPart then
-			altHeight = entSys.character.Humanoid.HipHeight
-			shared.anchorBase = entSys.character.HumanoidRootPart
-			utilPack.QueryUtil:setQueryIgnored(shared.anchorBase, true)
-			if not plyr.Character or not plyr.Character.Parent then return false end
-
-			plyr.Character.Parent = game
-			dupeNode = shared.anchorBase:Clone()
-			dupeNode.Parent = plyr.Character
-			shared.anchorBase.Parent = camView
-			dupeNode.CFrame = shared.anchorBase.CFrame
-
-			plyr.Character.PrimaryPart = dupeNode
-			entSys.character.HumanoidRootPart = dupeNode
-			entSys.character.RootPart = dupeNode
-			plyr.Character.Parent = worldSpace
-
-			for _, x in plyr.Character:GetDescendants() do
-				if x:IsA('Weld') or x:IsA('Motor6D') then
-					if x.Part0 == shared.anchorBase then x.Part0 = dupeNode end
-					if x.Part1 == shared.anchorBase then x.Part1 = dupeNode end
-				end
-			end
-			return true
+		if not entSys.isAlive or not entSys.character or not entSys.character:FindFirstChild("HumanoidRootPart") or not entSys.character:FindFirstChild("Humanoid") then
+			return false
 		end
-		return false
+		altHeight = entSys.character.Humanoid.HipHeight
+		shared.anchorBase = entSys.character.HumanoidRootPart
+		utilPack.QueryUtil:setQueryIgnored(shared.anchorBase, true)
+		if not plyr.Character or not plyr.Character.Parent then return false end
+
+		plyr.Character.Parent = game
+		dupeNode = shared.anchorBase:Clone()
+		dupeNode.Parent = plyr.Character
+		shared.anchorBase.Parent = camView
+		dupeNode.CFrame = shared.anchorBase.CFrame
+
+		plyr.Character.PrimaryPart = dupeNode
+		entSys.character.HumanoidRootPart = dupeNode
+		entSys.character.RootPart = dupeNode
+		plyr.Character.Parent = worldSpace
+
+		for _, x in plyr.Character:GetDescendants() do
+			if x:IsA('Weld') or x:IsA('Motor6D') then
+				if x.Part0 == shared.anchorBase then x.Part0 = dupeNode end
+				if x.Part1 == shared.anchorBase then x.Part1 = dupeNode end
+			end
+		end
+		return true
 	end
 
 	local function resetCore()
@@ -10615,15 +10620,13 @@ run(function()
 			dupeNode = nil
 			return false
 		end
-
 		if not plyr.Character or not plyr.Character.Parent then return false end
 
 		plyr.Character.Parent = game
-
 		shared.anchorBase.Parent = plyr.Character
 		shared.anchorBase.CanCollide = true
-		shared.anchorBase.Velocity = Vector3.zero 
-		shared.anchorBase.Anchored = false 
+		shared.anchorBase.Velocity = Vector3.zero
+		shared.anchorBase.Anchored = false
 
 		plyr.Character.PrimaryPart = shared.anchorBase
 		entSys.character.HumanoidRootPart = shared.anchorBase
@@ -10645,7 +10648,7 @@ run(function()
 		plyr.Character.Parent = worldSpace
 		shared.anchorBase.CFrame = prevLoc
 
-		if entSys.character.Humanoid then
+		if entSys.character:FindFirstChild("Humanoid") then
 			entSys.character.Humanoid.HipHeight = altHeight or 2
 		end
 
@@ -10657,8 +10660,7 @@ run(function()
 	end
 
 	local function shiftPos()
-		if not entSys.isAlive or not shared.anchorBase or not AntiHit.on then return end
-
+		if not entSys.isAlive or not entSys.character or not entSys.character:FindFirstChild("RootPart") or not shared.anchorBase or not AntiHit.on then return end
 		local hits = entSys.AllPosition({
 			Range = scanRad,
 			Wallcheck = trigSet.w or nil,
@@ -10667,15 +10669,16 @@ run(function()
 			NPCs = trigSet.n,
 			Limit = 1
 		})
-
 		if #hits > 0 and not shared.evadeFlag then
 			local base = entSys.character.RootPart
 			if base then
 				shared.evadeFlag = true
 				local targetY = shiftMode == "Up" and 150 or 0
-				shared.anchorBase.CFrame = CFrame.new(base.CFrame.X, targetY, base.CFrame.Z)
-				task.wait(slowmoTime) 
-				shared.anchorBase.CFrame = base.CFrame
+				if shared.anchorBase and shared.anchorBase.Parent then
+					shared.anchorBase.CFrame = CFrame.new(base.CFrame.X, targetY, base.CFrame.Z)
+					task.wait(slowmoTime)
+					shared.anchorBase.CFrame = base.CFrame
+				end
 				task.wait(0.05)
 				shared.evadeFlag = false
 			end
@@ -10693,31 +10696,31 @@ run(function()
 		end
 
 		self.physHook = physEngine.PreSimulation:Connect(function(dt)
-			if entSys.isAlive and shared.anchorBase and entSys.character.RootPart then
-				local currBase = entSys.character.RootPart
-				local currPos = currBase.CFrame
-
-				if not isnetworkowner(shared.anchorBase) then
-					currBase.CFrame = shared.anchorBase.CFrame
-					currBase.Velocity = shared.anchorBase.Velocity
-					return
-				end
-				if not shared.evadeFlag then
-					shared.anchorBase.CFrame = currPos
-				end
-				shared.anchorBase.Velocity = Vector3.zero
-				shared.anchorBase.CanCollide = false
-				shiftPos()
-			else
-				self:disengage() 
+			if not entSys.isAlive or not entSys.character or not entSys.character:FindFirstChild("RootPart") or not shared.anchorBase then
+				self:disengage()
+				return
 			end
+			local currBase = entSys.character.RootPart
+			local currPos = currBase.CFrame
+			if not isnetworkowner(shared.anchorBase) then
+				currBase.CFrame = shared.anchorBase.CFrame
+				currBase.Velocity = shared.anchorBase.Velocity
+				return
+			end
+			if not shared.evadeFlag then
+				shared.anchorBase.CFrame = currPos
+			end
+			shared.anchorBase.Velocity = Vector3.zero
+			shared.anchorBase.CanCollide = false
+			shiftPos()
 		end)
 
-		self.respawnHook = entSys.Events.LocalAdded:Connect(function(_)
+		self.respawnHook = plyr.CharacterAdded:Connect(function()
 			if self.on then
-				self:disengage() 
-				task.wait(4) 
-				self:engage() 
+				self:disengage()
+				waitForCharacter()
+				task.wait(0.1)
+				self:engage()
 			end
 		end)
 	end
@@ -10726,7 +10729,7 @@ run(function()
 
 	function AntiHit:disengage()
 		self.on = false
-		local success, err = pcall(resetCore)
+		pcall(resetCore)
 		if self.physHook then
 			self.physHook:Disconnect()
 			self.physHook = nil
@@ -10777,12 +10780,10 @@ run(function()
 		Max = 9,
 		Default = 0.2,
 		Suffix = "s",
-		Function = function(v)
-			slowmoTime = v 
-		end
+		Function = function(v) slowmoTime = v end
 	})
 end)
-																																																																																																																																																													
+																																																																																																																																																															
 run(function()
 	local Desync
 	local Type
