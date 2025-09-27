@@ -10558,295 +10558,243 @@ run(function()
 end) 
 
 run(function()
-	local AntiHit = {}
-	local physEngine = game:GetService("RunService")
-	local worldSpace = game.Workspace
-	local camView = worldSpace.CurrentCamera
-	local plyr = lplr
-	local entSys = entitylib
-	local queryutil = {}
-	function queryutil:setQueryIgnored(part, index)
-		if index == nil then index = true end
-		if part then part:SetAttribute("gamecore_GameQueryIgnore", index) end
-	end
-	local utilPack = {QueryUtil = queryutil}
+    local AntiHit = {}
+    local physEngine = game:GetService("RunService")
+    local worldSpace = workspace
+    local camView = worldSpace.CurrentCamera
+    local plyr = lplr
+    local entSys = entitylib
+    local queryutil = {}
 
-	local dupeNode, altHeight, initOk = nil, nil, false
-	shared.anchorBase = nil
-	shared.evadeFlag = false
+    function queryutil:setQueryIgnored(part, index)
+        if index == nil then index = true end
+        if part and typeof(part) == "Instance" then
+            part:SetAttribute("gamecore_GameQueryIgnore", index)
+        end
+    end
 
-	local trigSet = {p = true, n = false, w = false}
-	local shiftMode = "Up"
-	local scanRad = 30
-	local slowmoTime = 0.15
+    local utilPack = {QueryUtil = queryutil}
+    local dupeNode, altHeight, initOk = nil, nil, false
+    shared.anchorBase = nil
+    shared.evadeFlag = false
 
-	local function waitForCharacter()
-		repeat task.wait() until plyr.Character and plyr.Character:FindFirstChild("HumanoidRootPart") and plyr.Character:FindFirstChild("Humanoid")
-		return plyr.Character
-	end
+    local trigSet = {p = true, n = false, w = false}
+    local shiftMode = "Up"
+    local scanRad = 30
+    local slowmoTime = 0.15
 
-	local function genTwin()
-		if not entSys.isAlive or not entSys.character or not entSys.character:FindFirstChild("HumanoidRootPart") or not entSys.character:FindFirstChild("Humanoid") then
-			return false
-		end
-		altHeight = entSys.character.Humanoid.HipHeight
-		shared.anchorBase = entSys.character.HumanoidRootPart
-		utilPack.QueryUtil:setQueryIgnored(shared.anchorBase, true)
-		if not plyr.Character or not plyr.Character.Parent then return false end
+    local function waitForCharacter()
+        repeat task.wait() until plyr.Character and plyr.Character:FindFirstChild("HumanoidRootPart") and plyr.Character:FindFirstChild("Humanoid")
+        return plyr.Character
+    end
 
-		plyr.Character.Parent = game
-		dupeNode = shared.anchorBase:Clone()
-		dupeNode.Parent = plyr.Character
-		shared.anchorBase.Parent = camView
-		dupeNode.CFrame = shared.anchorBase.CFrame
+    local function genTwin()
+        local char = entSys.character
+        if not entSys.isAlive or typeof(char) ~= "Instance" then return false end
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        local hum = char:FindFirstChild("Humanoid")
+        if not hrp or not hum then return false end
 
-		plyr.Character.PrimaryPart = dupeNode
-		entSys.character.HumanoidRootPart = dupeNode
-		entSys.character.RootPart = dupeNode
-		plyr.Character.Parent = worldSpace
+        altHeight = hum.HipHeight
+        shared.anchorBase = hrp
+        utilPack.QueryUtil:setQueryIgnored(shared.anchorBase, true)
+        if not plyr.Character or not plyr.Character.Parent then return false end
 
-		for _, x in plyr.Character:GetDescendants() do
-			if x:IsA('Weld') or x:IsA('Motor6D') then
-				if x.Part0 == shared.anchorBase then x.Part0 = dupeNode end
-				if x.Part1 == shared.anchorBase then x.Part1 = dupeNode end
-			end
-		end
-		return true
-	end
+        plyr.Character.Parent = game
+        dupeNode = hrp:Clone()
+        dupeNode.Parent = plyr.Character
+        shared.anchorBase.Parent = camView
+        dupeNode.CFrame = hrp.CFrame
 
-	local function resetCore()
-		if not entSys.isAlive or not shared.anchorBase or not shared.anchorBase:IsDescendantOf(game) then
-			shared.anchorBase = nil
-			dupeNode = nil
-			return false
-		end
-		if not plyr.Character or not plyr.Character.Parent then return false end
+        plyr.Character.PrimaryPart = dupeNode
+        entSys.character.HumanoidRootPart = dupeNode
+        entSys.character.RootPart = dupeNode
+        plyr.Character.Parent = worldSpace
 
-		plyr.Character.Parent = game
-		shared.anchorBase.Parent = plyr.Character
-		shared.anchorBase.CanCollide = true
-		shared.anchorBase.Velocity = Vector3.zero
-		shared.anchorBase.Anchored = false
+        for _, x in plyr.Character:GetDescendants() do
+            if x:IsA("Weld") or x:IsA("Motor6D") then
+                if x.Part0 == shared.anchorBase then x.Part0 = dupeNode end
+                if x.Part1 == shared.anchorBase then x.Part1 = dupeNode end
+            end
+        end
+        return true
+    end
 
-		plyr.Character.PrimaryPart = shared.anchorBase
-		entSys.character.HumanoidRootPart = shared.anchorBase
-		entSys.character.RootPart = shared.anchorBase
+    local function resetCore()
+        local char = entSys.character
+        if not entSys.isAlive or typeof(shared.anchorBase) ~= "Instance" or not shared.anchorBase:IsDescendantOf(game) then
+            shared.anchorBase = nil
+            dupeNode = nil
+            return false
+        end
+        if not plyr.Character or not plyr.Character.Parent then return false end
 
-		for _, x in plyr.Character:GetDescendants() do
-			if x:IsA('Weld') or x:IsA('Motor6D') then
-				if x.Part0 == dupeNode then x.Part0 = shared.anchorBase end
-				if x.Part1 == dupeNode then x.Part1 = shared.anchorBase end
-			end
-		end
+        plyr.Character.Parent = game
+        shared.anchorBase.Parent = plyr.Character
+        shared.anchorBase.CanCollide = true
+        shared.anchorBase.Velocity = Vector3.zero
+        shared.anchorBase.Anchored = false
 
-		local prevLoc = dupeNode and dupeNode.CFrame or shared.anchorBase.CFrame
-		if dupeNode then
-			dupeNode:Destroy()
-			dupeNode = nil
-		end
+        plyr.Character.PrimaryPart = shared.anchorBase
+        if typeof(char) == "Instance" then
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                entSys.character.HumanoidRootPart = shared.anchorBase
+                entSys.character.RootPart = shared.anchorBase
+            end
+        end
 
-		plyr.Character.Parent = worldSpace
-		shared.anchorBase.CFrame = prevLoc
+        for _, x in plyr.Character:GetDescendants() do
+            if x:IsA("Weld") or x:IsA("Motor6D") then
+                if x.Part0 == dupeNode then x.Part0 = shared.anchorBase end
+                if x.Part1 == dupeNode then x.Part1 = shared.anchorBase end
+            end
+        end
 
-		if entSys.character:FindFirstChild("Humanoid") then
-			entSys.character.Humanoid.HipHeight = altHeight or 2
-		end
+        local prevLoc = dupeNode and dupeNode.CFrame or shared.anchorBase.CFrame
+        if dupeNode then
+            dupeNode:Destroy()
+            dupeNode = nil
+        end
 
-		shared.anchorBase = nil
-		shared.evadeFlag = false
-		altHeight = nil
+        plyr.Character.Parent = worldSpace
+        shared.anchorBase.CFrame = prevLoc
 
-		return true
-	end
+        if typeof(char) == "Instance" then
+            local hum = char:FindFirstChild("Humanoid")
+            if hum then hum.HipHeight = altHeight or 2 end
+        end
 
-	local function shiftPos()
-		if not entSys.isAlive or not entSys.character or not entSys.character:FindFirstChild("RootPart") or not shared.anchorBase or not AntiHit.on then return end
-		local hits = entSys.AllPosition({
-			Range = scanRad,
-			Wallcheck = trigSet.w or nil,
-			Part = 'RootPart',
-			Players = trigSet.p,
-			NPCs = trigSet.n,
-			Limit = 1
-		})
-		if #hits > 0 and not shared.evadeFlag then
-			local base = entSys.character.RootPart
-			if base then
-				shared.evadeFlag = true
-				local targetY = shiftMode == "Up" and 150 or 0
-				if shared.anchorBase and shared.anchorBase.Parent then
-					shared.anchorBase.CFrame = CFrame.new(base.CFrame.X, targetY, base.CFrame.Z)
-					task.wait(slowmoTime)
-					shared.anchorBase.CFrame = base.CFrame
-				end
-				task.wait(0.05)
-				shared.evadeFlag = false
-			end
-		end
-	end
+        shared.anchorBase = nil
+        shared.evadeFlag = false
+        altHeight = nil
+        return true
+    end
 
-	function AntiHit:engage()
-		if self.on then return end
-		self.on = true
+    local function shiftPos()
+        local char = entSys.character
+        if not entSys.isAlive or typeof(char) ~= "Instance" then return end
+        local root = char:FindFirstChild("RootPart")
+        if not root or not shared.anchorBase or not AntiHit.on then return end
 
-		initOk = genTwin()
-		if not initOk then
-			self:disengage()
-			return
-		end
+        local hits = entSys.AllPosition({
+            Range = scanRad,
+            Wallcheck = trigSet.w or nil,
+            Part = "RootPart",
+            Players = trigSet.p,
+            NPCs = trigSet.n,
+            Limit = 1
+        })
+        if #hits > 0 and not shared.evadeFlag then
+            local base = root
+            shared.evadeFlag = true
+            local targetY = shiftMode == "Up" and 150 or 0
+            if typeof(shared.anchorBase) == "Instance" and shared.anchorBase.Parent then
+                shared.anchorBase.CFrame = CFrame.new(base.CFrame.X, targetY, base.CFrame.Z)
+                task.wait(slowmoTime)
+                shared.anchorBase.CFrame = base.CFrame
+            end
+            task.wait(0.05)
+            shared.evadeFlag = false
+        end
+    end
 
-		self.physHook = physEngine.PreSimulation:Connect(function(dt)
-			if not entSys.isAlive or not entSys.character or not entSys.character:FindFirstChild("RootPart") or not shared.anchorBase then
-				self:disengage()
-				return
-			end
-			local currBase = entSys.character.RootPart
-			local currPos = currBase.CFrame
-			if not isnetworkowner(shared.anchorBase) then
-				currBase.CFrame = shared.anchorBase.CFrame
-				currBase.Velocity = shared.anchorBase.Velocity
-				return
-			end
-			if not shared.evadeFlag then
-				shared.anchorBase.CFrame = currPos
-			end
-			shared.anchorBase.Velocity = Vector3.zero
-			shared.anchorBase.CanCollide = false
-			shiftPos()
-		end)
+    function AntiHit:engage()
+        if self.on then return end
+        self.on = true
 
-		self.respawnHook = plyr.CharacterAdded:Connect(function()
-			if self.on then
-				self:disengage()
-				waitForCharacter()
-				task.wait(0.1)
-				self:engage()
-			end
-		end)
-	end
+        initOk = genTwin()
+        if not initOk then
+            self:disengage()
+            return
+        end
 
-	local Antihit_core = {Enabled = false}
+        self.physHook = physEngine.PreSimulation:Connect(function()
+            local char = entSys.character
+            if not entSys.isAlive or typeof(char) ~= "Instance" or not char:FindFirstChild("RootPart") or typeof(shared.anchorBase) ~= "Instance" then
+                self:disengage()
+                return
+            end
+            local currBase = char.RootPart
+            local currPos = currBase.CFrame
+            if not isnetworkowner(shared.anchorBase) then
+                currBase.CFrame = shared.anchorBase.CFrame
+                currBase.Velocity = shared.anchorBase.Velocity
+                return
+            end
+            if not shared.evadeFlag then
+                shared.anchorBase.CFrame = currPos
+            end
+            shared.anchorBase.Velocity = Vector3.zero
+            shared.anchorBase.CanCollide = false
+            shiftPos()
+        end)
 
-	function AntiHit:disengage()
-		self.on = false
-		pcall(resetCore)
-		if self.physHook then
-			self.physHook:Disconnect()
-			self.physHook = nil
-		end
-		if self.respawnHook then
-			self.respawnHook:Disconnect()
-			self.respawnHook = nil
-		end
-	end
+        self.respawnHook = plyr.CharacterAdded:Connect(function()
+            if self.on then
+                self:disengage()
+                waitForCharacter()
+                task.wait(0.1)
+                self:engage()
+            end
+        end)
+    end
 
-	Antihit_core = vape.Categories.Blatant:CreateModule({
-		Name = "AntiHit",
-		Function = function(active)
-			task.spawn(function()
-				repeat task.wait() until store.matchState > 0 or not Antihit_core.Enabled
-				if not Antihit_core.Enabled then return end
-				if active then
-					AntiHit:engage()
-				else
-					AntiHit:disengage()
-				end
-			end)
-		end,
-		Tooltip = "Dodges attacks."
-	})
+    local Antihit_core = {Enabled = false}
 
-	Antihit_core:CreateTargets({
-		Players = true,
-		NPCs = false
-	})
-	Antihit_core:CreateDropdown({
-		Name = "Shift Type",
-		List = {"Up", "Down"},
-		Value = "Up",
-		Function = function(opt) shiftMode = opt end
-	})
-	Antihit_core:CreateSlider({
-		Name = "Scan Perimeter",
-		Min = 1,
-		Max = 30,
-		Default = 30,
-		Suffix = function(v) return v == 1 and "span" or "spans" end,
-		Function = function(v) scanRad = v end
-	})
-	Antihit_core:CreateSlider({
-		Name = "Slowmo",
-		Min = 0.1,
-		Max = 9,
-		Default = 0.2,
-		Suffix = "s",
-		Function = function(v) slowmoTime = v end
-	})
-end)
-																																																																																																																																																															
-run(function()
-	local Desync
-	local Type
-	local AutoSend
-	local AutoSendLength
-	local NoFly
-	local oldphys, oldsend
-	
-	Desync = vape.Categories.Blatant:CreateModule({
-		Name = 'Desync V2',
-		Function = function(callback)
-			if callback then
-				local teleported
-				Desync:Clean(lplr.OnTeleport:Connect(function()
-					setfflag('S2PhysicsSenderRate', '15')
-					setfflag('DataSenderRate', '60')
-					teleported = true
-				end))
-	
-				repeat
-					local physicsrate, senderrate = '0', Type.Value == 'All' and '-1' or '60'
-					if (vape.Modules.Fly.Enabled) and NoFly.Enabled then
-						setfflag('S2PhysicsSenderRate', '15')
-						setfflag('DataSenderRate', '60')
-						oldphys, oldsend = nil, nil
-					else
-						if tick() % (AutoSendLength.Value + 0.1) > AutoSendLength.Value then
-							physicsrate, senderrate = '15', '60'
-						end
-		
-						if physicsrate ~= oldphys or senderrate ~= oldsend then
-							setfflag('S2PhysicsSenderRate', physicsrate)
-							setfflag('DataSenderRate', senderrate)
-							oldphys, oldsend = physicsrate, oldsend
-						end
-					end
-					
-					task.wait(0.03)
-				until (not Desync.Enabled and not teleported)
-			else
-				setfflag('S2PhysicsSenderRate', '15')
-				setfflag('DataSenderRate', '60')
-				oldphys, oldsend = nil, nil
-			end
-		end,
-		Tooltip = 'Desyncs ur character.\n (does not affect your pov)'
-	})
-	Type = Desync:CreateDropdown({
-		Name = 'Type',
-		List = {'Movement Only', 'All'},
-		Tooltip = 'Movement Only - Only chokes movement packets\nAll - Chokes remotes & movement'
-	})
-	AutoSendLength = Desync:CreateSlider({
-		Name = 'Send delay',
-		Min = 0,
-		Max = 1,
-		Decimal = 100,
-		Suffix = function(val)
-			return val == 1 and 'second' or 'seconds'
-		end
-	})
-	NoFly = Desync:CreateToggle({
-		Name = 'Disable when flying',
-		Default = true
-	})
-end)
+    function AntiHit:disengage()
+        self.on = false
+        pcall(resetCore)
+        if self.physHook then
+            self.physHook:Disconnect()
+            self.physHook = nil
+        end
+        if self.respawnHook then
+            self.respawnHook:Disconnect()
+            self.respawnHook = nil
+        end
+    end
+
+    Antihit_core = vape.Categories.Blatant:CreateModule({
+        Name = "AntiHit",
+        Function = function(active)
+            task.spawn(function()
+                repeat task.wait() until store.matchState > 0 or not Antihit_core.Enabled
+                if not Antihit_core.Enabled then return end
+                if active then
+                    AntiHit:engage()
+                else
+                    AntiHit:disengage()
+                end
+            end)
+        end,
+        Tooltip = "Dodges attacks."
+    })
+
+    Antihit_core:CreateTargets({
+        Players = true,
+        NPCs = false
+    })
+    Antihit_core:CreateDropdown({
+        Name = "Shift Type",
+        List = {"Up", "Down"},
+        Value = "Up",
+        Function = function(opt) shiftMode = opt end
+    })
+    Antihit_core:CreateSlider({
+        Name = "Scan Perimeter",
+        Min = 1,
+        Max = 30,
+        Default = 30,
+        Suffix = function(v) return v == 1 and "span" or "spans" end,
+        Function = function(v) scanRad = v end
+    })
+    Antihit_core:CreateSlider({
+        Name = "Slowmo",
+        Min = 0.1,
+        Max = 9,
+        Default = 0.2,
+        Suffix = "s",
+        Function = function(v) slowmoTime = v end
+    })
+end) 
