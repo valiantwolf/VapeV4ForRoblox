@@ -10567,17 +10567,89 @@ run(function()
     local speedOffset = 60
     local partialOffset = Vector3.new(0, -3, 0)
 
+    local anchorBase
+    local dupeNode
+    local altHeight
+
+    local function createClone()
+        local character = LocalPlayer.Character
+        if not character or not character:FindFirstChild("HumanoidRootPart") or not character:FindFirstChild("Humanoid") then return false end
+
+        altHeight = character.Humanoid.HipHeight
+        anchorBase = character.HumanoidRootPart
+
+        LocalPlayer.Character.Parent = game
+        dupeNode = anchorBase:Clone()
+        dupeNode.Parent = LocalPlayer.Character
+        anchorBase.Parent = workspace.CurrentCamera
+        dupeNode.CFrame = anchorBase.CFrame
+
+        LocalPlayer.Character.PrimaryPart = dupeNode
+
+        LocalPlayer.Character.Parent = workspace
+
+        for _, x in LocalPlayer.Character:GetDescendants() do
+            if x:IsA('Weld') or x:IsA('Motor6D') then
+                if x.Part0 == anchorBase then x.Part0 = dupeNode end
+                if x.Part1 == anchorBase then x.Part1 = dupeNode end
+            end
+        end
+        return true
+    end
+
+    local function resetClone()
+        if not anchorBase then return end
+        local character = LocalPlayer.Character
+        if not character then return end
+
+        LocalPlayer.Character.Parent = game
+        anchorBase.Parent = LocalPlayer.Character
+        anchorBase.CanCollide = true
+        anchorBase.Velocity = Vector3.zero
+        anchorBase.Anchored = false
+
+        LocalPlayer.Character.PrimaryPart = anchorBase
+
+        for _, x in LocalPlayer.Character:GetDescendants() do
+            if x:IsA('Weld') or x:IsA('Motor6D') then
+                if x.Part0 == dupeNode then x.Part0 = anchorBase end
+                if x.Part1 == dupeNode then x.Part1 = anchorBase end
+            end
+        end
+
+        local prevLoc = dupeNode and dupeNode.CFrame or anchorBase.CFrame
+        if dupeNode then
+            dupeNode:Destroy()
+            dupeNode = nil
+        end
+
+        LocalPlayer.Character.Parent = workspace
+        anchorBase.CFrame = prevLoc
+
+        if character:FindFirstChild("Humanoid") then
+            character.Humanoid.HipHeight = altHeight or 2
+        end
+
+        anchorBase = nil
+        altHeight = nil
+    end
+
     local AntiHit = vape.Categories.Blatant:CreateModule({
         Name = "Anti Hit",
         Function = function(call)
             if call then
+                if not createClone() then
+                    AntiHit:Toggle(false)
+                    return
+                end
+
                 local isDown = false
                 local originalCFrame
 
                 AntiHit:Clean(RunService.Heartbeat:Connect(function()
                     local character = LocalPlayer.Character
                     if not character then return end
-                    local hrp = character:FindFirstChild("HumanoidRootPart")
+                    local hrp = character.PrimaryPart
                     if not hrp then return end
 
                     local hrpPos = hrp.Position
@@ -10620,9 +10692,15 @@ run(function()
                         isDown = false
                     end
                 end))
+
+                AntiHit:Clean(function()
+                    resetClone()
+                end)
+            else
+                resetClone()
             end
         end,
-        Tooltip = "Teleports up or down to dodge hits."
+        Tooltip = "Makes it harder for your opp to hit you"
     })
 
     AntiHit:CreateDropdown({
@@ -10645,7 +10723,7 @@ run(function()
     })
 
     AntiHit:CreateSlider({
-        Name = "Tp speed",
+        Name = "Tp Offset",
         Min = 1,
         Max = 150,
         Default = 60,
@@ -10655,4 +10733,3 @@ run(function()
         end
     })
 end)
-																																																																																																																																																															
