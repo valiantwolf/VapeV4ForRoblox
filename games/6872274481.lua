@@ -10558,178 +10558,137 @@ run(function()
 end) 
 
 run(function()
-    local Players = game:GetService("Players")
-    local RunService = game:GetService("RunService")
-    local LocalPlayer = Players.LocalPlayer
+    local AntiHit = {}
+    local worldSpace = workspace
+    local camView = worldSpace.CurrentCamera
+    local plyr = lplr
+    local entSys = entitylib
 
-    local direction = "Up"
-    local radius = 30
-    local speedOffset = 60
-    local partialOffset = Vector3.new(0, -3, 0)
+    local scanRad = 30
+    local teleportOffset = 60
+    local shiftMode = "Up"
 
-    local anchorBase
-    local dupeNode
-    local altHeight
+    local cloneHRP = nil
+    local realHRP = nil
+    local altHeight = nil
 
     local function createClone()
-        local character = LocalPlayer.Character
-        if not character or not character:FindFirstChild("HumanoidRootPart") or not character:FindFirstChild("Humanoid") then return false end
+        if entSys.isAlive and entSys.character and entSys.character:FindFirstChild("HumanoidRootPart") then
+            realHRP = entSys.character.HumanoidRootPart
+            altHeight = entSys.character.Humanoid.HipHeight
 
-        altHeight = character.Humanoid.HipHeight
-        anchorBase = character.HumanoidRootPart
+            if not plyr.Character or not plyr.Character.Parent then return false end
 
-        LocalPlayer.Character.Parent = game
-        dupeNode = anchorBase:Clone()
-        dupeNode.Parent = LocalPlayer.Character
-        anchorBase.Parent = workspace.CurrentCamera
-        dupeNode.CFrame = anchorBase.CFrame
+            plyr.Character.Parent = game
+            cloneHRP = realHRP:Clone()
+            cloneHRP.Parent = plyr.Character
 
-        LocalPlayer.Character.PrimaryPart = dupeNode
+            plyr.Character.PrimaryPart = cloneHRP
+            entSys.character.HumanoidRootPart = cloneHRP
+            entSys.character.RootPart = cloneHRP
+            plyr.Character.Parent = worldSpace
 
-        LocalPlayer.Character.Parent = workspace
-
-        for _, x in LocalPlayer.Character:GetDescendants() do
-            if x:IsA('Weld') or x:IsA('Motor6D') then
-                if x.Part0 == anchorBase then x.Part0 = dupeNode end
-                if x.Part1 == anchorBase then x.Part1 = dupeNode end
+            for _, v in plyr.Character:GetDescendants() do
+                if v:IsA('Weld') or v:IsA('Motor6D') then
+                    if v.Part0 == realHRP then v.Part0 = cloneHRP end
+                    if v.Part1 == realHRP then v.Part1 = cloneHRP end
+                end
             end
+            return true
         end
-        return true
+        return false
     end
 
-    local function resetClone()
-        if not anchorBase then return end
-        local character = LocalPlayer.Character
-        if not character then return end
+    local function cleanClone()
+        if not plyr.Character then return end
+        if realHRP and realHRP.Parent and cloneHRP then
+            plyr.Character.Parent = game
+            realHRP.Parent = plyr.Character
+            realHRP.CanCollide = true
+            realHRP.Velocity = Vector3.zero
+            plyr.Character.PrimaryPart = realHRP
+            entSys.character.HumanoidRootPart = realHRP
+            entSys.character.RootPart = realHRP
 
-        LocalPlayer.Character.Parent = game
-        anchorBase.Parent = LocalPlayer.Character
-        anchorBase.CanCollide = true
-        anchorBase.Velocity = Vector3.zero
-        anchorBase.Anchored = false
+            for _, v in plyr.Character:GetDescendants() do
+                if v:IsA('Weld') or v:IsA('Motor6D') then
+                    if v.Part0 == cloneHRP then v.Part0 = realHRP end
+                    if v.Part1 == cloneHRP then v.Part1 = realHRP end
+                end
+            end
 
-        LocalPlayer.Character.PrimaryPart = anchorBase
+            if cloneHRP then
+                cloneHRP:Destroy()
+                cloneHRP = nil
+            end
 
-        for _, x in LocalPlayer.Character:GetDescendants() do
-            if x:IsA('Weld') or x:IsA('Motor6D') then
-                if x.Part0 == dupeNode then x.Part0 = anchorBase end
-                if x.Part1 == dupeNode then x.Part1 = anchorBase end
+            plyr.Character.Parent = worldSpace
+            if entSys.character:FindFirstChild("Humanoid") then
+                entSys.character.Humanoid.HipHeight = altHeight or 2
             end
         end
-
-        local prevLoc = dupeNode and dupeNode.CFrame or anchorBase.CFrame
-        if dupeNode then
-            dupeNode:Destroy()
-            dupeNode = nil
-        end
-
-        LocalPlayer.Character.Parent = workspace
-        anchorBase.CFrame = prevLoc
-
-        if character:FindFirstChild("Humanoid") then
-            character.Humanoid.HipHeight = altHeight or 2
-        end
-
-        anchorBase = nil
-        altHeight = nil
+        realHRP = nil
     end
 
-    local AntiHit = vape.Categories.Blatant:CreateModule({
+    local function moveUpDown()
+        if not entSys.isAlive or not cloneHRP or not realHRP then return end
+        local basePos = entSys.character.RootPart.Position
+        local offset = shiftMode == "Up" and teleportOffset or -teleportOffset
+        local newCFrame = CFrame.new(basePos.X, basePos.Y + offset, basePos.Z)
+        cloneHRP.CFrame = newCFrame
+        realHRP.CFrame = newCFrame
+    end
+
+    function AntiHit:engage(module)
+        if not createClone() then
+            module:Toggle(false)
+            return
+        end
+        module:Clean(runService.Heartbeat:Connect(function()
+            if not entSys.isAlive or not cloneHRP or not realHRP then
+                module:Toggle(false)
+                return
+            end
+            moveUpDown()
+        end))
+    end
+
+    function AntiHit:disengage()
+        cleanClone()
+    end
+
+    local AntiHitModule = vape.Categories.Blatant:CreateModule({
         Name = "Anti Hit",
         Function = function(call)
             if call then
-                if not createClone() then
-                    AntiHit:Toggle(false)
-                    return
-                end
-
-                local isDown = false
-                local originalCFrame
-
-                AntiHit:Clean(RunService.Heartbeat:Connect(function()
-                    local character = LocalPlayer.Character
-                    if not character then return end
-                    local hrp = character.PrimaryPart
-                    if not hrp then return end
-
-                    local hrpPos = hrp.Position
-                    local lpTeam = LocalPlayer.Team
-                    local enemyInRange = false
-
-                    for _, plr in ipairs(Players:GetPlayers()) do
-                        if plr ~= LocalPlayer and plr.Team ~= lpTeam then
-                            local otherChar = plr.Character
-                            if otherChar then
-                                local otherHRP = otherChar:FindFirstChild("HumanoidRootPart")
-                                if otherHRP and (otherHRP.Position - hrpPos).Magnitude <= radius then
-                                    enemyInRange = true
-                                    break
-                                end
-                            end
-                        end
-                    end
-
-                    local offsetY = speedOffset
-                    if direction == "Down" then
-                        offsetY = -speedOffset
-                    end
-                    local mainOffset = Vector3.new(0, offsetY, 0)
-
-                    if enemyInRange then
-                        if not isDown then
-                            originalCFrame = hrp.CFrame
-                            hrp.CFrame = hrp.CFrame + mainOffset
-                            isDown = true
-                        else
-                            if originalCFrame then
-                                hrp.CFrame = originalCFrame + partialOffset
-                            end
-                        end
-                    elseif isDown then
-                        if originalCFrame then
-                            hrp.CFrame = originalCFrame
-                        end
-                        isDown = false
-                    end
-                end))
-
-                AntiHit:Clean(function()
-                    resetClone()
-                end)
+                AntiHit:engage(AntiHitModule)
             else
-                resetClone()
+                AntiHit:disengage()
             end
         end,
         Tooltip = "Makes it harder for your opp to hit you"
     })
 
-    AntiHit:CreateDropdown({
-        Name = "Direction",
+    AntiHitModule:CreateDropdown({
+        Name = "Shift Type",
         List = {"Up", "Down"},
-        Function = function(val)
-            direction = val
-        end
+        Value = "Up",
+        Function = function(opt) shiftMode = opt end
     })
 
-    AntiHit:CreateSlider({
-        Name = "Range",
-        Min = 1,
-        Max = 60,
-        Default = 30,
-        Suffix = function(v) return v == 1 and "stud" or "studs" end,
-        Function = function(v)
-            radius = v
-        end
-    })
-
-    AntiHit:CreateSlider({
+    AntiHitModule:CreateSlider({
         Name = "Tp Offset",
         Min = 1,
-        Max = 150,
+        Max = 100,
         Default = 60,
-        Suffix = "studs",
-        Function = function(v)
-            speedOffset = v
-        end
+        Function = function(val) teleportOffset = val end
+    })
+
+    AntiHitModule:CreateSlider({
+        Name = "Range",
+        Min = 1,
+        Max = 100,
+        Default = 30,
+        Function = function(val) scanRad = val end
     })
 end)
