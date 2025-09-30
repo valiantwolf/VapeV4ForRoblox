@@ -5807,7 +5807,12 @@ mainapi:CreateCategory({
 	Size = UDim2.fromOffset(19, 12)
 })--]]
 mainapi.Categories.Main:CreateDivider('misc')
-
+mainapi:CreateCategory({
+	Name = 'Target Hud',
+	--Icon = getcustomasset('newvape/assets/new/worldicon.png'),
+	Size = UDim2.fromOffset(14, 14)
+})
+							
 --[[
 	Friends
 ]]
