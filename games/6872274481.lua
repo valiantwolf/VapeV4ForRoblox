@@ -10559,22 +10559,17 @@ end)
 
 run(function()
     local AntiHit = {}
-    local worldSpace = workspace
-    local camView = worldSpace.CurrentCamera
     local plyr = lplr
     local entSys = entitylib
+    local runService = game:GetService("RunService")
 
-    local scanRad = 30
-    local teleportOffset = 60
-    local shiftMode = "Up"
-
-    local cloneHRP = nil
-    local realHRP = nil
-    local altHeight = nil
+    local realHRP, cloneHRP, altHeight
+    local active = false
+    local conn
 
     local function createClone()
-        if entSys.isAlive and entSys.character and entSys.character:FindFirstChild("HumanoidRootPart") then
-            realHRP = entSys.character.HumanoidRootPart
+        if entSys.isAlive and entSys.character and entSys.character.RootPart and entSys.character.Humanoid then
+            realHRP = entSys.character.RootPart
             altHeight = entSys.character.Humanoid.HipHeight
 
             if not plyr.Character or not plyr.Character.Parent then return false end
@@ -10584,12 +10579,12 @@ run(function()
             cloneHRP.Parent = plyr.Character
 
             plyr.Character.PrimaryPart = cloneHRP
-            entSys.character.HumanoidRootPart = cloneHRP
             entSys.character.RootPart = cloneHRP
-            plyr.Character.Parent = worldSpace
+            entSys.character.HumanoidRootPart = cloneHRP
+            plyr.Character.Parent = workspace
 
             for _, v in plyr.Character:GetDescendants() do
-                if v:IsA('Weld') or v:IsA('Motor6D') then
+                if v:IsA("Weld") or v:IsA("Motor6D") then
                     if v.Part0 == realHRP then v.Part0 = cloneHRP end
                     if v.Part1 == realHRP then v.Part1 = cloneHRP end
                 end
@@ -10600,95 +10595,67 @@ run(function()
     end
 
     local function cleanClone()
-        if not plyr.Character then return end
-        if realHRP and realHRP.Parent and cloneHRP then
+        if realHRP and plyr.Character then
             plyr.Character.Parent = game
             realHRP.Parent = plyr.Character
-            realHRP.CanCollide = true
-            realHRP.Velocity = Vector3.zero
             plyr.Character.PrimaryPart = realHRP
-            entSys.character.HumanoidRootPart = realHRP
             entSys.character.RootPart = realHRP
-
-            for _, v in plyr.Character:GetDescendants() do
-                if v:IsA('Weld') or v:IsA('Motor6D') then
-                    if v.Part0 == cloneHRP then v.Part0 = realHRP end
-                    if v.Part1 == cloneHRP then v.Part1 = realHRP end
-                end
-            end
-
-            if cloneHRP then
-                cloneHRP:Destroy()
-                cloneHRP = nil
-            end
-
-            plyr.Character.Parent = worldSpace
-            if entSys.character:FindFirstChild("Humanoid") then
-                entSys.character.Humanoid.HipHeight = altHeight or 2
-            end
+            entSys.character.HumanoidRootPart = realHRP
+            plyr.Character.Parent = workspace
+        end
+        if cloneHRP then
+            cloneHRP:Destroy()
+            cloneHRP = nil
+        end
+        if entSys.isAlive and entSys.character.Humanoid then
+            entSys.character.Humanoid.HipHeight = altHeight or 2
         end
         realHRP = nil
+        altHeight = nil
     end
 
-    local function moveUpDown()
-        if not entSys.isAlive or not cloneHRP or not realHRP then return end
-        local basePos = entSys.character.RootPart.Position
-        local offset = shiftMode == "Up" and teleportOffset or -teleportOffset
-        local newCFrame = CFrame.new(basePos.X, basePos.Y + offset, basePos.Z)
-        cloneHRP.CFrame = newCFrame
-        realHRP.CFrame = newCFrame
-    end
+    function AntiHit:start()
+        if active then return end
+        active = true
 
-    function AntiHit:engage(module)
         if not createClone() then
-            module:Toggle(false)
+            self:stop()
             return
         end
-        module:Clean(runService.Heartbeat:Connect(function()
-            if not entSys.isAlive or not cloneHRP or not realHRP then
-                module:Toggle(false)
+
+        conn = runService.PreSimulation:Connect(function()
+            if not entSys.isAlive or not entSys.character or not entSys.character.RootPart or not cloneHRP then
+                self:stop()
                 return
             end
-            moveUpDown()
-        end))
+
+            realHRP.CFrame = cloneHRP.CFrame
+            realHRP.Velocity = cloneHRP.Velocity
+        end)
     end
 
-    function AntiHit:disengage()
+    function AntiHit:stop()
+        active = false
         cleanClone()
+        if conn then
+            conn:Disconnect()
+            conn = nil
+        end
     end
 
-    local AntiHitModule = vape.Categories.Blatant:CreateModule({
-        Name = "Anti Hit",
+    local mod = vape.Categories.Blatant:CreateModule({
+        Name = "AntiHit",
         Function = function(call)
             if call then
-                AntiHit:engage(AntiHitModule)
+                AntiHit:start()
             else
-                AntiHit:disengage()
+                AntiHit:stop()
             end
         end,
-        Tooltip = "Makes it harder for your opp to hit you"
+        Tooltip = "Makes it harder for opps to hit you."
     })
 
-    AntiHitModule:CreateDropdown({
-        Name = "Shift Type",
-        List = {"Up", "Down"},
-        Value = "Up",
-        Function = function(opt) shiftMode = opt end
-    })
-
-    AntiHitModule:CreateSlider({
-        Name = "Tp Offset",
-        Min = 1,
-        Max = 100,
-        Default = 60,
-        Function = function(val) teleportOffset = val end
-    })
-
-    AntiHitModule:CreateSlider({
-        Name = "Range",
-        Min = 1,
-        Max = 100,
-        Default = 30,
-        Function = function(val) scanRad = val end
-    })
+    mod:Clean(function()
+        AntiHit:stop()
+    end)
 end)
