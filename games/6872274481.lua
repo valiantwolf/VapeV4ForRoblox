@@ -1356,9 +1356,7 @@ run(function()
     local Boxes, BoxSwingColor, BoxAttackColor = {}, nil, nil
     local SwingRange, AttackRange, Face, Swing, AngleSlider, SortMode, Targets, APS
 
-    task.spawn(function()
-        AttackRemote = bedwars.Client:Get(remotes.AttackEntity).instance
-    end)
+    AttackRemote = vape:GetRemote("AttackEntity")
 
     local function getAttackData()
         local sword = store.tools.sword
@@ -1493,43 +1491,44 @@ run(function()
     })
 
     Targets = SilentAura:CreateTargets({
-	Players = true, 
-	NPCs = true
-	})
+        Players = true,
+        NPCs = true
+    })
     SwingRange = SilentAura:CreateSlider({
-	Name = "Swing range", 
-	Min = 1, 
-	Max = 23, 
-	Default = 23
-	})
+        Name = "Swing range",
+        Min = 1,
+        Max = 23,
+        Default = 23
+    })
     AttackRange = SilentAura:CreateSlider({
-	Name = "Attack range", 
-	Min = 1, 
-	Max = 23, 
-	Default = 18
-	})
+        Name = "Attack range",
+        Min = 1,
+        Max = 23,
+        Default = 18
+    })
     AngleSlider = SilentAura:CreateSlider({
-	Name = "Max angle", 
-	Min = 1, 
-	Max = 360, 
-	Default = 360
-	})
+        Name = "Max angle",
+        Min = 1,
+        Max = 360,
+        Default = 360
+    })
     SortMode = SilentAura:CreateDropdown({
-	Name = "Attack Mode", 
-	List = {"Distance", "Health"}, Value = "Distance"
-	})
+        Name = "Attack Mode",
+        List = {"Distance", "Health"},
+        Value = "Distance"
+    })
     APS = SilentAura:CreateTwoSlider({
         Name = "Attacks per second",
-        Min = 1, Max = 20,
-        Default = {Min = 8, 
-	    Max = 12
+        Min = 1,
+        Max = 20,
+        Default = {Min = 8, Max = 12}
     })
     Face = SilentAura:CreateToggle({
-	Name = "Face target",
-	})
+        Name = "Face target"
+    })
     Swing = SilentAura:CreateToggle({
-	Name = "Swing",
-	})
+        Name = "Swing"
+    })
     SilentAura:CreateToggle({
         Name = "Show target",
         Function = function(callback)
@@ -1553,19 +1552,19 @@ run(function()
         end
     })
     BoxSwingColor = SilentAura:CreateColorSlider({
-	Name = "Target Color", 
-	Darker = true, 
-	DefaultHue = 0.6, 
-	DefaultOpacity = 0.5, 
-	Visible = false
-	})
-    BoxAttackColor = SilentAura:CreateColorSlider({
-	Name = "Attack Color",
-    Darker = true, 
-	DefaultOpacity = 0.5, 
-	Visible = false
+        Name = "Target Color",
+        Darker = true,
+        DefaultHue = 0.6,
+        DefaultOpacity = 0.5,
+        Visible = false
     })
-end)
+    BoxAttackColor = SilentAura:CreateColorSlider({
+        Name = "Attack Color",
+        Darker = true,
+        DefaultOpacity = 0.5,
+        Visible = false
+    })
+end)	
 	
 run(function()
 	local AutoClicker
