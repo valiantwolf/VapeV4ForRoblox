@@ -1525,10 +1525,10 @@ run(function()
 	    Max = 12
     })
     Face = SilentAura:CreateToggle({
-	Name = "Face target"
+	Name = "Face target",
 	})
     Swing = SilentAura:CreateToggle({
-	Name = "Swing"
+	Name = "Swing",
 	})
     SilentAura:CreateToggle({
         Name = "Show target",
