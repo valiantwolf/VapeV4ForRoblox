@@ -10558,104 +10558,311 @@ run(function()
 end) 
 
 run(function()
-    local AntiHit = {}
-    local plyr = lplr
-    local entSys = entitylib
-    local runService = game:GetService("RunService")
+	local targetui = Instance.new('Frame') 
+	local targetactive = false
+	targetui.AnchorPoint = Vector2.new(-0.5, 0)
+	targetui.Size = UDim2.new(0, 320, 0, 109)
+	targetui.BackgroundColor3 = Color3.fromRGB(60, 12, 127)
+	targetui.Position = UDim2.new(0.42, 0, 0.806, 0)
+	targetui.BackgroundTransparency = 0.25
+	targetui.Visible = false
+	local targetinforounding = Instance.new('UICorner')
+	targetinforounding.Parent = targetui
+	local targetinfostroke = Instance.new('UIStroke')
+	targetinfostroke.Color = Color3.fromRGB(255, 255, 255)
+	targetinfostroke.Thickness = 3
+	targetinfostroke.Parent = targetui
+	local targetstrokeround = Instance.new('UIGradient')
+	targetstrokeround.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(168, 92, 255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(146, 23, 254))})
+	targetstrokeround.Parent = targetinfostroke
+	local targethealthbarBK = Instance.new('Frame')
+	targethealthbarBK.Size = UDim2.new(0, 171, 0, 18)
+	targethealthbarBK.Position = UDim2.new(0.35, 0, 0.477, 0)
+	targethealthbarBK.BackgroundColor3 = Color3.fromRGB(45, 7, 91)
+	targethealthbarBK.Parent = targetui 
+	local healthbarBKRound = Instance.new('UICorner')
+	healthbarBKRound.CornerRadius = UDim.new(1, 8)
+	healthbarBKRound.Parent = targethealthbarBK 
+	local targethealthbar = targethealthbarBK:Clone() 
+	targethealthbar.ZIndex = 2 
+	targethealthbar.BackgroundColor3 = Color3.fromRGB(130, 21, 255) 
+	targethealthbar.Parent = targetui
+	local targeticon = Instance.new('ImageLabel')
+	targeticon.Image = 'rbxthumb://type=AvatarHeadShot&id='..(lplr.UserId)..'&w=420&h=420'
+	targeticon.BackgroundTransparency = 1 
+	targeticon.Size = UDim2.new(0, 84, 0, 82)
+	targeticon.Position = UDim2.new(0.035, 0, 0.123, 0)
+	targeticon.Parent = targetui
+	local targeticonround = Instance.new('UICorner')
+	targeticonround.Parent = targeticon
+	local tagretinfohealth = Instance.new('TextLabel')
+	tagretinfohealth.Text = (math.round(isAlive(lplr, true) and lplr.Character.Humanoid.Health or 100)..' HP')
+	tagretinfohealth.TextSize = 15
+	tagretinfohealth.BackgroundTransparency = 1 
+	tagretinfohealth.FontFace = Font.new('rbxasset://fonts/families/GothamSSm.json', Enum.FontWeight.Bold)
+	tagretinfohealth.Position = UDim2.new(0.291, 0, 0.532, 0)
+	tagretinfohealth.Size = UDim2.new(0, 208, 0, 64)
+	tagretinfohealth.TextColor3 = Color3.fromRGB(255, 255, 255)
+	tagretinfohealth.Parent = targetui
+	local targetname = tagretinfohealth:Clone() -- lazy ok 
+	targetname.Text = lplr.DisplayName 
+	targetname.Position = UDim2.new(0.291, 0, 0, 0)
+	targetname.Size = UDim2.new(0, 208, 0, 64)
+	targetname.TextSize = 18
+	targetname.Parent = targetui	
+	local targetinfomainframe = Instance.new('Frame') -- pasted from my old project Voidware
+    local targetinfomaingradient = Instance.new('UIGradient')
+    local targetinfomainrounding = Instance.new('UICorner')
+	local targetinfopfpbox = Instance.new('Frame')
+    local targetinfopfpboxrounding = Instance.new('UICorner')
+	local targetinfoname = Instance.new('TextLabel')
+	local targetinfohealthinfo = Instance.new('TextLabel')
+	local targetinfonamefont = Font.new('rbxasset://fonts/families/GothamSSm.json')
+	local targetinfohealthbarbackground = Instance.new('Frame')
+	local targetinfohealthbarbkround = Instance.new('UICorner')
+	local targetinfohealthbar = Instance.new('Frame')
+	local targetinfoprofilepicture = Instance.new('ImageLabel')  
+	local targetinfoprofilepictureround = Instance.new('UICorner')
+	targetinfonamefont.Weight = Enum.FontWeight.Heavy
+	targetinfomainframe.Name = 'VoidwareTargetInfo'
+	targetinfomainframe.Size = UDim2.new(0, 350, 0, 96)
+	targetinfomainframe.BackgroundTransparency = 0.13
+	targetinfomaingradient.Parent = targetinfomainframe
+	targetinfomaingradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(69, 13, 136)), ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 255))})
+	targetinfomainrounding.Parent = targetinfomainframe
+	targetinfomainrounding.CornerRadius = UDim.new(0, 8)
+	targetinfopfpbox.Parent = targetinfomainframe
+	targetinfopfpbox.Name = 'ProfilePictureBox'
+	targetinfopfpbox.BackgroundColor3 = Color3.fromRGB(130, 0, 166)
+	targetinfopfpbox.Position = UDim2.new(0.035, 0, 0.165, 0)
+	targetinfopfpbox.Size = UDim2.new(0, 70, 0, 69)
+	targetinfopfpboxrounding.Parent = targetinfopfpbox
+	targetinfomainrounding.CornerRadius = UDim.new(0, 8)
+	targetinfoname.Parent = targetinfomainframe
+	targetinfoname.Name = 'TargetNameInfo'
+	targetinfoname.Text = lplr.DisplayName
+	targetinfoname.TextXAlignment = Enum.TextXAlignment.Left
+	targetinfoname.RichText = true
+	targetinfoname.Size = UDim2.new(0, 215, 0, 31)
+	targetinfoname.Position = UDim2.new(0.289, 0, 0.058, 0)
+	targetinfoname.FontFace = targetinfonamefont
+	targetinfoname.BackgroundTransparency = 1
+	targetinfoname.TextSize = 20
+	targetinfoname.TextColor3 = Color3.fromRGB(255, 255, 255)
+	targetinfohealthinfo.Parent = targetinfomainframe
+	targetinfohealthinfo.Text = ''
+	targetinfohealthinfo.Name = 'TargetHealthInfo'
+	targetinfohealthinfo.Size = UDim2.new(0, 112, 0, 31)
+	targetinfohealthinfo.Position = UDim2.new(0.223, 0, 0.252, 0)
+	targetinfohealthinfo.FontFace = targetinfonamefont
+	targetinfohealthinfo.BackgroundTransparency = 1
+	targetinfohealthinfo.TextSize = 13
+	targetinfohealthinfo.TextColor3 = Color3.fromRGB(255, 255, 255)
+	targetinfohealthbarbackground.Parent = targetinfomainframe
+	targetinfohealthbarbackground.Name = 'HealthbarBackground'
+	targetinfohealthbarbackground.BackgroundColor3 = Color3.fromRGB(59, 0, 88)
+	targetinfohealthbarbackground.Size = UDim2.new(0, 205, 0, 15)
+	targetinfohealthbarbackground.Position = UDim2.new(0.32, 0, 0.650, 0)
+	targetinfohealthbarbkround.Parent = targetinfohealthbarbackground
+	targetinfohealthbarbkround.CornerRadius = UDim.new(0, 8)
+	targetinfohealthbar.Parent = targetinfomainframe
+	targetinfohealthbar.Name = 'Healthbar'
+	targetinfohealthbar.Size = UDim2.new(0, 205, 0, 15)
+	targetinfohealthbar.Position = UDim2.new(0.32, 0, 0.650, 0)
+	targetinfohealthbar.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	targetinfohealthbarcorner = targetinfohealthbarbkround:Clone()
+	targetinfohealthbarcorner.Parent = targetinfohealthbar
+	targetinfoprofilepicture.Parent = targetinfomainframe
+	targetinfoprofilepicture.Name = 'TargetProfilePictureInfo'
+	targetinfoprofilepicture.BackgroundTransparency = 1
+	targetinfoprofilepicture.Size = UDim2.new(0, 69, 0, 69)
+	targetinfoprofilepicture.Position = UDim2.new(0.035, 0, 0.162, 0)
+	targetinfoprofilepicture.Image = 'rbxthumb://type=AvatarHeadShot&id='..(lplr.UserId)..'&w=420&h=420'
+	targetinfohealthinfo.Text = '100/100%'
+	targetinfoprofilepictureround.Parent = targetinfoprofilepicture
 
-    local realHRP, cloneHRP, altHeight
-    local active = false
-    local conn
+	local function bestOffsetX(num, min)
+		local newnum = num
+		for i = 1, 9e9, 0.1 do 
+			if (num / i) <= min then 
+				newnum = (num / i) 
+				break
+			end
+		end
+		return newnum
+	end
+	local function updateTargetUI(target)
+		if type(target) ~= 'table' or target.Player == nil then 
+			targetui.Visible = GuiLibrary.MainGui.ScaledGui.ClickGui.Visible
+			targetactive = false
+			return 
+		end
+		local health = (target.Humanoid and target.Humanoid.Health or isAlive(target.Player) and target.Player.Character.Humanoid.Health or 0)
+		local maxhealth = (target.Humanoid and target.Humanoid.MaxHealth or isAlive(target.Player, true) and target.Player.Character.Humanoid.MaxHealth or 100)
+		local damage = (maxhealth - health)
+		local npctarget = false 
+		if target.Player.UserId == 1443379645 then 
+			npctarget = true 
+		end
+		targetui.Visible = true
+		tweenService:Create(targethealthbar, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {Size = UDim2.new(0, (health == maxhealth or npctarget) and 171 or 100 - (bestOffsetX(damage, 100)), 0, 18)}):Play()
+		tagretinfohealth.Text = ((math.round(health))..' HP')
+		targeticon.Image = 'rbxthumb://type=AvatarHeadShot&id='..(target.Player.UserId)..'&w=420&h=420'
+		targetname.Text = (target.Player.DisplayName or target.Player.Name or 'Target')
+	end
+	local function updateTargetUI2(target)
+		if type(target) ~= 'table' or target.Player == nil then 
+			targetinfomainframe.Visible = GuiLibrary.MainGui.ScaledGui.ClickGui.Visible
+			targetactive = false
+			return 
+		end
+		local health = (target.Humanoid and target.Humanoid.Health or isAlive(target.Player) and target.Player.Character.Humanoid.Health or 0)
+		local maxhealth = (target.Humanoid and target.Humanoid.MaxHealth or isAlive(target.Player, true) and target.Player.Character.Humanoid.MaxHealth or 100)
+		local damage = (maxhealth - health)
+		local npctarget = false 
+		if target.Player.UserId == 1443379645 then 
+			npctarget = true 
+		end
+		targetinfomainframe.Visible = true
+		tweenService:Create(targetinfohealthbar, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {Size = UDim2.new(0, (health == maxhealth or npctarget) and 205 or 100 - (bestOffsetX(damage, 100)), 0, 15)}):Play()
+		targetinfohealthinfo.Text = ((math.round(health))..' HP')
+		targetinfoprofilepicture.Image = 'rbxthumb://type=AvatarHeadShot&id='..(target.Player.UserId)..'&w=420&h=420'
+		targetinfoname.Text = (target.Player.DisplayName or target.Player.Name or 'Target')
+	end
+--[[local RenderUI = GuiLibrary.CreateCustomWindow({
+		Name = 'Render HUD',
+		Icon = 'newvape/assets/TargetIcon3.png',
+		IconSize = 16
+	})
+	local VoidwareUI = GuiLibrary.CreateCustomWindow({
+		Name = 'Voidware HUD',
+		Icon = 'newvape/assets/TargetIcon3.png',
+		IconSize = 16
+	})
+]]
+	local RenderOG = vape.Categories.Target Hud:CreateModule({
+		Name = 'Render Original',
+		Function = function(calling)
+			RenderUI.SetVisible(calling)
+		end
+	})
+	local VoidwareHUD = vape.Categories.Target Hud:CreateModule({
+		Name = 'Voidware Original',
+		Function = function(calling)
+			VoidwareUI.SetVisible(calling)
+		end
+	})
 
-    local function createClone()
-        if entSys.isAlive and entSys.character and entSys.character.RootPart and entSys.character.Humanoid then
-            realHRP = entSys.character.RootPart
-            altHeight = entSys.character.Humanoid.HipHeight
+	--[[task.spawn(function()
+		repeat 
+			pcall(function() 
+				local color = Color3.fromHSV(GuiLibrary.ObjectsThatCanBeSaved['Gui ColorSliderColor'].Api.Hue, GuiLibrary.ObjectsThatCanBeSaved['Gui ColorSliderColor'].Api.Sat, GuiLibrary.ObjectsThatCanBeSaved['Gui ColorSliderColor'].Api.Value) 
+				local rgb = {color.R, color.G, color.B}
+				targetui.BackgroundColor3 = Color3.fromRGB(rgb[1] * 60, rgb[2] * 50, rgb[3] * 142)
+				targetstrokeround.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(rgb[1] * 168, rgb[2] * 98, rgb[3] * 255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(rgb[1] * 146, rgb[2] * 23, rgb[3] * 254))})
+				targethealthbar.BackgroundColor3 = Color3.fromRGB(rgb[1] * 130, rgb[2] * 21, rgb[3] * 355) 
+				targethealthbarBK.BackgroundColor3 = Color3.fromRGB(rgb[1] * 45, rgb[2] * 7, rgb[3] * 91) 
+			end)
+			task.wait() 
+		until not vapeInjected 
+	end)]]
 
-            if not plyr.Character or not plyr.Character.Parent then return false end
+	RenderOG:CreateColorSlider({
+		Name = 'Background Color',
+		Function = function(h, s, v)
+			targetui.BackgroundColor3 = Color3.fromHSV(h, s, v)
+		end
+	})
 
-            plyr.Character.Parent = game
-            cloneHRP = realHRP:Clone()
-            cloneHRP.Parent = plyr.Character
+	local renderogcolor2 = {Hue = 0, Sat = 0, Value = 0}
+	local renderogcolor = RenderOG:CreateColorSlider({
+		Name = 'Outline Color 1',
+		Function = function(h, s, v)
+			targetstrokeround.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromHSV(h, s, v)), ColorSequenceKeypoint.new(1, Color3.fromHSV(renderogcolor2.Hue, renderogcolor2.Sat, renderogcolor2.Value))})
+		end
+	})
 
-            plyr.Character.PrimaryPart = cloneHRP
-            entSys.character.RootPart = cloneHRP
-            entSys.character.HumanoidRootPart = cloneHRP
-            plyr.Character.Parent = workspace
+	renderogcolor2 = RenderOG:CreateColorSlider({
+		Name = 'Outline Color 2',
+		Function = function(h, s, v)
+			targetstrokeround.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromHSV(renderogcolor.Hue, renderogcolor.Sat, renderogcolor.Value)), ColorSequenceKeypoint.new(1, Color3.fromHSV(h, s, v))})
+		end
+	})
 
-            for _, v in plyr.Character:GetDescendants() do
-                if v:IsA("Weld") or v:IsA("Motor6D") then
-                    if v.Part0 == realHRP then v.Part0 = cloneHRP end
-                    if v.Part1 == realHRP then v.Part1 = cloneHRP end
-                end
-            end
-            return true
-        end
-        return false
-    end
+	RenderOG:CreateColorSlider({
+		Name = 'Healthbar Color',
+		Function = function(h, s, v)
+			targethealthbar.BackgroundColor3 = Color3.fromHSV(h, s, v)
+		end
+	})
 
-    local function cleanClone()
-        if realHRP and plyr.Character then
-            plyr.Character.Parent = game
-            realHRP.Parent = plyr.Character
-            plyr.Character.PrimaryPart = realHRP
-            entSys.character.RootPart = realHRP
-            entSys.character.HumanoidRootPart = realHRP
-            plyr.Character.Parent = workspace
-        end
-        if cloneHRP then
-            cloneHRP:Destroy()
-            cloneHRP = nil
-        end
-        if entSys.isAlive and entSys.character.Humanoid then
-            entSys.character.Humanoid.HipHeight = altHeight or 2
-        end
-        realHRP = nil
-        altHeight = nil
-    end
+	RenderOG:CreateColorSlider({
+		Name = 'Healthbar Background Color',
+		Function = function(h, s, v)
+			targethealthbarBK.BackgroundColor3 = Color3.fromHSV(h, s, v) 
+		end
+	})
 
-    function AntiHit:start()
-        if active then return end
-        active = true
+	local voidwareuicolor2 = {Hue = 0, Sat = 0, Value = 0}
+	local voidwareuicolor = VoidwareHUD:CreateColorSlider({
+		Name = 'Background Color 1',
+		Function = function(h, s, v) 
+			targetinfomaingradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromHSV(h, s, v)), ColorSequenceKeypoint.new(1, Color3.fromHSV(voidwareuicolor2.Hue, voidwareuicolor2.Sat, voidwareuicolor2.Value))})
+		end
+	})
 
-        if not createClone() then
-            self:stop()
-            return
-        end
+	voidwareuicolor2 = VoidwareHUD:CreateColorSlider({
+		Name = 'Background Color 2',
+		Function = function(h, s, v) 
+			targetinfomaingradient.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromHSV(voidwareuicolor.Hue, voidwareuicolor.Sat, voidwareuicolor.Value)), ColorSequenceKeypoint.new(1, Color3.fromHSV(h, s, v))})
+		end
+	})
 
-        conn = runService.PreSimulation:Connect(function()
-            if not entSys.isAlive or not entSys.character or not entSys.character.RootPart or not cloneHRP then
-                self:stop()
-                return
-            end
+	VoidwareHUD:CreateColorSlider({
+		Name = 'PFP Background Color',
+		Function = function(h, s, v)
+			targetinfopfpbox.BackgroundColor3 = Color3.fromHSV(h, s, v) 
+		end
+	})
 
-            realHRP.CFrame = cloneHRP.CFrame
-            realHRP.Velocity = cloneHRP.Velocity
-        end)
-    end
+	VoidwareHUD:CreateColorSlider({
+		Name = 'Healthbar Color',
+		Function = function(h, s, v)
+			targetinfohealthbar.BackgroundColor3 = Color3.fromHSV(h, s, v) 
+		end
+	})
 
-    function AntiHit:stop()
-        active = false
-        cleanClone()
-        if conn then
-            conn:Disconnect()
-            conn = nil
-        end
-    end
+	VoidwareHUD:CreateColorSlider({
+		Name = 'Healthbar Background Color',
+		Function = function(h, s, v)
+			targetinfohealthbarbackground.BackgroundColor3 = Color3.fromHSV(h, s, v) 
+		end
+	})
+	
+	RenderStore.UpdateTargetUI = function(...)
+		pcall(updateTargetUI, ...)
+		pcall(updateTargetUI2, ...)
+	end
 
-    local mod = vape.Categories.Blatant:CreateModule({
-        Name = "AntiHit",
-        Function = function(call)
-            if call then
-                AntiHit:start()
-            else
-                AntiHit:stop()
-            end
-        end,
-        Tooltip = "Makes it harder for opps to hit you."
-    })
-
-    mod:Clean(function()
-        AntiHit:stop()
-    end)
+	targetui.Parent = RenderUI.GetCustomChildren()
+	targetinfomainframe.Parent = VoidwareUI.GetCustomChildren()
+	table.insert(vapeConnections, GuiLibrary.MainGui.ScaledGui.ClickGui:GetPropertyChangedSignal('Visible'):Connect(function()
+		if GuiLibrary.MainGui.ScaledGui.ClickGui.Visible then 
+			targetui.Visible = true 
+			targetinfomainframe.Visible = true
+		else
+			targetui.Visible = targetactive 
+			targetinfomainframe.Visible = targetactive
+		end
+	end))
+	table.insert(vapeConnections, targethealthbar:GetPropertyChangedSignal('Size'):Connect(function()
+		if targethealthbar.Size.X.Offset > 171 then 
+			targethealthbar.Size = UDim2.new(0, 171, 0, 18)
+		end
+	end))
+	table.insert(vapeConnections, targetinfohealthbar:GetPropertyChangedSignal('Size'):Connect(function()
+		if targetinfohealthbar.Size.X.Offset > 205 then 
+			targethealthbar.Size = UDim2.new(0, 205, 0, 15)
+		end
+	end))
 end)
