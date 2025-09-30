@@ -10839,7 +10839,7 @@ run(function()
 		end
 	})
 	
-	RenderStore.UpdateTargetUI = function(...)
+	--RenderStore.UpdateTargetUI = function(...)
 		pcall(updateTargetUI, ...)
 		pcall(updateTargetUI2, ...)
 	end
