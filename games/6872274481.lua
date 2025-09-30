@@ -10740,13 +10740,13 @@ run(function()
 		IconSize = 16
 	})
 ]]
-	local RenderOG = vape.Categories.Target Hud:CreateModule({
+	local RenderOG = vape.Categories.Render:CreateModule({
 		Name = 'Render Original',
 		Function = function(calling)
 			RenderUI.SetVisible(calling)
 		end
 	})
-	local VoidwareHUD = vape.Categories.Target Hud:CreateModule({
+	local VoidwareHUD = vape.Categories.Render:CreateModule({
 		Name = 'Voidware Original',
 		Function = function(calling)
 			VoidwareUI.SetVisible(calling)
