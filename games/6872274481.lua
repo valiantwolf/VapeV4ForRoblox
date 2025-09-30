@@ -10596,7 +10596,7 @@ run(function()
 	local targeticonround = Instance.new('UICorner')
 	targeticonround.Parent = targeticon
 	local tagretinfohealth = Instance.new('TextLabel')
-	tagretinfohealth.Text = (math.round(isAlive(lplr, true) and lplr.Character.Humanoid.Health or 100)..' HP')
+	--tagretinfohealth.Text = (math.round(isAlive(lplr, true) and lplr.Character.Humanoid.Health or 100)..' HP')
 	tagretinfohealth.TextSize = 15
 	tagretinfohealth.BackgroundTransparency = 1 
 	tagretinfohealth.FontFace = Font.new('rbxasset://fonts/families/GothamSSm.json', Enum.FontWeight.Bold)
