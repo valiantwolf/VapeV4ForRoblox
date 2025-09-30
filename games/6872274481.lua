@@ -1350,61 +1350,56 @@ end)
 end)--]]
 
 run(function()
+    local SilentAura
     local Attacking, AttackRemote = false, {FireServer = function() end}
     local cachedTargets, lastAttackTime, lastTargetUpdate = {}, {}, 0
     local Boxes, BoxSwingColor, BoxAttackColor = {}, nil, nil
-    local SwingRange, AttackRange, Face
+    local SwingRange, AttackRange, Face, Swing, AngleSlider, SortMode, Targets, APS
 
     task.spawn(function()
         AttackRemote = bedwars.Client:Get(remotes.AttackEntity).instance
     end)
 
-    local function getAttackData(mouseCheck, guiCheck, limitCheck)
-        if mouseCheck and not inputService:IsMouseButtonPressed(0) then return false end
-        if guiCheck and bedwars.AppController:isLayerOpen(bedwars.UILayers.MAIN) then return false end
-
-        local sword = limitCheck and store.hand or store.tools.sword
+    local function getAttackData()
+        local sword = store.tools.sword
         if not sword or not sword.tool then return false end
-
-        local meta = bedwars.ItemMeta[sword.tool.Name]
-        if limitCheck and (store.hand.toolType ~= 'sword' or bedwars.DaoController.chargingMaid) then
-            return false
-        end
-        return sword, meta
+        return sword, bedwars.ItemMeta[sword.tool.Name]
     end
 
-    local function updateTargetCache(range, targets, maxTargets, sort)
+    local function updateTargetCache()
         if tick() - lastTargetUpdate < 0.05 then return cachedTargets end
         cachedTargets = entitylib.AllPosition({
-            Range = range,
-            Wallcheck = targets.Walls.Enabled or nil,
-            Part = 'RootPart',
-            Players = targets.Players.Enabled,
-            NPCs = targets.NPCs.Enabled,
-            Limit = maxTargets * 2,
-            Sort = sortmethods[sort.Value]
+            Range = SwingRange.Value,
+            Wallcheck = Targets.Walls.Enabled or nil,
+            Part = "RootPart",
+            Players = Targets.Players.Enabled,
+            NPCs = Targets.NPCs.Enabled,
+            Limit = 5,
+            Sort = sortmethods[SortMode.Value]
         })
         lastTargetUpdate = tick()
         return cachedTargets
     end
 
     SilentAura = vape.Categories.Combat:CreateModule({
-        Name = 'SilentAura',
+        Name = "Silent Aura",
         Function = function(callback)
             if callback then
-                local swingCooldown = 0
                 repeat
-                    local attacked, sword, meta = {}, getAttackData(false, false, false)
+                    local attacked, sword, meta = {}, getAttackData()
                     Attacking = false
+                    store.KillauraTarget = nil
+
                     if sword then
-                        local plrs = updateTargetCache(SwingRange.Value, {Players = {Enabled = true}, NPCs = {Enabled = true}, Walls = {Enabled = false}}, 5, {Value = 'Distance'})
+                        local plrs = updateTargetCache()
                         local selfpos = entitylib.character.RootPart.Position
                         local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
+
                         for i, v in pairs(plrs) do
                             local delta = (v.RootPart.Position - selfpos)
                             if delta.Magnitude > SwingRange.Value then continue end
-                            local angle = math.acos(math.max(-1, math.min(1, localfacing:Dot((delta * Vector3.new(1, 0, 1)).Unit))))
-                            if angle > math.rad(360) / 2 then continue end
+                            local angle = math.deg(math.acos(math.max(-1, math.min(1, localfacing:Dot((delta * Vector3.new(1, 0, 1)).Unit)))))
+                            if angle > AngleSlider.Value / 2 then continue end
 
                             table.insert(attacked, {
                                 Entity = v,
@@ -1414,25 +1409,31 @@ run(function()
                             if not Attacking then
                                 Attacking = true
                                 store.KillauraTarget = v
+                                if Swing.Enabled then
+                                    bedwars.SwordController:playSwordEffect(meta, false)
+                                end
                             end
                         end
 
                         for _, v in pairs(attacked) do
                             local delta = (v.Entity.RootPart.Position - selfpos)
                             if delta.Magnitude > AttackRange.Value then continue end
+
                             local lastAtk = lastAttackTime[v.Entity] or 0
-                            if (tick() - lastAtk) < 0.08 then continue end
+                            local apsDelay = 1 / math.random(APS.Value.Min, APS.Value.Max)
+                            if (tick() - lastAtk) < apsDelay then continue end
+
                             local actualRoot = v.Entity.Character.PrimaryPart
                             if actualRoot then
                                 local dir = CFrame.lookAt(selfpos, actualRoot.Position).LookVector
                                 local pos = selfpos + dir * math.max(delta.Magnitude - 14.399, 0)
-                                swingCooldown = tick()
+
                                 lastAttackTime[v.Entity] = tick()
                                 bedwars.SwordController.lastAttack = workspace:GetServerTimeNow()
-                                local attackData = {
+
+                                AttackRemote:FireServer({
                                     weapon = sword.tool,
-                                    chargedAttack = {chargeRatio = math.random(0, 100) / 100},
-                                    lastSwingServerTimeDelta = math.random(0, 0) / 100,
+                                    chargedAttack = {chargeRatio = math.random()},
                                     entityInstance = v.Entity.Character,
                                     validate = {
                                         raycast = {
@@ -1442,8 +1443,7 @@ run(function()
                                         targetPosition = {value = actualRoot.Position + actualRoot.Velocity * 0.05},
                                         selfPosition = {value = pos}
                                     }
-                                }
-                                AttackRemote:FireServer(attackData)
+                                })
                             end
                         end
 
@@ -1457,57 +1457,87 @@ run(function()
 
                         if Face.Enabled and attacked[1] then
                             local target = attacked[1].Entity.RootPart
-                            local targetPos = target.Position + target.Velocity * 0.01
-                            local vec = targetPos * Vector3.new(1, 0, 1)
-                            entitylib.character.RootPart.CFrame = CFrame.lookAt(entitylib.character.RootPart.Position, Vector3.new(vec.X, entitylib.character.RootPart.Position.Y + 0.001, vec.Z))
+                            local targetPos = target.Position + target.Velocity * 0.05
+                            local lookVec = Vector3.new(targetPos.X, entitylib.character.RootPart.Position.Y, targetPos.Z)
+                            entitylib.character.RootPart.CFrame = entitylib.character.RootPart.CFrame:Lerp(
+                                CFrame.lookAt(entitylib.character.RootPart.Position, lookVec),
+                                0.3
+                            )
                         end
                     end
                     task.wait(0.03)
                 until not SilentAura.Enabled
+
                 Attacking = false
-                cachedTargets = {}
-                lastAttackTime = {}
-                for _, v in Boxes do
-                    v.Adornee = nil
-                end
+                store.KillauraTarget = nil
+                cachedTargets, lastAttackTime = {}, {}
+                for _, v in Boxes do v.Adornee = nil end
             else
-                for _, v in Boxes do
-                    v.Adornee = nil
-                end
-                cachedTargets = {}
-                lastAttackTime = {}
+                Attacking = false
+                store.KillauraTarget = nil
+                cachedTargets, lastAttackTime = {}, {}
+                for _, v in Boxes do v.Adornee = nil end
             end
         end,
-        Tooltip = 'Silently attacks entities around you using the Killaura logic'
+        ExtraText = function()
+            if APS and APS.Value then
+                if APS.Value.Min ~= APS.Value.Max then
+                    return APS.Value.Min .. "-" .. APS.Value.Max .. " CPS"
+                else
+                    return APS.Value.Min .. " CPS"
+                end
+            end
+            return ""
+        end,
+        Tooltip = "e."
     })
 
+    Targets = SilentAura:CreateTargets({
+	Players = true, 
+	NPCs = true
+	})
     SwingRange = SilentAura:CreateSlider({
-        Name = 'Swing range',
-        Min = 1,
-        Max = 18,
-        Default = 18,
-        Suffix = function(val)
-            return val == 1 and 'stud' or 'studs'
-        end
-    })
+	Name = "Swing range", 
+	Min = 1, 
+	Max = 23, 
+	Default = 23
+	})
     AttackRange = SilentAura:CreateSlider({
-        Name = 'Attack range',
-        Min = 1,
-        Max = 18,
-        Default = 18,
-        Suffix = function(val)
-            return val == 1 and 'stud' or 'studs'
-        end
+	Name = "Attack range", 
+	Min = 1, 
+	Max = 23, 
+	Default = 18
+	})
+    AngleSlider = SilentAura:CreateSlider({
+	Name = "Max angle", 
+	Min = 1, 
+	Max = 360, 
+	Default = 360
+	})
+    SortMode = SilentAura:CreateDropdown({
+	Name = "Attack Mode", 
+	List = {"Distance", "Health"}, Value = "Distance"
+	})
+    APS = SilentAura:CreateTwoSlider({
+        Name = "Attacks per second",
+        Min = 1, Max = 20,
+        Default = {Min = 8, 
+	    Max = 12
     })
-    Face = SilentAura:CreateToggle({Name = 'Face target'})
+    Face = SilentAura:CreateToggle({
+	Name = "Face target"
+	})
+    Swing = SilentAura:CreateToggle({
+	Name = "Swing"
+	})
     SilentAura:CreateToggle({
-        Name = 'Show target',
+        Name = "Show target",
         Function = function(callback)
             BoxSwingColor.Object.Visible = callback
             BoxAttackColor.Object.Visible = callback
             if callback then
                 for i = 1, 10 do
-                    local box = Instance.new('BoxHandleAdornment')
+                    local box = Instance.new("BoxHandleAdornment")
                     box.Adornee = nil
                     box.AlwaysOnTop = true
                     box.Size = Vector3.new(3, 5, 3)
@@ -1517,25 +1547,23 @@ run(function()
                     Boxes[i] = box
                 end
             else
-                for _, v in Boxes do
-                    v:Destroy()
-                end
+                for _, v in Boxes do v:Destroy() end
                 table.clear(Boxes)
             end
         end
     })
     BoxSwingColor = SilentAura:CreateColorSlider({
-        Name = 'Target Color',
-        Darker = true,
-        DefaultHue = 0.6,
-        DefaultOpacity = 0.5,
-        Visible = false
-    })
+	Name = "Target Color", 
+	Darker = true, 
+	DefaultHue = 0.6, 
+	DefaultOpacity = 0.5, 
+	Visible = false
+	})
     BoxAttackColor = SilentAura:CreateColorSlider({
-        Name = 'Attack Color',
-        Darker = true,
-        DefaultOpacity = 0.5,
-        Visible = false
+	Name = "Attack Color",
+    Darker = true, 
+	DefaultOpacity = 0.5, 
+	Visible = false
     })
 end)
 	
