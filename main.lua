@@ -8,12 +8,12 @@ if identifyexecutor then
 end
 
 local vape
-local loadstring_safe = function(code, name)
-	local func, err = loadstring(code, name)
-	if not func and vape then
-		vape:CreateNotification('Vape', 'Failed to load '..name..' : '..tostring(err), 30, 'alert')
+local loadstring = function(...)
+	local res, err = loadstring(...)
+	if err and vape then
+		vape:CreateNotification('Vape', 'Failed to load : '..err, 30, 'alert')
 	end
-	return func
+	return res
 end
 
 local queue_on_teleport = queue_on_teleport 
@@ -27,11 +27,9 @@ local isfile = isfile or function(file)
 	end)
 	return suc and res ~= nil and res ~= ''
 end
-
 local cloneref = cloneref or function(obj)
 	return obj
 end
-
 local playersService = cloneref(game:GetService('Players'))
 
 local function downloadFile(path, func)
@@ -40,7 +38,7 @@ local function downloadFile(path, func)
 			return game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/'..select(1, path:gsub('newvape/', '')), true)
 		end)
 		if not suc or res == '404: Not Found' then
-			error("Failed to download "..path..": "..tostring(res))
+			error(res)
 		end
 		if path:find('.lua') then
 			res = '--This watermark is used to delete the file if its cached, remove it to make the file persist after vape updates.\n'..res
@@ -69,7 +67,7 @@ local function finishLoading()
 				if shared.VapeDeveloper then
 					loadstring(readfile('newvape/loader.lua'), 'loader')()
 				else
-					loadstring(game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true), 'loader')()
+					loadstring(game:HttpGet('https://raw.githubusercontent.com/valinteolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/loader.lua', true), 'loader')()
 				end
 			]]
 			if shared.VapeDeveloper then
@@ -86,11 +84,7 @@ local function finishLoading()
 	if not shared.vapereload then
 		if not vape.Categories then return end
 		if vape.Categories.Main.Options['GUI bind indicator'].Enabled then
-			vape:CreateNotification(
-				'Finished Loading',
-				vape.VapeButton and 'Press the button in the top right to open GUI' or 'Press '..table.concat(vape.Keybind, ' + '):upper()..' to open GUI',
-				5
-			)
+			vape:CreateNotification('Finished Loading', vape.VapeButton and 'Press the button in the top right to open GUI' or 'Press '..table.concat(vape.Keybind, ' + '):upper()..' to open GUI', 5)
 		end
 	end
 end
@@ -98,48 +92,25 @@ end
 if not isfile('newvape/profiles/gui.txt') then
 	writefile('newvape/profiles/gui.txt', 'new')
 end
-
 local gui = readfile('newvape/profiles/gui.txt')
-if not gui or gui == "" or type(gui) ~= "string" then
-	gui = "new"
-	writefile('newvape/profiles/gui.txt', gui)
-end
 
 if not isfolder('newvape/assets/'..gui) then
 	makefolder('newvape/assets/'..gui)
 end
-
-local gui_code = downloadFile('newvape/guis/'..gui..'.lua')
-local gui_func = loadstring_safe(gui_code, 'gui')
-if not gui_func then
-	error("Cannot load GUI '"..gui..".lua'")
-end
-vape = gui_func()
+vape = loadstring(downloadFile('newvape/guis/'..gui..'.lua'), 'gui')()
 shared.vape = vape
 
 if not shared.VapeIndependent then
-	local universal_code = downloadFile('newvape/games/universal.lua')
-	local universal_func = loadstring_safe(universal_code, 'universal')
-	if universal_func then
-		universal_func()
-	end
-
+	loadstring(downloadFile('newvape/games/universal.lua'), 'universal')()
 	if isfile('newvape/games/'..game.PlaceId..'.lua') then
-		local game_code = readfile('newvape/games/'..game.PlaceId..'.lua')
-		local game_func = loadstring_safe(game_code, tostring(game.PlaceId))
-		if game_func then
-			game_func(...)
-		end
+		loadstring(readfile('newvape/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
 	else
 		if not shared.VapeDeveloper then
 			local suc, res = pcall(function()
 				return game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/games/'..game.PlaceId..'.lua', true)
 			end)
 			if suc and res ~= '404: Not Found' then
-				local game_func = loadstring_safe(res, tostring(game.PlaceId))
-				if game_func then
-					game_func(...)
-				end
+				loadstring(downloadFile('newvape/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
 			end
 		end
 	end
