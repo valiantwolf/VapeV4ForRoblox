@@ -7,6 +7,9 @@ local inputService = cloneref(game:GetService('UserInputService'))
 
 local lplr = playersService.LocalPlayer
 local vape = shared.vape
+
+repeat task.wait() until vape and vape.Libraries and vape.Libraries.sessioninfo and vape.Libraries.entity
+
 local entitylib = vape.Libraries.entity
 local sessioninfo = vape.Libraries.sessioninfo
 local bedwars = {}
@@ -23,19 +26,22 @@ run(function()
 
 	local KnitInit, Knit
 	repeat
-		KnitInit, Knit = pcall(function() return debug.getupvalue(require(lplr.PlayerScripts.TS.knit).setup, 9) end)
-		if KnitInit then break end
+		KnitInit, Knit = pcall(function() 
+			return debug.getupvalue(require(lplr.PlayerScripts.TS.knit).setup, 9) 
+		end)
 		task.wait()
-	until KnitInit
-	if not debug.getupvalue(Knit.Start, 1) then
-		repeat task.wait() until debug.getupvalue(Knit.Start, 1)
-	end
+	until KnitInit and Knit
+
+	repeat task.wait() until debug.getupvalue(Knit.Start, 1)
+
 	local Flamework = require(replicatedStorage['rbxts_include']['node_modules']['@flamework'].core.out).Flamework
 	local Client = require(replicatedStorage.TS.remotes).default.Client
 
 	bedwars = setmetatable({
 		Client = Client,
-		CrateItemMeta = debug.getupvalue(Flamework.resolveDependency('client/controllers/global/reward-crate/crate-controller@CrateController').onStart, 3),
+		CrateItemMeta = debug.getupvalue(
+			Flamework.resolveDependency('client/controllers/global/reward-crate/crate-controller@CrateController').onStart, 3
+		),
 		Store = require(lplr.PlayerScripts.TS.ui.store).ClientStore
 	}, {
 		__index = function(self, ind)
@@ -44,17 +50,21 @@ run(function()
 		end
 	})
 
-	local kills = sessioninfo:AddItem('Kills')
-	local beds = sessioninfo:AddItem('Beds')
-	local wins = sessioninfo:AddItem('Wins')
-	local games = sessioninfo:AddItem('Games')
+	if sessioninfo and sessioninfo.AddItem then
+		local kills = sessioninfo:AddItem('Kills')
+		local beds = sessioninfo:AddItem('Beds')
+		local wins = sessioninfo:AddItem('Wins')
+		local games = sessioninfo:AddItem('Games')
+	else
+		warn("sessioninfo is nil or AddItem missing")
+	end
 
 	vape:Clean(function()
 		table.clear(bedwars)
 	end)
 end)
 
-for _, v in vape.Modules do
+for i, v in pairs(vape.Modules) do
 	if v.Category == 'Combat' or v.Category == 'Minigames' then
 		vape:Remove(i)
 	end
@@ -63,53 +73,65 @@ end
 run(function()
 	local Sprint
 	local old
-	
+
 	Sprint = vape.Categories.Combat:CreateModule({
 		Name = 'Sprint',
 		Function = function(callback)
 			if callback then
-				if inputService.TouchEnabled then pcall(function() lplr.PlayerGui.MobileUI['2'].Visible = false end) end
-				old = bedwars.SprintController.stopSprinting
-				bedwars.SprintController.stopSprinting = function(...)
-					local call = old(...)
-					bedwars.SprintController:startSprinting()
-					return call
+				if inputService.TouchEnabled then
+					pcall(function() lplr.PlayerGui.MobileUI['2'].Visible = false end)
 				end
-				Sprint:Clean(entitylib.Events.LocalAdded:Connect(function() bedwars.SprintController:stopSprinting() end))
-				bedwars.SprintController:stopSprinting()
+
+				if bedwars.SprintController then
+					old = bedwars.SprintController.stopSprinting
+					bedwars.SprintController.stopSprinting = function(...)
+						local call = old(...)
+						bedwars.SprintController:startSprinting()
+						return call
+					end
+					Sprint:Clean(entitylib.Events.LocalAdded:Connect(function()
+						bedwars.SprintController:stopSprinting()
+					end))
+					bedwars.SprintController:stopSprinting()
+				end
 			else
-				if inputService.TouchEnabled then pcall(function() lplr.PlayerGui.MobileUI['2'].Visible = true end) end
-				bedwars.SprintController.stopSprinting = old
-				bedwars.SprintController:stopSprinting()
+				if inputService.TouchEnabled then
+					pcall(function() lplr.PlayerGui.MobileUI['2'].Visible = true end)
+				end
+				if bedwars.SprintController then
+					bedwars.SprintController.stopSprinting = old
+					bedwars.SprintController:stopSprinting()
+				end
 			end
 		end,
 		Tooltip = 'Sets your sprinting to true.'
 	})
 end)
-	
+
 run(function()
 	local AutoGamble
-	
+
 	AutoGamble = vape.Categories.Utility:CreateModule({
 		Name = 'AutoGamble',
 		Function = function(callback)
-			if callback then
+			if callback and bedwars.Client then
 				AutoGamble:Clean(bedwars.Client:GetNamespace('RewardCrate'):Get('CrateOpened'):Connect(function(data)
 					if data.openingPlayer == lplr then
 						local tab = bedwars.CrateItemMeta[data.reward.itemType] or {displayName = data.reward.itemType or 'unknown'}
 						notif('AutoGamble', 'Won '..tab.displayName, 5)
 					end
 				end))
-	
+
 				repeat
-					if not bedwars.CrateAltarController.activeCrates[1] then
-						for _, v in bedwars.Store:getState().Consumable.inventory do
-							if v.consumable:find('crate') then
+					local activeCrates = bedwars.CrateAltarController and bedwars.CrateAltarController.activeCrates
+					if activeCrates and not activeCrates[1] then
+						for _, v in pairs(bedwars.Store:getState().Consumable.inventory) do
+							if v.consumable:find('crate') and bedwars.CrateAltarController then
 								bedwars.CrateAltarController:pickCrate(v.consumable, 1)
 								task.wait(1.2)
-								if bedwars.CrateAltarController.activeCrates[1] and bedwars.CrateAltarController.activeCrates[1][2] then
+								if activeCrates[1] and activeCrates[1][2] then
 									bedwars.Client:GetNamespace('RewardCrate'):Get('OpenRewardCrate'):SendToServer({
-										crateId = bedwars.CrateAltarController.activeCrates[1][2].attributes.crateId
+										crateId = activeCrates[1][2].attributes.crateId
 									})
 								end
 								break
@@ -123,4 +145,3 @@ run(function()
 		Tooltip = 'Automatically opens lucky crates, piston inspired!'
 	})
 end)
-	
