@@ -5798,8 +5798,8 @@ mainapi:CreateCategory({
 })
 mainapi:CreateCategory({
 	Name = 'Custom',
-	Icon = getcustomasset('newvape/assets/new/.png'),
-	Size = UDim2.fromOffset(14, 14)
+	Icon = getcustomasset('newvape/assets/new/worldicon.png'),
+	Size = UDim2.fromOffset(0, 0)
 })							
 --[[mainapi:CreateCategory({
 	Name = 'Inventory',
