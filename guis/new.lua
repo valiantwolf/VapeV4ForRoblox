@@ -5795,12 +5795,7 @@ mainapi:CreateCategory({
 	Name = 'World',
 	Icon = getcustomasset('newvape/assets/new/worldicon.png'),
 	Size = UDim2.fromOffset(14, 14)
-})
-mainapi:CreateCategory({
-	Name = 'Custom',
-	Icon = getcustomasset('newvape/assets/new/worldicon.png'),
-	Size = UDim2.fromOffset(0, 0)
-})							
+})		
 --[[mainapi:CreateCategory({
 	Name = 'Inventory',
 	Icon = getcustomasset('newvape/assets/new/inventoryicon.png'),
