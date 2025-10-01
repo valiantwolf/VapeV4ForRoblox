@@ -436,11 +436,23 @@ local sortmethods = {
 }
 
 run(function()
-	local oldstart = entitylib.start
-	local function customEntity(ent)
-		if ent:HasTag('inventory-entity') and not ent:HasTag('Monster') then
-			return
-		end
+    if entitylib and entitylib.start then
+        local oldstart = entitylib.start
+
+        local function customEntity(ent)
+            if ent:HasTag('inventory-entity') and not ent:HasTag('Monster') then
+                return
+            end
+        end
+
+        entitylib.start = function(...)
+            local result = oldstart(...)
+            return result
+        end
+    else
+        warn("entitylib is nil or missing 'start', skipping ts setup")
+    end
+end)
 
 		entitylib.addEntity(ent, nil, ent:HasTag('Drone') and function(self)
 			local droneplr = playersService:GetPlayerByUserId(self.Character:GetAttribute('PlayerUserId'))
