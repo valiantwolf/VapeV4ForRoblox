@@ -1356,7 +1356,7 @@ run(function()
     local Boxes, BoxSwingColor, BoxAttackColor = {}, nil, nil
     local SwingRange, AttackRange, Face, Swing, AngleSlider, SortMode, Targets, APS
 
-    --AttackRemote = vape:GetRemote("AttackEntity")
+    AttackRemote = vape:GetRemote("AttackEntity")
 
     local function getAttackData()
         local sword = store.tools.sword
