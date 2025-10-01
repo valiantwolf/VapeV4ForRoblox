@@ -1351,12 +1351,26 @@ end)--]]
 
 run(function()
     local SilentAura
-    local Attacking, AttackRemote = false, {FireServer = function() end}
-    local cachedTargets, lastAttackTime, lastTargetUpdate = {}, {}, 0
-    local Boxes, BoxSwingColor, BoxAttackColor = {}, nil, nil
-    local SwingRange, AttackRange, Face, Swing, AngleSlider, SortMode, Targets, APS
+    local Attacking = false
+    local AttackRemote = {FireServer = function() end}
+    local cachedTargets = {}
+    local lastAttackTime = {}
+    local lastTargetUpdate = 0
+    local Boxes = {}
+    local BoxSwingColor
+    local BoxAttackColor
+    local SwingRange
+    local AttackRange
+    local Face
+    local Swing
+    local AngleSlider
+    local SortMode
+    local Targets
+    local APS
 
-    AttackRemote = vape:GetRemote("AttackEntity")
+    task.spawn(function()
+        AttackRemote = bedwars.Client:Get(remotes.AttackEntity).instance
+    end)
 
     local function getAttackData()
         local sword = store.tools.sword
@@ -1564,7 +1578,7 @@ run(function()
         DefaultOpacity = 0.5,
         Visible = false
     })
-end)	
+end)
 	
 run(function()
 	local AutoClicker
