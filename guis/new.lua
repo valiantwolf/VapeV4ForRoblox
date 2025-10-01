@@ -5797,8 +5797,8 @@ mainapi:CreateCategory({
 	Size = UDim2.fromOffset(14, 14)
 })
 mainapi:CreateCategory({
-	Name = 'Target Hud',
-	Icon = getcustomasset('newvape/assets/new/worldicon.png'),
+	Name = 'Custom',
+	Icon = getcustomasset('newvape/assets/new/.png'),
 	Size = UDim2.fromOffset(14, 14)
 })							
 --[[mainapi:CreateCategory({
@@ -6092,7 +6092,7 @@ guipane:CreateButton({
 	Name = 'Sort GUI',
 	Function = function()
 		local priority = {
-			GUICategory = 1,
+			GUICategory = 1,																										
 			CombatCategory = 2,
 			BlatantCategory = 3,
 			RenderCategory = 4,
@@ -6102,6 +6102,7 @@ guipane:CreateButton({
 			MinigamesCategory = 8,
 			FriendsCategory = 9,
 			ProfilesCategory = 10
+			CustomCategory = 11,																										
 		}
 		local categories = {}
 		for _, v in mainapi.Categories do
