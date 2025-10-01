@@ -450,14 +450,6 @@ run(function()
 		end)
 	end
 
-		entitylib.addEntity(ent, nil, ent:HasTag('Drone') and function(self)
-			local droneplr = playersService:GetPlayerByUserId(self.Character:GetAttribute('PlayerUserId'))
-			return not droneplr or lplr:GetAttribute('Team') ~= droneplr:GetAttribute('Team')
-		end or function(self)
-			return lplr:GetAttribute('Team') ~= self.Character:GetAttribute('Team')
-		end)
-	end
-
 	entitylib.start = function()
 		oldstart()
 		if entitylib.Running then
@@ -471,6 +463,33 @@ run(function()
 		end
 	end
 
+	entitylib.addPlayer = function(plr)
+		if plr.Character then
+			entitylib.refreshEntity(plr.Character, plr)
+		end
+		entitylib.PlayerConnections[plr] = {
+			plr.CharacterAdded:Connect(function(char)
+				entitylib.refreshEntity(char, plr)
+			end),
+			plr.CharacterRemoving:Connect(function(char)
+				entitylib.removeEntity(char, plr == lplr)
+			end),
+			plr:GetAttributeChangedSignal('Team'):Connect(function()
+				for _, v in entitylib.List do
+					if v.Targetable ~= entitylib.targetCheck(v) then
+						entitylib.refreshEntity(v.Character, v.Player)
+					end
+				end
+
+				if plr == lplr then
+					entitylib.start()
+				else
+					entitylib.refreshEntity(plr.Character, plr)
+				end
+			end)
+		}
+	end
+		
 	entitylib.addPlayer = function(plr)
 		if plr.Character then
 			entitylib.refreshEntity(plr.Character, plr)
