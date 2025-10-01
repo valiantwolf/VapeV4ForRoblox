@@ -92,11 +92,17 @@ end
 if not isfile('newvape/profiles/gui.txt') then
 	writefile('newvape/profiles/gui.txt', 'new')
 end
+
 local gui = readfile('newvape/profiles/gui.txt')
+if not gui or gui == "" or type(gui) ~= "string" then
+	gui = "new"
+	writefile('newvape/profiles/gui.txt', gui)
+end
 
 if not isfolder('newvape/assets/'..gui) then
 	makefolder('newvape/assets/'..gui)
 end
+
 vape = loadstring(downloadFile('newvape/guis/'..gui..'.lua'), 'gui')()
 shared.vape = vape
 
