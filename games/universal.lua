@@ -385,13 +385,25 @@ run(function()
 		entitylib.kill()
 		entitylib = nil
 	end)
-	vape:Clean(vape.Categories.Friends.Update.Event:Connect(function() entitylib.refresh() end))
-	vape:Clean(vape.Categories.Targets.Update.Event:Connect(function() entitylib.refresh() end))
-	vape:Clean(entitylib.Events.LocalAdded:Connect(updateVelocity))
-	vape:Clean(workspace:GetPropertyChangedSignal('CurrentCamera'):Connect(function()
-		gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA('Camera')
-	end))
-end)
+	if vape.Categories.Friends and vape.Categories.Friends.Update and vape.Categories.Friends.Update.Event then
+    vape:Clean(vape.Categories.Friends.Update.Event:Connect(function()
+        entitylib.refresh()
+    end))
+end
+		
+if vape.Categories.Targets and vape.Categories.Targets.Update and vape.Categories.Targets.Update.Event then
+    vape:Clean(vape.Categories.Targets.Update.Event:Connect(function()
+        entitylib.refresh()
+    end))
+end
+		
+if entitylib.Events and entitylib.Events.LocalAdded then
+    vape:Clean(entitylib.Events.LocalAdded:Connect(updateVelocity))
+end
+
+vape:Clean(workspace:GetPropertyChangedSignal('CurrentCamera'):Connect(function()
+    gameCamera = workspace.CurrentCamera or workspace:FindFirstChildWhichIsA('Camera')
+end))
 
 run(function()
 	function whitelist:get(plr)
