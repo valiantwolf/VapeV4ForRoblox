@@ -10601,5 +10601,87 @@ run(function()
         ["Function"] = function() end
     })
 end) 
-
 	
+local Followers = game:GetObjects("rbxassetid://14289122777")[1]
+run(function()
+    local MoonCharacter = {Enabled = false}
+    local MoonCharacterMD = {Value = 'Nightmare'}
+    MoonCharacter = vape.Categories.Custom:CreateModule({
+        Name = 'MoonCharacter',
+        HoverText = 'Customizes your character',
+        Function = function(calling)
+            if calling then
+                task.spawn(function()
+                    while task.wait(3) do
+                        if MoonCharacter.Enabled then
+                            for _,v in next, game.Players:GetPlayers() do
+                                if IsThatGuyAlive(v) then
+                                    for i,obj in next, v.Character:GetChildren() do
+                                        if (obj:IsA('BasePart') or obj:IsA('MeshPart')) then
+                                            obj.Transparency = 1
+                                        end
+
+                                        if (obj:IsA('Accessory')) then
+                                            if obj:FindFirstChild('Handle') then
+                                                obj.Handle.Transparency = 1
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end)
+
+                task.spawn(function()
+                    while task.wait() do
+                        if MoonCharacter.Enabled then
+                            for _,v in next, game.Players:GetPlayers() do
+                                if IsThatGuyAlive(v) then
+                                    if not v.Character:FindFirstChild('Follower') then
+                                        local followerInstance = Instance.new('Model')
+                                        followerInstance.Name = 'Follower'
+                                        followerInstance.Parent = v.Character
+                                        local selectedValue = MoonCharacterMD.Value
+                                        local follower = Followers[selectedValue or 'maxwell']:Clone()
+                                        follower.Name = 'beloved'
+                                        follower.Parent = followerInstance
+                                    end
+                                    v.Character.Follower.beloved.CFrame = v.Character.HumanoidRootPart.CFrame
+                                end
+                            end
+                        end
+                    end
+                end)
+            end
+        end,
+        ExtraText = function()
+            return MoonCharacterMD.Value
+        end
+    })
+
+    MoonCharacterMD = MoonCharacter:CreateDropdown({
+        Name = 'Costume',
+        List = {
+            "Freddy Plush",
+            "amongus",
+            "chair",
+            "friday",
+            "maxwell",
+            "paimon",
+            "floppa",
+            "Nightmare",
+            "Nightmare Bonnie",
+            "Dababy",
+            "Bugs Bunny",
+            "Rabbid",
+            "KFC",
+            "Furry",
+            "Squidward"
+        },
+        Value = 'Nightmare',
+        Function = function(selectedValue)
+            MoonCharacterMD.Value = selectedValue
+        end
+    })
+end)
