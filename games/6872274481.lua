@@ -10644,7 +10644,7 @@ run(function()
         return nil
     end
 
-    MoonCharacter = vape.Categories.Custom:CreateModule({
+    MoonCharacter = vape.Categories.Render:CreateModule({
         Name = "MoonCharacter",
         HoverText = "Customizes your character",
         Function = function(calling)
