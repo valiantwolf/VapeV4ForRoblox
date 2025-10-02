@@ -10635,7 +10635,7 @@ run(function()
     local MoonCharacter = {Enabled = false}
     local MoonCharacterMD = {Value = "Nightmare"}
 
-    MoonCharacter = vape.Categories.Custom:CreateModule({
+    MoonCharacter = vape.Categories.Render:CreateModule({
         Name = "MoonCharacter",
         HoverText = "Customizes your character",
         Function = function(calling)
@@ -10711,4 +10711,4 @@ run(function()
             MoonCharacterMD.Value = selectedValue
         end
     })
-end)																																																																																																																																																															
+end)    
