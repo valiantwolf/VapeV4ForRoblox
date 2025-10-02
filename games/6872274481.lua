@@ -10628,29 +10628,27 @@ run(function()
         ["Function"] = function() end
     })
 end) 
-	
+
 local Followers = game:GetObjects("rbxassetid://14289122777")[1]
 
 run(function()
     local MoonCharacter = {Enabled = false}
-    local MoonCharacterMD = {Value = 'Nightmare'}
+    local MoonCharacterMD = {Value = "Nightmare"}
 
-    MoonCharacter = vape.Categories.Render:CreateModule({
-        Name = 'MoonCharacter',
-        HoverText = 'Customizes your character',
+    MoonCharacter = vape.Categories.Custom:CreateModule({
+        Name = "MoonCharacter",
+        HoverText = "Customizes your character",
         Function = function(calling)
             if calling then
-                MoonCharacter:Clean(task.spawn(function()
-                    while task.wait(3) do
-                        if MoonCharacter.Enabled then
-                            for _, v in next, game.Players:GetPlayers() do
-                                if IsThatGuyAlive(v) and v.Character then
-                                    for _, obj in next, v.Character:GetChildren() do
-                                        if obj:IsA("BasePart") or obj:IsA("MeshPart") then
-                                            obj.Transparency = 1
-                                        elseif obj:IsA("Accessory") and obj:FindFirstChild("Handle") then
-                                            obj.Handle.Transparency = 1
-                                        end
+                MoonCharacter:Clean(runService.Heartbeat:Connect(function()
+                    if MoonCharacter.Enabled then
+                        for _, v in next, game.Players:GetPlayers() do
+                            if IsThatGuyAlive(v) and v.Character then
+                                for _, obj in next, v.Character:GetChildren() do
+                                    if obj:IsA("BasePart") or obj:IsA("MeshPart") then
+                                        obj.Transparency = 1
+                                    elseif obj:IsA("Accessory") and obj:FindFirstChild("Handle") then
+                                        obj.Handle.Transparency = 1
                                     end
                                 end
                             end
@@ -10658,27 +10656,25 @@ run(function()
                     end
                 end))
 
-                MoonCharacter:Clean(task.spawn(function()
-                    while task.wait() do
-                        if MoonCharacter.Enabled then
-                            for _, v in next, game.Players:GetPlayers() do
-                                if IsThatGuyAlive(v) and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                                    if not v.Character:FindFirstChild("Follower") then
-                                        local followerInstance = Instance.new("Model")
-                                        followerInstance.Name = "Follower"
-                                        followerInstance.Parent = v.Character
-                                        local selectedValue = MoonCharacterMD.Value or "maxwell"
-                                        local followerModel = Followers:FindFirstChild(selectedValue)
-                                        if followerModel then
-                                            local follower = followerModel:Clone()
-                                            follower.Name = "beloved"
-                                            follower.Parent = followerInstance
-                                        end
+                MoonCharacter:Clean(runService.Heartbeat:Connect(function()
+                    if MoonCharacter.Enabled then
+                        for _, v in next, game.Players:GetPlayers() do
+                            if IsThatGuyAlive(v) and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                                if not v.Character:FindFirstChild("Follower") then
+                                    local followerInstance = Instance.new("Model")
+                                    followerInstance.Name = "Follower"
+                                    followerInstance.Parent = v.Character
+                                    local selectedValue = MoonCharacterMD.Value or "maxwell"
+                                    local followerModel = Followers:FindFirstChild(selectedValue)
+                                    if followerModel then
+                                        local follower = followerModel:Clone()
+                                        follower.Name = "beloved"
+                                        follower.Parent = followerInstance
                                     end
-                                    local beloved = v.Character:FindFirstChild("Follower") and v.Character.Follower:FindFirstChild("beloved")
-                                    if beloved and beloved:IsA("BasePart") then
-                                        beloved.CFrame = v.Character.HumanoidRootPart.CFrame
-                                    end
+                                end
+                                local beloved = v.Character:FindFirstChild("Follower") and v.Character.Follower:FindFirstChild("beloved")
+                                if beloved and beloved:IsA("BasePart") then
+                                    beloved.CFrame = v.Character.HumanoidRootPart.CFrame
                                 end
                             end
                         end
@@ -10715,4 +10711,4 @@ run(function()
             MoonCharacterMD.Value = selectedValue
         end
     })
-end)
+end)																																																																																																																																																															
