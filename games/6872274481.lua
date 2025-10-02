@@ -10630,12 +10630,21 @@ run(function()
 end) 
 
 local Followers = game:GetObjects("rbxassetid://14289122777")[1]
-
 run(function()
     local MoonCharacter = {Enabled = false}
     local MoonCharacterMD = {Value = "Nightmare"}
 
-    MoonCharacter = vape.Categories.Render:CreateModule({
+    local function getFollowerModel(name)
+        if not Followers then return nil end
+        if Followers:IsA("Folder") or Followers:IsA("Model") then
+            return Followers:FindFirstChild(name)
+        elseif #Followers:GetChildren() > 0 then
+            return Followers:GetChildren()[1]:FindFirstChild(name)
+        end
+        return nil
+    end
+
+    MoonCharacter = vape.Categories.Custom:CreateModule({
         Name = "MoonCharacter",
         HoverText = "Customizes your character",
         Function = function(calling)
@@ -10665,7 +10674,7 @@ run(function()
                                     followerInstance.Name = "Follower"
                                     followerInstance.Parent = v.Character
                                     local selectedValue = MoonCharacterMD.Value or "maxwell"
-                                    local followerModel = Followers:FindFirstChild(selectedValue)
+                                    local followerModel = getFollowerModel(selectedValue)
                                     if followerModel then
                                         local follower = followerModel:Clone()
                                         follower.Name = "beloved"
@@ -10711,4 +10720,4 @@ run(function()
             MoonCharacterMD.Value = selectedValue
         end
     })
-end)    
+end)
