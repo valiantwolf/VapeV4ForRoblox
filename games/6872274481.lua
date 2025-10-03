@@ -10852,4 +10852,120 @@ run(function()
         end
     })
     AnimationDropdown.Object.Visible = false
-end)																																																																																																																																																																	
+end)			
+
+run(function()
+	local Clutch
+	local runService = game:GetService("RunService")
+	local HoldTime = 0.15
+	local FallVelocity = -6
+	local lastPlace = 0
+
+	local function callPlace(blockpos, wool, rotate)
+		local placeFn
+		if type(vape) == "table" and type(vape.place) == "function" then
+			placeFn = vape.place
+		elseif type(place) == "function" then
+			placeFn = place
+		else
+			placeFn = bedwars.placeBlock
+		end
+		task.spawn(placeFn, blockpos, wool, rotate)
+	end
+
+	local function nearCorner(poscheck, pos)
+		local startpos = poscheck - Vector3.new(3, 3, 3)
+		local endpos = poscheck + Vector3.new(3, 3, 3)
+		local check = poscheck + (pos - poscheck).Unit * 100
+		return Vector3.new(math.clamp(check.X, startpos.X, endpos.X), math.clamp(check.Y, startpos.Y, endpos.Y), math.clamp(check.Z, startpos.Z, endpos.Z))
+	end
+
+	local function blockProximity(pos)
+		local mag, returned = 60
+		local tab = getBlocksInPoints(bedwars.BlockController:getBlockPosition(pos - Vector3.new(21, 21, 21)), bedwars.BlockController:getBlockPosition(pos + Vector3.new(21, 21, 21)))
+		for _, v in tab do
+			local blockpos = nearCorner(v, pos)
+			local newmag = (pos - blockpos).Magnitude
+			if newmag < mag then
+				mag, returned = newmag, blockpos
+			end
+		end
+		table.clear(tab)
+		return returned
+	end
+
+	local function getClutchBlock(limit)
+		if store.hand.toolType == 'block' then
+			return store.hand.tool.Name, store.hand.amount
+		elseif not limit then
+			local wool, amount = getWool()
+			if wool then
+				return wool, amount
+			end
+			for _, item in store.inventory.inventory.items do
+				if bedwars.ItemMeta[item.itemType].block then
+					return item.itemType, item.amount
+				end
+			end
+		end
+		return nil, 0
+	end
+
+	Clutch = vape.Categories.Utility:CreateModule({
+		Name = 'Clutch',
+		Function = function(call)
+			if call then
+				Clutch:Clean(runService.Heartbeat:Connect(function()
+					if not Clutch.Enabled then
+						return
+					end
+					if entitylib.isAlive then
+						local root = entitylib.character.RootPart
+						if root and not inputService:GetFocusedTextBox() then
+							local wool = select(1, getClutchBlock(Clutch.LimitToItems and Clutch.LimitToItems.Enabled))
+							if wool then
+								if Clutch.RequireMouse and Clutch.RequireMouse.Enabled and not inputService:IsMouseButtonPressed(0) then
+									return
+								end
+								local vy = root.Velocity.Y
+								local now = os.clock()
+								if vy < FallVelocity and (now - lastPlace) > HoldTime then
+									local target = roundPos(root.Position - Vector3.new(0, entitylib.character.HipHeight + 4.5, 0))
+									local exists, blockpos = getPlacedBlock(target)
+									if not exists then
+										local prox = blockProximity(target)
+										local placePos = prox or (target * 3)
+										callPlace(placePos, wool, false)
+										lastPlace = now
+										if Clutch.SilentAim and Clutch.SilentAim.Enabled then
+											local lv = root.CFrame.LookVector
+											if lv.Z > 0 then
+												root.CFrame = CFrame.new(root.Position, root.Position - lv)
+											end
+										end
+									end
+								end
+							end
+						end
+					end
+				end))
+			end
+		end,
+		Tooltip = 'Automatically places a block when falling to clutch.'
+	})
+
+	Clutch.LimitToItems = Clutch:CreateToggle({
+		Name = 'Limit to items',
+		Default = false,
+	})
+
+	Clutch.RequireMouse = Clutch:CreateToggle({
+		Name = 'Require mouse down',
+		Default = false,
+	})
+
+	Clutch.SilentAim = Clutch:CreateToggle({
+		Name = 'Silent Aim',
+		Default = false,
+	})
+end)
