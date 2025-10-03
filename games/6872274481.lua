@@ -10995,3 +10995,147 @@ run(function()
 		Default = 5
 	})
 end)						
+
+run(function()
+    local FakeLag = {Enabled = false}
+    local FakeLagUsage = {Value = "Blatant"}
+    local FakeLagDelay1 = {Value = 2}
+    local FakeLagDelay2 = {Value = 7}
+    local FakeLagDelayLegit = {Value = 3}
+    local FakeLagSpeed1 = {Value = 22}
+    local FakeLagSpeed2 = {Value = 18}
+    local FakeLagSpeed3 = {Value = 20}
+    local FakeLagSpeed4 = {Value = 2.7}
+    local FakeLagSpeed5 = {Value = 1.5}
+
+    local oldroot, newroot
+    local bouncedelay = 0
+
+    local function ChangeSpeeds()
+        if entitylib.isAlive then
+            entitylib.character.Humanoid.WalkSpeed = FakeLagSpeed1.Value
+            task.wait(FakeLagSpeed4.Value / 10)
+            entitylib.character.Humanoid.WalkSpeed = FakeLagSpeed2.Value
+            task.wait(FakeLagSpeed5.Value / 10)
+            entitylib.character.Humanoid.WalkSpeed = FakeLagSpeed3.Value
+        end
+    end
+
+    FakeLag = vape.Categories.Utility:CreateModule({
+        Name = "FakeLag",
+        HoverText = "Makes people think you're laggy",
+        Function = function(call)
+            if call then
+                FakeLag:Clean(task.spawn(function()
+                    repeat task.wait()
+                        if not entitylib.isAlive then continue end
+                        oldroot = clone.cache.__currentroot or (lplr.Character and lplr.Character.PrimaryPart) or nil
+                        newroot = clone:getLocalClone("FakeLag", true)
+
+                        if FakeLagUsage.Value == "Blatant" then
+                            if oldroot and newroot and lplr.Character and lplr.Character.PrimaryPart == newroot and tick() >= bouncedelay then
+                                oldroot.CFrame = newroot.CFrame
+                                oldroot.Velocity = Vector3.zero
+                                oldroot.Anchored = true
+                                task.wait(FakeLagDelay1.Value / 10)
+                                oldroot.Anchored = false
+                                ChangeSpeeds()
+                                task.wait(FakeLagDelay2.Value / 10)
+                                bouncedelay = tick() + 0.2
+                            end
+                        elseif FakeLagUsage.Value == "Legit" then
+                            if oldroot and newroot and lplr.Character and lplr.Character.PrimaryPart == newroot and tick() >= bouncedelay then
+                                oldroot.CFrame = newroot.CFrame
+                                oldroot.Velocity = Vector3.zero
+                                oldroot.Anchored = true
+                                task.wait((FakeLagDelay1.Value / 10) + FakeLagDelayLegit.Value)
+                                oldroot.Anchored = false
+                                ChangeSpeeds()
+                                task.wait((FakeLagDelay2.Value / 10) + FakeLagDelayLegit.Value)
+                                bouncedelay = tick() + 0.2
+                            end
+                        end
+                    until not FakeLag.Enabled
+                end))
+            else
+                clone:destroyCloneInstance("FakeLag")
+                if entitylib.isAlive and entitylib.character:FindFirstChild("HumanoidRootPart") then
+                    entitylib.character.HumanoidRootPart.Anchored = false
+                end
+            end
+        end,
+        ExtraText = function()
+            return FakeLagUsage.Value
+        end
+    })
+
+    FakeLagUsage = FakeLag:CreateDropdown({
+        Name = "Mode",
+        List = {"Blatant", "Legit"},
+        Function = function() end
+    })
+
+    FakeLagDelay1 = FakeLag:CreateSlider({
+        Name = "Anchored Delay",
+        Min = 0,
+        Max = 20,
+        Default = 2,
+        Function = function() end
+    })
+
+    FakeLagDelay2 = FakeLag:CreateSlider({
+        Name = "Unanchored Delay",
+        Min = 0,
+        Max = 20,
+        Default = 7,
+        Function = function() end
+    })
+
+    FakeLagDelayLegit = FakeLag:CreateSlider({
+        Name = "Legit",
+        Min = 1,
+        Max = 10,
+        Default = 3,
+        Function = function() end
+    })
+
+    FakeLagSpeed1 = FakeLag:CreateSlider({
+        Name = "Speed 1",
+        Min = 1,
+        Max = 22,
+        Default = 22,
+        Function = function() end
+    })
+
+    FakeLagSpeed2 = FakeLag:CreateSlider({
+        Name = "Speed 2",
+        Min = 1,
+        Max = 20,
+        Default = 18,
+        Function = function() end
+    })
+
+    FakeLagSpeed3 = FakeLag:CreateSlider({
+        Name = "Speed 3",
+        Min = 1,
+        Max = 20,
+        Default = 20,
+        Function = function() end
+    })
+
+    FakeLagSpeed4 = FakeLag:CreateSlider({
+        Name = "Speed Delay 1",
+        Min = 1,
+        Max = 3,
+        Default = 2.7,
+        Function = function() end
+    })
+
+    FakeLagSpeed5 = FakeLag:CreateSlider({
+        Name = "Speed Delay 2",
+        Min = 1,
+        Max = 3,
+        Default = 1.5,
+        Function = function() end
+    })
+end)    																								
