@@ -10721,3 +10721,135 @@ run(function()
         end
     })
 end)
+
+run(function()
+    local AuraEnabled = false
+    local animPlaying = false
+    local KillauraAnimations = {
+        MC = {
+            {CFrame = CFrame.new(1.2, -0.9, 0.1) * CFrame.Angles(math.rad(-45), math.rad(100), math.rad(60)), Timer = 0.12},
+            {CFrame = CFrame.new(1.3, -0.85, 0.25) * CFrame.Angles(math.rad(-30), math.rad(80), math.rad(40)), Timer = 0.12},
+            {CFrame = CFrame.new(1.25, -0.88, 0.15) * CFrame.Angles(math.rad(-40), math.rad(90), math.rad(50)), Timer = 0.12},
+        },
+        Smooth = {
+            {CFrame = CFrame.new(1, -0.8, 0.2) * CFrame.Angles(math.rad(-30), math.rad(80), math.rad(50)), Timer = 0.15},
+            {CFrame = CFrame.new(1.1, -0.85, 0.1) * CFrame.Angles(math.rad(-35), math.rad(85), math.rad(55)), Timer = 0.15},
+        },
+        Wide = {
+            {CFrame = CFrame.new(1.5, -1, 0.3) * CFrame.Angles(math.rad(-50), math.rad(120), math.rad(70)), Timer = 0.1},
+            {CFrame = CFrame.new(1.4, -0.95, 0.25) * CFrame.Angles(math.rad(-40), math.rad(110), math.rad(65)), Timer = 0.1},
+        }
+    }
+
+    local AttackRange
+    local FaceTarget
+    local SwingTarget
+    local CustomAnimations
+    local AnimationDropdown
+    local SelectedAnimation = "MC"
+    local Aura
+
+    Aura = vape.Categories.Blatant:CreateModule({
+        Name = "CustomAura",
+        Function = function(call) --maxlasertech style😍
+            AuraEnabled = call
+            if call then
+                Aura:Clean(RunService.Stepped:Connect(function()
+                    local Nearest = getNearestEntity(AttackRange.Value, Aura.Targets)
+                    if Nearest and isAlive(lplr) and isAlive(Nearest.plr) then
+                        local Sword = getBestSword()
+                        if Sword then
+                            if FaceTarget.Enabled then
+                                local selfpos = lplr.Character.PrimaryPart.Position
+                                local targetpos = Nearest.plr.Character.PrimaryPart.Position
+                                lplr.Character.PrimaryPart.CFrame = CFrame.lookAt(selfpos, Vector3.new(targetpos.X, selfpos.Y, targetpos.Z))
+                            end
+                            if SwingTarget.Enabled and CustomAnimations.Enabled and not animPlaying then
+                                animPlaying = true
+                                task.spawn(function()
+                                    while animPlaying and Aura.Enabled do
+                                        Nearest = getNearestEntity(AttackRange.Value, Aura.Targets)
+                                        if not Nearest or not isAlive(lplr) or not isAlive(Nearest.plr) then
+                                            break
+                                        end
+                                        for _, v in next, KillauraAnimations[SelectedAnimation] do
+                                            Nearest = getNearestEntity(AttackRange.Value, Aura.Targets)
+                                            if not Nearest or not isAlive(lplr) or not isAlive(Nearest.plr) then
+                                                animPlaying = false
+                                                break
+                                            end
+                                            local tween = TweenService:Create(
+                                                viewmodel.RightHand.RightWrist,
+                                                TweenInfo.new(v.Timer, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
+                                                {C0 = C0 * v.CFrame}
+                                            )
+                                            tween:Play()
+                                            task.wait(v.Timer)
+                                        end
+                                    end
+                                    viewmodel.RightHand.RightWrist.C0 = C0
+                                    animPlaying = false
+                                end)
+                            end
+                            bedwars.SwordHit:FireServer({
+                                weapon = Sword,
+                                chargedAttack = {chargeRatio = 0},
+                                lastSwingServerTimeDelta = 0.01,
+                                entityInstance = Nearest.plr.Character,
+                                validate = {
+                                    raycast = {
+                                        cameraPosition = {value = lplr.Character.PrimaryPart.Position}, 
+                                        rayDirection = {value = (Nearest.plr.Character.PrimaryPart.Position - lplr.Character.PrimaryPart.Position).Unit}
+                                    },
+                                    targetPosition = {value = Nearest.plr.Character.PrimaryPart.Position},
+                                    selfPosition = {value = lplr.Character.PrimaryPart.Position}
+                                }
+                            })
+                        end
+                    else
+                        if animPlaying then
+                            animPlaying = false
+                            viewmodel.RightHand.RightWrist.C0 = C0
+                        end
+                    end
+                end))
+            else
+                animPlaying = false
+                viewmodel.RightHand.RightWrist.C0 = C0
+            end
+        end
+    })
+
+    Aura:CreateTargets({
+        Players = true,
+        NPCs = false
+    })
+    AttackRange = Aura:CreateSlider({
+        Name = "Attack Range",
+        Min = 1,
+        Max = 23,
+        Default = 23,
+        Suffix = function(val) return val == 1 and "stud" or "studs" end
+    })
+    FaceTarget = Aura:CreateToggle({
+        Name = "Face Target"
+    })
+    SwingTarget = Aura:CreateToggle({
+        Name = "Swing Target"
+    })
+    CustomAnimations = Aura:CreateToggle({
+        Name = "Custom Animations",
+        Function = function(state)
+            AnimationDropdown.Object.Visible = state
+        end
+    })
+    AnimationDropdown = Aura:CreateDropdown({
+        Name = "Animation Type",
+        List = {"MC", "Smooth", "Wide"},
+        Value = "MC",
+        Function = function(opt)
+            SelectedAnimation = opt
+        end
+    })
+    AnimationDropdown.Object.Visible = false
+end)																																																																																																																																																																	
