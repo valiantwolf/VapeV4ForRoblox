@@ -10857,12 +10857,17 @@ end)
 run(function()
 	local Clutch
 	local runService = game:GetService("RunService")
-	local HoldTime = 0.15
+	local workspace = game:GetService("Workspace")
+	local HoldBase = 0.15
 	local FallVelocity = -6
 	local lastPlace = 0
 
 	local function callPlace(blockpos, wool, rotate)
 		local placeFn
+		if type(vape) == "table" and type(vape.clean) == "function" then
+			vape:clean(blockpos, wool, rotate)
+			return
+		end
 		if type(vape) == "table" and type(vape.place) == "function" then
 			placeFn = vape.place
 		elseif type(place) == "function" then
@@ -10919,31 +10924,45 @@ run(function()
 					if not Clutch.Enabled then
 						return
 					end
-					if entitylib.isAlive then
-						local root = entitylib.character.RootPart
-						if root and not inputService:GetFocusedTextBox() then
-							local wool = select(1, getClutchBlock(Clutch.LimitToItems and Clutch.LimitToItems.Enabled))
-							if wool then
-								if Clutch.RequireMouse and Clutch.RequireMouse.Enabled and not inputService:IsMouseButtonPressed(0) then
-									return
-								end
-								local vy = root.Velocity.Y
-								local now = os.clock()
-								if vy < FallVelocity and (now - lastPlace) > HoldTime then
-									local target = roundPos(root.Position - Vector3.new(0, entitylib.character.HipHeight + 4.5, 0))
-									local exists, blockpos = getPlacedBlock(target)
-									if not exists then
-										local prox = blockProximity(target)
-										local placePos = prox or (target * 3)
-										callPlace(placePos, wool, false)
-										lastPlace = now
-										if Clutch.SilentAim and Clutch.SilentAim.Enabled then
-											local lv = root.CFrame.LookVector
-											if lv.Z > 0 then
-												root.CFrame = CFrame.new(root.Position, root.Position - lv)
-											end
-										end
-									end
+					if not entitylib.isAlive then
+						return
+					end
+					local root = entitylib.character.RootPart
+					if not root or inputService:GetFocusedTextBox() then
+						return
+					end
+					local wool = select(1, getClutchBlock(Clutch.LimitToItems and Clutch.LimitToItems.Enabled))
+					if not wool then
+						return
+					end
+					if Clutch.RequireMouse and Clutch.RequireMouse.Enabled and not inputService:IsMouseButtonPressed(0) then
+						return
+					end
+					local vy = root.Velocity.Y
+					local now = os.clock()
+					local speedVal = (Clutch.Speed and Clutch.Speed.Value) or 0
+					local cooldown = math.clamp(HoldBase - (speedVal * 0.015), 0.01, HoldBase)
+					if vy < FallVelocity and (now - lastPlace) > cooldown then
+						local target = roundPos(root.Position - Vector3.new(0, entitylib.character.HipHeight + 4.5, 0))
+						local exists, blockpos = getPlacedBlock(target)
+						if not exists then
+							local prox = blockProximity(target)
+							local placePos = prox or (target * 3)
+							callPlace(placePos, wool, false)
+							lastPlace = now
+							if Clutch.SilentAim and Clutch.SilentAim.Enabled then
+								local camera = workspace.CurrentCamera
+								local camCFrame = camera and camera.CFrame
+								local camType = camera and camera.CameraType
+								local camSubject = camera and camera.CameraSubject
+								local lv = root.CFrame.LookVector
+								local newLook = -Vector3.new(lv.X, 0, lv.Z).Unit
+								local rootPos = root.Position
+								root.CFrame = CFrame.new(rootPos, rootPos + newLook)
+								if camera and camCFrame then
+									camera.CameraType = camType
+									camera.CameraSubject = camSubject
+									camera.CFrame = camCFrame
 								end
 							end
 						end
@@ -10968,4 +10987,11 @@ run(function()
 		Name = 'Silent Aim',
 		Default = false,
 	})
-end)
+
+	Clutch.Speed = Clutch:CreateSlider({
+		Name = 'Speed',
+		Min = 0,
+		Max = 9,
+		Default = 5
+	})
+end)						
