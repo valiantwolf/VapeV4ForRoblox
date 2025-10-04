@@ -11142,84 +11142,97 @@ run(function()
 end)    																								
 
 run(function()
-	local Antihit = {Enabled = false}
-
-	local Range = {Value = 16}
-	local TimeUp = {Value = 0.5}
-	local Down = {Value = 0.14}
-	local Targets = {Players = true, NPCs = false}
-	local co = 25
-
-	Antihit = vape.Categories.Blatant:CreateModule({
-		Name = "AntiHit",
+	local antihit
+	local antihitdelay
+	local antihitcloned = false
+	local oldroot
+	local clone
+	local hip
+	local function doClone()
+		if entitylib.isAlive and entitylib.character.Humanoid.Health > 0 and not antihitcloned then
+			hip = entitylib.character.Humanoid.HipHeight
+			oldroot = entitylib.character.HumanoidRootPart
+			lplr.Character.Parent = workspace.Parent
+			clone = oldroot:Clone()
+			clone.Parent = lplr.Character
+			oldroot.Parent = gameCamera
+			bedwars.QueryUtil:setQueryIgnored(oldroot, true)
+			clone.CFrame = oldroot.CFrame
+			lplr.Character.PrimaryPart = clone
+			lplr.Character.Parent = workspace
+			for _, v in lplr.Character:GetDescendants() do
+				if v:IsA('Weld') or v:IsA('Motor6D') then
+					if v.Part0 == oldroot then v.Part0 = clone end
+					if v.Part1 == oldroot then v.Part1 = clone end
+				end
+			end
+			oldroot.Transparency = 1
+			antihitcloned = true
+		end
+	end
+	
+	local function revertClone()
+		if not antihitcloned or not oldroot or not oldroot.Parent or not entitylib.isAlive then 
+			antihitcloned = false 
+			return
+		end
+		lplr.Character.Parent = workspace.Parent
+		oldroot.Parent = lplr.Character
+		lplr.Character.PrimaryPart = oldroot
+		lplr.Character.Parent = workspace
+		oldroot.CanCollide = true
+		for _, v in lplr.Character:GetDescendants() do
+			if v:IsA('Weld') or v:IsA('Motor6D') then
+				if v.Part0 == clone then v.Part0 = oldroot end
+				if v.Part1 == clone then v.Part1 = oldroot end
+			end
+		end
+		if clone then
+			clone:Destroy()
+			clone = nil
+		end
+		oldroot.Transparency = 1
+		oldroot = nil
+		entitylib.character.Humanoid.HipHeight = hip or 2
+	end
+	local antihitting = false
+	local antihitsky = tick()
+	antihit = vape.Categories.Blatant:CreateModule({
+		Name = 'Anti Hit',
 		Function = function(call)
 			if call then
-				Antihit:Clean(runService.Heartbeat:Connect(function()
-					local root = lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart")
-					if not root then return end
-					local orgPos = root.CFrame
-					local foundEnemy = false
-					for _, plr in next, playersService:GetPlayers() do
-						if Targets.Players and plr ~= lplr and plr.Team ~= lplr.Team then
-							local enemyChar = plr.Character
-							local enemyRoot = enemyChar and enemyChar:FindFirstChild("HumanoidRootPart")
-							local enemyHum = enemyChar and enemyChar:FindFirstChild("Humanoid")
-							if enemyRoot and enemyHum and enemyHum.Health > 0 then
-								local dist = (root.Position - enemyRoot.Position).Magnitude
-								if dist <= Range.Value then
-									foundEnemy = true
-									break
-								end
-							end
+				local lastypos
+				antihit:Clean(runService.Heartbeat:Connect(function()
+					if oldroot and oldroot.Parent and antihitcloned then
+						if not antihitting then
+							lastypos = clone.CFrame.Y
 						end
+						oldroot.CFrame = antihitting and CFrame.new(clone.CFrame.X, lastypos + -150, clone.CFrame.Z) or clone.CFrame
 					end
-					if foundEnemy then
-						root.CFrame = orgPos * CFrame.new(0, -230, 0)
-						task.wait(TimeUp.Value)
-						if Antihit.Enabled and lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart") then
-							lplr.Character.HumanoidRootPart.CFrame = orgPos
-						end
-					else
-						root.CFrame = orgPos * CFrame.new(0, 230, 0)
-						task.wait(TimeUp.Value)
-						if Antihit.Enabled and lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart") then
-							lplr.Character.HumanoidRootPart.CFrame = orgPos
-						end
-					end
-					cam.CFrame = cam.CFrame * CFrame.new(0, co, 0)
-					task.wait(Down.Value)
 				end))
+				repeat
+					if entitylib.isAlive then
+						if store.KillauraTarget then
+							doClone()
+							antihitting = true
+							repeat task.wait() until (tick() - antihitsky) > (0.1 * antihitdelay.Value)
+							antihitsky = tick() + 0.07
+							antihitting = false
+						else
+							antihitting = false
+							revertClone()
+						end
+					end
+					task.wait(0.2)
+				until not antihit.Enabled
 			end
-		end,
-		Tooltip = "Prevents you from dying"
+		end
 	})
-
-	Range = Antihit:CreateSlider({
-		Name = "Range",
-		Min = 0,
-		Max = 50,
-		Default = 15,
-		Function = function(val) Range.Value = val end
-	})
-
-	TimeUp = Antihit:CreateSlider({
-		Name = "Time Up",
-		Min = 0,
-		Max = 1,
-		Default = 0.4,
-		Function = function(val) TimeUp.Value = val end
-	})
-
-	Down = Antihit:CreateSlider({
-		Name = "Time Down",
-		Min = 0,
-		Max = 1,
-		Default = 0.1,
-		Function = function(val) Down.Value = val end
-	})
-
-	Antihit:CreateTargets({
-		Players = true,
-		NPCs = false
+	antihitdelay = antihit:CreateSlider({
+		Name = 'Sky Delay',
+		Min = 1,
+		Max = 9,
+		Default = 9,
+		Function = function() end
 	})
 end)
