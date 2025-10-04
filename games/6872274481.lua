@@ -28,6 +28,7 @@ local isnetworkowner = identifyexecutor and table.find({'AWP', 'Nihon'}, ({ident
 	return true
 end
 local gameCamera = workspace.CurrentCamera
+local cam = workspace.CurrentCamera --yes yes ik 
 local lplr = playersService.LocalPlayer
 local assetfunction = getcustomasset
 
@@ -11141,72 +11142,84 @@ run(function()
 end)    																								
 
 run(function()
-    local Antihit = {Enabled = false}
-    local Range, TimeUp, Down = 16, 0.5, 0.14
+	local Antihit = {Enabled = false}
 
-    Antihit = vape.Categories.Blatant:CreateModule({
-        Name = "Antihit",
-        Function = function(call)
-            if call then
-                task.spawn(function()
-                    while Antihit.Enabled do
-                        local root = lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart")
-                        if root then
-                            local orgPos = root.Position
-                            local foundEnemy = false
+	local Range = {Value = 16}
+	local TimeUp = {Value = 0.5}
+	local Down = {Value = 0.14}
+	local Targets = {Players = true, NPCs = false}
+	local co = 25
 
-                            for _, v in next, playersService:GetPlayers() do
-                                if v ~= lplr and v.Team ~= lplr.Team then
-                                    local enemyChar = v.Character
-                                    local enemyRoot = enemyChar and enemyChar:FindFirstChild("HumanoidRootPart")
-                                    local enemyHum = enemyChar and enemyChar:FindFirstChild("Humanoid")
-                                    if enemyRoot and enemyHum and enemyHum.Health > 0 then
-                                        local dist = (root.Position - enemyRoot.Position).Magnitude
-                                        if dist <= Range.Value then
-                                            foundEnemy = true
-                                            break
-                                        end
-                                    end
-                                end
-                            end
+	Antihit = vape.Categories.Blatant:CreateModule({
+		Name = "AntiHit",
+		Function = function(call)
+			if call then
+				Antihit:Clean(runService.Heartbeat:Connect(function()
+					local root = lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart")
+					if not root then return end
+					local orgPos = root.CFrame
+					local foundEnemy = false
+					for _, plr in next, playersService:GetPlayers() do
+						if Targets.Players and plr ~= lplr and plr.Team ~= lplr.Team then
+							local enemyChar = plr.Character
+							local enemyRoot = enemyChar and enemyChar:FindFirstChild("HumanoidRootPart")
+							local enemyHum = enemyChar and enemyChar:FindFirstChild("Humanoid")
+							if enemyRoot and enemyHum and enemyHum.Health > 0 then
+								local dist = (root.Position - enemyRoot.Position).Magnitude
+								if dist <= Range.Value then
+									foundEnemy = true
+									break
+								end
+							end
+						end
+					end
+					if foundEnemy then
+						root.CFrame = orgPos * CFrame.new(0, -230, 0)
+						task.wait(TimeUp.Value)
+						if Antihit.Enabled and lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart") then
+							lplr.Character.HumanoidRootPart.CFrame = orgPos
+						end
+					else
+						root.CFrame = orgPos * CFrame.new(0, 230, 0)
+						task.wait(TimeUp.Value)
+						if Antihit.Enabled and lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart") then
+							lplr.Character.HumanoidRootPart.CFrame = orgPos
+						end
+					end
+					cam.CFrame = cam.CFrame * CFrame.new(0, co, 0)
+					task.wait(Down.Value)
+				end))
+			end
+		end,
+		Tooltip = "Prevents you from dying"
+	})
 
-                            if foundEnemy then
-                                root.CFrame = CFrame.new(orgPos + Vector3.new(0, -230, 0))
-                                task.wait(TimeUp.Value)
-                                if Antihit.Enabled and lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart") then
-                                    lplr.Character.HumanoidRootPart.CFrame = CFrame.new(orgPos)
-                                end
-                            end
-                        end
-                        task.wait(Down.Value)
-                    end
-                end)
-            end
-        end,
-        Tooltip = "Prevents you from dying"
-    })
+	Range = Antihit:CreateSlider({
+		Name = "Range",
+		Min = 0,
+		Max = 50,
+		Default = 15,
+		Function = function(val) Range.Value = val end
+	})
 
-    Range = Antihit:CreateSlider({
-        Name = "Range",
-        Min = 0,
-        Max = 50,
-        Default = 15,
-        Function = function(val) Range.Value = val end
-    })
+	TimeUp = Antihit:CreateSlider({
+		Name = "Time Up",
+		Min = 0,
+		Max = 1,
+		Default = 0.4,
+		Function = function(val) TimeUp.Value = val end
+	})
 
-    TimeUp = Antihit:CreateSlider({
-        Name = "Time Up",
-        Min = 0,
-        Max = 1,
-        Default = 0.1,
-        Function = function(val) TimeUp.Value = val end
-    })
+	Down = Antihit:CreateSlider({
+		Name = "Time Down",
+		Min = 0,
+		Max = 1,
+		Default = 0.1,
+		Function = function(val) Down.Value = val end
+	})
 
-    Down = Antihit:CreateSlider({
-        Name = "Time Down",
-        Min = 0,
-        Max = 1,
-        Default = 0.1,
-        Function = function(val) Down.Value = val end
-    })
+	Antihit:CreateTargets({
+		Players = true,
+		NPCs = false
+	})
 end)
