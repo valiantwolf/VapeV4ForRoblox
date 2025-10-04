@@ -11139,3 +11139,74 @@ run(function()
         Function = function() end
     })
 end)    																								
+
+run(function()
+    local Antihit = {Enabled = false}
+    local Range, TimeUp, Down = 16, 0.5, 0.14
+
+    Antihit = vape.Categories.Ape:CreateModule({
+        Name = "Antihit",
+        Function = function(call)
+            if call then
+                task.spawn(function()
+                    while Antihit.Enabled do
+                        local root = lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart")
+                        if root then
+                            local orgPos = root.Position
+                            local foundEnemy = false
+
+                            for _, v in next, playersService:GetPlayers() do
+                                if v ~= lplr and v.Team ~= lplr.Team then
+                                    local enemyChar = v.Character
+                                    local enemyRoot = enemyChar and enemyChar:FindFirstChild("HumanoidRootPart")
+                                    local enemyHum = enemyChar and enemyChar:FindFirstChild("Humanoid")
+                                    if enemyRoot and enemyHum and enemyHum.Health > 0 then
+                                        local dist = (root.Position - enemyRoot.Position).Magnitude
+                                        if dist <= Range.Value then
+                                            foundEnemy = true
+                                            break
+                                        end
+                                    end
+                                end
+                            end
+
+                            if foundEnemy then
+                                root.CFrame = CFrame.new(orgPos + Vector3.new(0, -230, 0))
+                                task.wait(TimeUp.Value)
+                                if Antihit.Enabled and lplr.Character and lplr.Character:FindFirstChild("HumanoidRootPart") then
+                                    lplr.Character.HumanoidRootPart.CFrame = CFrame.new(orgPos)
+                                end
+                            end
+                        end
+                        task.wait(Down.Value)
+                    end
+                end)
+            end
+        end,
+        Tooltip = "Prevents you from dying"
+    })
+
+    Range = Antihit:CreateSlider({
+        Name = "Range",
+        Min = 0,
+        Max = 50,
+        Default = 15,
+        Function = function(val) Range.Value = val end
+    })
+
+    TimeUp = Antihit:CreateSlider({
+        Name = "Time Up",
+        Min = 0,
+        Max = 1,
+        Default = 0.1,
+        Function = function(val) TimeUp.Value = val end
+    })
+
+    Down = Antihit:CreateSlider({
+        Name = "Time Down",
+        Min = 0,
+        Max = 1,
+        Default = 0.1,
+        Function = function(val) Down.Value = val end
+    })
+end)
