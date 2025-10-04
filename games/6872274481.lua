@@ -11144,7 +11144,7 @@ run(function()
     local Antihit = {Enabled = false}
     local Range, TimeUp, Down = 16, 0.5, 0.14
 
-    Antihit = vape.Categories.Ape:CreateModule({
+    Antihit = vape.Categories.Blatant:CreateModule({
         Name = "Antihit",
         Function = function(call)
             if call then
