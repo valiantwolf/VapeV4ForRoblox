@@ -8154,7 +8154,7 @@ run(function()
 				AnimationChanger:Clean(runService.Heartbeat:Connect(function()
 					pcall(function()
 				        task.spawn(function()
-					        if not entityLibrary.isAlive then repeat task.wait(10) until entityLibrary.isAlive end
+					        --if not entityLibrary.isAlive then repeat task.wait(10) until entityLibrary.isAlive end
 							AnimationChanger:Clean(lplr.CharacterAdded:Connect(function()
 					        	if not entityLibrary.isAlive then repeat task.wait(10) until entityLibrary.isAlive end
 					            pcall(AnimateCharacter)
