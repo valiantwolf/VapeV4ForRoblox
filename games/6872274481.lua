@@ -11236,3 +11236,44 @@ run(function()
 		Function = function() end
 	})
 end)
+
+run(function()
+	local AntiDeath = {Enabled = false}
+	local Threshold = {Value = 50}
+
+	AntiDeath = vape.Categories.Utility:CreateModule({
+		Name = "AntiDeath",
+		Function = function(call)
+			if call then
+				local function onHealthChanged(health)
+					if health < Threshold.Value then
+                     Anti Hit:Toggle()
+						notif("AntiDeath", "Prevented Death", 4, "warning")
+					end
+				end
+
+				local function onCharacterAdded(char)
+					local humanoid = char:WaitForChild("Humanoid")
+					AntiDeath:Clean(humanoid.HealthChanged:Connect(onHealthChanged))
+				end
+
+				AntiDeath:Clean(lplr.CharacterAdded:Connect(onCharacterAdded))
+
+				if lplr.Character then
+					onCharacterAdded(lplr.Character)
+				end
+			end
+		end,
+		Tooltip = "Notifies you when your health drops below the threshold."
+	})
+
+	Threshold = AntiDeath:CreateSlider({
+		Name = "Threshold",
+		Min = 1,
+		Max = 100,
+		Default = 50,
+		Function = function(val)
+			Threshold.Value = val
+		end
+	})
+end)
