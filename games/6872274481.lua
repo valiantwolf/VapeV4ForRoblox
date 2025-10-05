@@ -10736,6 +10736,9 @@ end)
 end)--]]
 
 run(function()
+	local RunService = game:GetService("RunService") --defined again idc
+	local TweenService = game:GetService("TweenService")
+
 	local AuraEnabled = false
 	local animPlaying = false
 
@@ -10755,10 +10758,15 @@ run(function()
 		}
 	}
 
-	local AttackRange, FaceTarget, SwingTarget, CustomAnimations, AnimationDropdown
+	local AttackRange
+	local FaceTarget
+	local SwingTarget
+	local CustomAnimations
+	local AnimationDropdown
 	local SelectedAnimation = "MC"
+	local Aura
 
-	local Aura = vape.Categories.Blatant:CreateModule({
+	Aura = vape.Categories.Blatant:CreateModule({
 		Name = "CustomAura",
 		Function = function(call)
 			AuraEnabled = call
@@ -10773,39 +10781,35 @@ run(function()
 								local targetPos = Nearest.plr.Character.PrimaryPart.Position
 								lplr.Character.PrimaryPart.CFrame = CFrame.lookAt(selfPos, Vector3.new(targetPos.X, selfPos.Y, targetPos.Z))
 							end
-
 							if SwingTarget.Enabled and CustomAnimations.Enabled and not animPlaying then
-								local vm = viewmodel
-								if vm and vm:FindFirstChild("RightHand") and vm.RightHand:FindFirstChild("RightWrist") and C0 then
-									animPlaying = true
-									task.spawn(function()
-										while animPlaying and Aura.Enabled do
+								animPlaying = true
+								task.spawn(function()
+									while animPlaying and Aura.Enabled do
+										Nearest = getNearestEntity(AttackRange.Value, Aura.Targets)
+										if not Nearest or not isAlive(lplr) or not isAlive(Nearest.plr) then break end
+										for _, v in next, KillauraAnimations[SelectedAnimation] do
 											Nearest = getNearestEntity(AttackRange.Value, Aura.Targets)
 											if not Nearest or not isAlive(lplr) or not isAlive(Nearest.plr) then
+												animPlaying = false
 												break
 											end
-
-											for _, v in next, KillauraAnimations[SelectedAnimation] do
-												if not vm or not vm:FindFirstChild("RightHand") or not vm.RightHand:FindFirstChild("RightWrist") then
-													animPlaying = false
-													break
-												end
-
-												local wrist = vm.RightHand.RightWrist
-												local tween = TweenService:Create(wrist, TweenInfo.new(v.Timer, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {C0 = C0 * v.CFrame})
+											local wrist = viewmodel and viewmodel:FindFirstChild("RightHand") and viewmodel.RightHand:FindFirstChild("RightWrist")
+											if wrist then
+												local tween = TweenService:Create(
+													wrist,
+													TweenInfo.new(v.Timer, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
+													{C0 = C0 * v.CFrame}
+												)
 												tween:Play()
-												task.wait(v.Timer)
 											end
+											task.wait(v.Timer)
 										end
-
-										if vm and vm:FindFirstChild("RightHand") and vm.RightHand:FindFirstChild("RightWrist") then
-											vm.RightHand.RightWrist.C0 = C0
-										end
-										animPlaying = false
-									end)
-								end
+									end
+									local wrist = viewmodel and viewmodel:FindFirstChild("RightHand") and viewmodel.RightHand:FindFirstChild("RightWrist")
+									if wrist then wrist.C0 = C0 end
+									animPlaying = false
+								end)
 							end
-
 							bedwars.SwordHit:FireServer({
 								weapon = Sword,
 								chargedAttack = {chargeRatio = 0},
@@ -10824,17 +10828,15 @@ run(function()
 					else
 						if animPlaying then
 							animPlaying = false
-							if viewmodel and viewmodel:FindFirstChild("RightHand") and viewmodel.RightHand:FindFirstChild("RightWrist") then
-								viewmodel.RightHand.RightWrist.C0 = C0
-							end
+							local wrist = viewmodel and viewmodel:FindFirstChild("RightHand") and viewmodel.RightHand:FindFirstChild("RightWrist")
+							if wrist then wrist.C0 = C0 end
 						end
 					end
 				end))
 			else
 				animPlaying = false
-				if viewmodel and viewmodel:FindFirstChild("RightHand") and viewmodel.RightHand:FindFirstChild("RightWrist") then
-					viewmodel.RightHand.RightWrist.C0 = C0
-				end
+				local wrist = viewmodel and viewmodel:FindFirstChild("RightHand") and viewmodel.RightHand:FindFirstChild("RightWrist")
+				if wrist then wrist.C0 = C0 end
 			end
 		end
 	})
@@ -10849,9 +10851,7 @@ run(function()
 		Min = 1,
 		Max = 23,
 		Default = 23,
-		Suffix = function(val)
-			return val == 1 and "stud" or "studs"
-		end
+		Suffix = function(val) return val == 1 and "stud" or "studs" end
 	})
 
 	FaceTarget = Aura:CreateToggle({
@@ -10879,7 +10879,7 @@ run(function()
 	})
 
 	AnimationDropdown.Object.Visible = false
-end)
+end)	
     
 run(function()
 	local Clutch
@@ -11284,9 +11284,9 @@ run(function()
 							lastNotif = tick()
 							notif("AntiDeath", "Prevented Death", 4, "warning")
 
-							local AntiHit = vape.Modules.AntiHit
-							if AntiHit and not AntiHit.Enabled then
-								AntiHit:Toggle()
+							local Anti Hit = vape.Modules.Anti Hit
+							if Anti Hit and not Anti Hit.Enabled then
+								Anti Hit:Toggle()
 							end
 						end
 					until not AntiDeath.Enabled
