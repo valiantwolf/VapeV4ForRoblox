@@ -10630,7 +10630,7 @@ run(function()
     })
 end) 
 
-run(function()
+--[[run(function() --why u no wanna workies >:{
 	local MoonCharacter = {Enabled = false}
 	local MoonCharacterMD = {Value = "Nightmare Bonnie"}
 	local Followers = game:GetObjects("rbxassetid://14289122777")[1]
@@ -10701,7 +10701,7 @@ run(function()
 							end
 						end
 					end
-				end))
+				end)
 			end
 		end,
 		ExtraText = function()
@@ -10733,7 +10733,7 @@ run(function()
 			MoonCharacterMD.Value = selectedValue
 		end
 	})
-end)
+end)--]]
 
 run(function()
 	local AuraEnabled = false
