@@ -11224,7 +11224,7 @@ run(function()
 	local antihitting = false
 	local antihitsky = tick()
 	antihit = vape.Categories.Blatant:CreateModule({
-		Name = 'Anti Hit',
+		Name = 'AntiHit',
 		Function = function(call)
 			if call then
 				local lastypos
@@ -11284,9 +11284,9 @@ run(function()
 							lastNotif = tick()
 							notif("AntiDeath", "Prevented Death", 4, "warning")
 
-							local Anti Hit = vape.Modules.Anti Hit
-							if Anti Hit and not Anti Hit.Enabled then
-								Anti Hit:Toggle()
+							local AntiHit = vape.Modules.AntiHit
+							if AntiHit and not AntiHit.Enabled then
+								AntiHit:Toggle()
 							end
 						end
 					until not AntiDeath.Enabled
