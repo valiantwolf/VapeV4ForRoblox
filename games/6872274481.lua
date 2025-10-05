@@ -10630,231 +10630,257 @@ run(function()
     })
 end) 
 
-local Followers = game:GetObjects("rbxassetid://14289122777")[1]
 run(function()
-    local MoonCharacter = {Enabled = false}
-    local MoonCharacterMD = {Value = "Nightmare"}
+	local MoonCharacter = {Enabled = false}
+	local MoonCharacterMD = {Value = "Nightmare Bonnie"}
+	local Followers = game:GetObjects("rbxassetid://14289122777")[1]
 
-    local function getFollowerModel(name)
-        if not Followers then return nil end
-        if Followers:IsA("Folder") or Followers:IsA("Model") then
-            return Followers:FindFirstChild(name)
-        elseif #Followers:GetChildren() > 0 then
-            return Followers:GetChildren()[1]:FindFirstChild(name)
-        end
-        return nil
-    end
+	local function getFollowerModel(name)
+		if not Followers then return nil end
+		if Followers:IsA("Folder") or Followers:IsA("Model") then
+			return Followers:FindFirstChild(name)
+		elseif #Followers:GetChildren() > 0 then
+			for _, folder in next, Followers:GetChildren() do
+				local found = folder:FindFirstChild(name)
+				if found then return found end
+			end
+		end
+		return nil
+	end
 
-    MoonCharacter = vape.Categories.Render:CreateModule({
-        Name = "MoonCharacter",
-        HoverText = "Customizes your character",
-        Function = function(calling)
-            if calling then
-                MoonCharacter:Clean(runService.Heartbeat:Connect(function()
-                    if MoonCharacter.Enabled then
-                        for _, v in next, game.Players:GetPlayers() do
-                            if IsThatGuyAlive(v) and v.Character then
-                                for _, obj in next, v.Character:GetChildren() do
-                                    if obj:IsA("BasePart") or obj:IsA("MeshPart") then
-                                        obj.Transparency = 1
-                                    elseif obj:IsA("Accessory") and obj:FindFirstChild("Handle") then
-                                        obj.Handle.Transparency = 1
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end))
+	MoonCharacter = vape.Categories.Render:CreateModule({
+		Name = "MoonCharacter",
+		HoverText = "Customizes your character",
+		Function = function(call)
+			if call then
+				MoonCharacter:Clean(runService.Heartbeat:Connect(function()
+					for _, plr in next, playersService:GetPlayers() do
+						if entitylib.isAlive(plr) then
+							local char = plr.Character
+							local humanoidRoot = char and char:FindFirstChild("HumanoidRootPart")
 
-                MoonCharacter:Clean(runService.Heartbeat:Connect(function()
-                    if MoonCharacter.Enabled then
-                        for _, v in next, game.Players:GetPlayers() do
-                            if IsThatGuyAlive(v) and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
-                                if not v.Character:FindFirstChild("Follower") then
-                                    local followerInstance = Instance.new("Model")
-                                    followerInstance.Name = "Follower"
-                                    followerInstance.Parent = v.Character
-                                    local selectedValue = MoonCharacterMD.Value or "maxwell"
-                                    local followerModel = getFollowerModel(selectedValue)
-                                    if followerModel then
-                                        local follower = followerModel:Clone()
-                                        follower.Name = "beloved"
-                                        follower.Parent = followerInstance
-                                    end
-                                end
-                                local beloved = v.Character:FindFirstChild("Follower") and v.Character.Follower:FindFirstChild("beloved")
-                                if beloved and beloved:IsA("BasePart") then
-                                    beloved.CFrame = v.Character.HumanoidRootPart.CFrame
-                                end
-                            end
-                        end
-                    end
-                end))
-            end
-        end,
-        ExtraText = function()
-            return MoonCharacterMD.Value
-        end
-    })
+							if char and humanoidRoot then
+								for _, obj in next, char:GetDescendants() do
+									if obj:IsA("BasePart") or obj:IsA("MeshPart") then
+										obj.Transparency = 1
+									elseif obj:IsA("Decal") then
+										obj.Transparency = 1
+									elseif obj:IsA("Accessory") and obj:FindFirstChild("Handle") then
+										obj.Handle.Transparency = 1
+									end
+								end
 
-    MoonCharacterMD = MoonCharacter:CreateDropdown({
-        Name = "Costume",
-        List = {
-            "Freddy Plush",
-            "amongus",
-            "chair",
-            "friday",
-            "maxwell",
-            "paimon",
-            "floppa",
-            "Nightmare",
-            "Nightmare Bonnie",
-            "Dababy",
-            "Bugs Bunny",
-            "Rabbid",
-            "KFC",
-            "Furry",
-            "Squidward"
-        },
-        Value = "Nightmare",
-        Function = function(selectedValue)
-            MoonCharacterMD.Value = selectedValue
-        end
-    })
+								if not char:FindFirstChild("Follower") then
+									local followerInstance = Instance.new("Model")
+									followerInstance.Name = "Follower"
+									followerInstance.Parent = char
+
+									local selected = MoonCharacterMD.Value or "maxwell"
+									local followerModel = getFollowerModel(selected)
+									if followerModel then
+										local follower = followerModel:Clone()
+										follower.Name = "beloved"
+										follower.Parent = followerInstance
+									end
+								end
+
+								local beloved = char:FindFirstChild("Follower") and char.Follower:FindFirstChild("beloved")
+								if beloved then
+									local rootPos = humanoidRoot.CFrame * CFrame.new(0, 0, -2)
+									for _, part in next, beloved:GetDescendants() do
+										if part:IsA("BasePart") or part:IsA("MeshPart") then
+											part.Transparency = 0
+										end
+									end
+									if beloved:IsA("Model") then
+										beloved:PivotTo(rootPos)
+									elseif beloved:IsA("BasePart") then
+										beloved.CFrame = rootPos
+									end
+								end
+							end
+						end
+					end
+				end))
+			end
+		end,
+		ExtraText = function()
+			return MoonCharacterMD.Value
+		end
+	})
+
+	MoonCharacterMD = MoonCharacter:CreateDropdown({
+		Name = "Costume",
+		List = {
+			"Freddy Plush",
+			"amongus",
+			"chair",
+			"friday",
+			"maxwell",
+			"paimon",
+			"floppa",
+			"Nightmare",
+			"Nightmare Bonnie",
+			"Dababy",
+			"Bugs Bunny",
+			"Rabbid",
+			"KFC",
+			"Furry",
+			"Squidward"
+		},
+		Value = "Nightmare",
+		Function = function(selectedValue)
+			MoonCharacterMD.Value = selectedValue
+		end
+	})
 end)
 
 run(function()
-    local AuraEnabled = false
-    local animPlaying = false
-    local KillauraAnimations = {
-        MC = {
-            {CFrame = CFrame.new(1.2, -0.9, 0.1) * CFrame.Angles(math.rad(-45), math.rad(100), math.rad(60)), Timer = 0.12},
-            {CFrame = CFrame.new(1.3, -0.85, 0.25) * CFrame.Angles(math.rad(-30), math.rad(80), math.rad(40)), Timer = 0.12},
-            {CFrame = CFrame.new(1.25, -0.88, 0.15) * CFrame.Angles(math.rad(-40), math.rad(90), math.rad(50)), Timer = 0.12},
-        },
-        Smooth = {
-            {CFrame = CFrame.new(1, -0.8, 0.2) * CFrame.Angles(math.rad(-30), math.rad(80), math.rad(50)), Timer = 0.15},
-            {CFrame = CFrame.new(1.1, -0.85, 0.1) * CFrame.Angles(math.rad(-35), math.rad(85), math.rad(55)), Timer = 0.15},
-        },
-        Wide = {
-            {CFrame = CFrame.new(1.5, -1, 0.3) * CFrame.Angles(math.rad(-50), math.rad(120), math.rad(70)), Timer = 0.1},
-            {CFrame = CFrame.new(1.4, -0.95, 0.25) * CFrame.Angles(math.rad(-40), math.rad(110), math.rad(65)), Timer = 0.1},
-        }
-    }
+	local AuraEnabled = false
+	local animPlaying = false
 
-    local AttackRange
-    local FaceTarget
-    local SwingTarget
-    local CustomAnimations
-    local AnimationDropdown
-    local SelectedAnimation = "MC"
-    local Aura
+	local KillauraAnimations = {
+		MC = {
+			{CFrame = CFrame.new(1.2, -0.9, 0.1) * CFrame.Angles(math.rad(-45), math.rad(100), math.rad(60)), Timer = 0.12},
+			{CFrame = CFrame.new(1.3, -0.85, 0.25) * CFrame.Angles(math.rad(-30), math.rad(80), math.rad(40)), Timer = 0.12},
+			{CFrame = CFrame.new(1.25, -0.88, 0.15) * CFrame.Angles(math.rad(-40), math.rad(90), math.rad(50)), Timer = 0.12},
+		},
+		Smooth = {
+			{CFrame = CFrame.new(1, -0.8, 0.2) * CFrame.Angles(math.rad(-30), math.rad(80), math.rad(50)), Timer = 0.15},
+			{CFrame = CFrame.new(1.1, -0.85, 0.1) * CFrame.Angles(math.rad(-35), math.rad(85), math.rad(55)), Timer = 0.15},
+		},
+		Wide = {
+			{CFrame = CFrame.new(1.5, -1, 0.3) * CFrame.Angles(math.rad(-50), math.rad(120), math.rad(70)), Timer = 0.1},
+			{CFrame = CFrame.new(1.4, -0.95, 0.25) * CFrame.Angles(math.rad(-40), math.rad(110), math.rad(65)), Timer = 0.1},
+		}
+	}
 
-    Aura = vape.Categories.Blatant:CreateModule({
-        Name = "CustomAura",
-        Function = function(call) --maxlasertech style😍
-            AuraEnabled = call
-            if call then
-                Aura:Clean(RunService.Stepped:Connect(function()
-                    local Nearest = getNearestEntity(AttackRange.Value, Aura.Targets)
-                    if Nearest and isAlive(lplr) and isAlive(Nearest.plr) then
-                        local Sword = getBestSword()
-                        if Sword then
-                            if FaceTarget.Enabled then
-                                local selfpos = lplr.Character.PrimaryPart.Position
-                                local targetpos = Nearest.plr.Character.PrimaryPart.Position
-                                lplr.Character.PrimaryPart.CFrame = CFrame.lookAt(selfpos, Vector3.new(targetpos.X, selfpos.Y, targetpos.Z))
-                            end
-                            if SwingTarget.Enabled and CustomAnimations.Enabled and not animPlaying then
-                                animPlaying = true
-                                task.spawn(function()
-                                    while animPlaying and Aura.Enabled do
-                                        Nearest = getNearestEntity(AttackRange.Value, Aura.Targets)
-                                        if not Nearest or not isAlive(lplr) or not isAlive(Nearest.plr) then
-                                            break
-                                        end
-                                        for _, v in next, KillauraAnimations[SelectedAnimation] do
-                                            Nearest = getNearestEntity(AttackRange.Value, Aura.Targets)
-                                            if not Nearest or not isAlive(lplr) or not isAlive(Nearest.plr) then
-                                                animPlaying = false
-                                                break
-                                            end
-                                            local tween = TweenService:Create(
-                                                viewmodel.RightHand.RightWrist,
-                                                TweenInfo.new(v.Timer, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut),
-                                                {C0 = C0 * v.CFrame}
-                                            )
-                                            tween:Play()
-                                            task.wait(v.Timer)
-                                        end
-                                    end
-                                    viewmodel.RightHand.RightWrist.C0 = C0
-                                    animPlaying = false
-                                end)
-                            end
-                            bedwars.SwordHit:FireServer({
-                                weapon = Sword,
-                                chargedAttack = {chargeRatio = 0},
-                                lastSwingServerTimeDelta = 0.01,
-                                entityInstance = Nearest.plr.Character,
-                                validate = {
-                                    raycast = {
-                                        cameraPosition = {value = lplr.Character.PrimaryPart.Position}, 
-                                        rayDirection = {value = (Nearest.plr.Character.PrimaryPart.Position - lplr.Character.PrimaryPart.Position).Unit}
-                                    },
-                                    targetPosition = {value = Nearest.plr.Character.PrimaryPart.Position},
-                                    selfPosition = {value = lplr.Character.PrimaryPart.Position}
-                                }
-                            })
-                        end
-                    else
-                        if animPlaying then
-                            animPlaying = false
-                            viewmodel.RightHand.RightWrist.C0 = C0
-                        end
-                    end
-                end))
-            else
-                animPlaying = false
-                viewmodel.RightHand.RightWrist.C0 = C0
-            end
-        end
-    })
+	local AttackRange, FaceTarget, SwingTarget, CustomAnimations, AnimationDropdown
+	local SelectedAnimation = "MC"
 
-    Aura:CreateTargets({
-        Players = true,
-        NPCs = false
-    })
-    AttackRange = Aura:CreateSlider({
-        Name = "Attack Range",
-        Min = 1,
-        Max = 23,
-        Default = 23,
-        Suffix = function(val) return val == 1 and "stud" or "studs" end
-    })
-    FaceTarget = Aura:CreateToggle({
-        Name = "Face Target"
-    })
-    SwingTarget = Aura:CreateToggle({
-        Name = "Swing Target"
-    })
-    CustomAnimations = Aura:CreateToggle({
-        Name = "Custom Animations",
-        Function = function(state)
-            AnimationDropdown.Object.Visible = state
-        end
-    })
-    AnimationDropdown = Aura:CreateDropdown({
-        Name = "Animation Type",
-        List = {"MC", "Smooth", "Wide"},
-        Value = "MC",
-        Function = function(opt)
-            SelectedAnimation = opt
-        end
-    })
-    AnimationDropdown.Object.Visible = false
-end)			
+	local Aura = vape.Categories.Blatant:CreateModule({
+		Name = "CustomAura",
+		Function = function(call)
+			AuraEnabled = call
+			if call then
+				Aura:Clean(RunService.Stepped:Connect(function()
+					local Nearest = getNearestEntity(AttackRange.Value, Aura.Targets)
+					if Nearest and isAlive(lplr) and isAlive(Nearest.plr) then
+						local Sword = getBestSword()
+						if Sword then
+							if FaceTarget.Enabled then
+								local selfPos = lplr.Character.PrimaryPart.Position
+								local targetPos = Nearest.plr.Character.PrimaryPart.Position
+								lplr.Character.PrimaryPart.CFrame = CFrame.lookAt(selfPos, Vector3.new(targetPos.X, selfPos.Y, targetPos.Z))
+							end
 
+							if SwingTarget.Enabled and CustomAnimations.Enabled and not animPlaying then
+								local vm = viewmodel
+								if vm and vm:FindFirstChild("RightHand") and vm.RightHand:FindFirstChild("RightWrist") and C0 then
+									animPlaying = true
+									task.spawn(function()
+										while animPlaying and Aura.Enabled do
+											Nearest = getNearestEntity(AttackRange.Value, Aura.Targets)
+											if not Nearest or not isAlive(lplr) or not isAlive(Nearest.plr) then
+												break
+											end
+
+											for _, v in next, KillauraAnimations[SelectedAnimation] do
+												if not vm or not vm:FindFirstChild("RightHand") or not vm.RightHand:FindFirstChild("RightWrist") then
+													animPlaying = false
+													break
+												end
+
+												local wrist = vm.RightHand.RightWrist
+												local tween = TweenService:Create(wrist, TweenInfo.new(v.Timer, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {C0 = C0 * v.CFrame})
+												tween:Play()
+												task.wait(v.Timer)
+											end
+										end
+
+										if vm and vm:FindFirstChild("RightHand") and vm.RightHand:FindFirstChild("RightWrist") then
+											vm.RightHand.RightWrist.C0 = C0
+										end
+										animPlaying = false
+									end)
+								end
+							end
+
+							bedwars.SwordHit:FireServer({
+								weapon = Sword,
+								chargedAttack = {chargeRatio = 0},
+								lastSwingServerTimeDelta = 0.01,
+								entityInstance = Nearest.plr.Character,
+								validate = {
+									raycast = {
+										cameraPosition = {value = lplr.Character.PrimaryPart.Position},
+										rayDirection = {value = (Nearest.plr.Character.PrimaryPart.Position - lplr.Character.PrimaryPart.Position).Unit}
+									},
+									targetPosition = {value = Nearest.plr.Character.PrimaryPart.Position},
+									selfPosition = {value = lplr.Character.PrimaryPart.Position}
+								}
+							})
+						end
+					else
+						if animPlaying then
+							animPlaying = false
+							if viewmodel and viewmodel:FindFirstChild("RightHand") and viewmodel.RightHand:FindFirstChild("RightWrist") then
+								viewmodel.RightHand.RightWrist.C0 = C0
+							end
+						end
+					end
+				end))
+			else
+				animPlaying = false
+				if viewmodel and viewmodel:FindFirstChild("RightHand") and viewmodel.RightHand:FindFirstChild("RightWrist") then
+					viewmodel.RightHand.RightWrist.C0 = C0
+				end
+			end
+		end
+	})
+
+	Aura:CreateTargets({
+		Players = true,
+		NPCs = false
+	})
+
+	AttackRange = Aura:CreateSlider({
+		Name = "Attack Range",
+		Min = 1,
+		Max = 23,
+		Default = 23,
+		Suffix = function(val)
+			return val == 1 and "stud" or "studs"
+		end
+	})
+
+	FaceTarget = Aura:CreateToggle({
+		Name = "Face Target"
+	})
+
+	SwingTarget = Aura:CreateToggle({
+		Name = "Swing Target"
+	})
+
+	CustomAnimations = Aura:CreateToggle({
+		Name = "Custom Animations",
+		Function = function(state)
+			AnimationDropdown.Object.Visible = state
+		end
+	})
+
+	AnimationDropdown = Aura:CreateDropdown({
+		Name = "Animation Type",
+		List = {"MC", "Smooth", "Wide"},
+		Value = "MC",
+		Function = function(opt)
+			SelectedAnimation = opt
+		end
+	})
+
+	AnimationDropdown.Object.Visible = false
+end)
+    
 run(function()
 	local Clutch
 	local runService = game:GetService("RunService")
