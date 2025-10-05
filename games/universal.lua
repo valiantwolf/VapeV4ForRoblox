@@ -7940,23 +7940,6 @@ run(function()
 end)
 	
 --CREDITS TO VELOCITYOLD
-	})
-	CustomJumpMode = CustomJump:CreateDropdown({
-		Name = "Mode",
-		List = {
-			"Normal",
-			"Velocity"
-		},
-		Function = function() end,
-	})
-	CustomJumpVelocity = CustomJump:CreateSlider({
-		Name = "Velocity",
-		Min = 1,
-		Max = 100,
-		Function = function() end,
-		Default = 50
-	})
-end)
 
 run(function()
 	local AnimationChanger = {Enabled = false}
