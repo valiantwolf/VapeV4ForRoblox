@@ -10655,7 +10655,7 @@ run(function()
 			if call then
 				MoonCharacter:Clean(runService.Heartbeat:Connect(function()
 					for _, plr in next, playersService:GetPlayers() do
-						if entitylib.isAlive(plr) then
+						--if entitylib.isAlive(plr) then
 							local char = plr.Character
 							local humanoidRoot = char and char:FindFirstChild("HumanoidRootPart")
 
