@@ -11240,31 +11240,34 @@ end)
 run(function()
 	local AntiDeath = {Enabled = false}
 	local Threshold = {Value = 50}
+	local lastNotif = 0
 
 	AntiDeath = vape.Categories.Utility:CreateModule({
 		Name = "AntiDeath",
 		Function = function(call)
 			if call then
-				local function onHealthChanged(health)
-					if health < Threshold.Value then
-                        AntiHit:Toggle()
-						notif("AntiDeath", "Prevented Death", 4, "warning")
-					end
-				end
+				task.spawn(function()
+					repeat task.wait(0.2)
+						local entity = entitylib.LocalEntity --idk how to use vapes entitylib MEOW
+						if not entity or not entity.Humanoid then
+							continue
+						end
 
-				local function onCharacterAdded(char)
-					local humanoid = char:WaitForChild("Humanoid")
-					AntiDeath:Clean(humanoid.HealthChanged:Connect(onHealthChanged))
-				end
+						local hp = entity.Humanoid.Health
+						if hp < Threshold.Value and tick() - lastNotif > 3 then
+							lastNotif = tick()
+							notif("AntiDeath", "Prevented Death", 4, "warning")
 
-				AntiDeath:Clean(lplr.CharacterAdded:Connect(onCharacterAdded))
-
-				if lplr.Character then
-					onCharacterAdded(lplr.Character)
-				end
+							local AntiHit = vape.Modules.AntiHit
+							if AntiHit and not AntiHit.Enabled then
+								AntiHit:Toggle()
+							end
+						end
+					until not AntiDeath.Enabled
+				end)
 			end
 		end,
-		Tooltip = "Notifies you when your hp drops below the threshold."
+		--Tooltip = "" --no
 	})
 
 	Threshold = AntiDeath:CreateSlider({
