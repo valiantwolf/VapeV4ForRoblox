@@ -11247,7 +11247,7 @@ run(function()
 			if call then
 				local function onHealthChanged(health)
 					if health < Threshold.Value then
-                     Anti Hit:Toggle()
+                        AntiHit:Toggle()
 						notif("AntiDeath", "Prevented Death", 4, "warning")
 					end
 				end
@@ -11264,7 +11264,7 @@ run(function()
 				end
 			end
 		end,
-		Tooltip = "Notifies you when your health drops below the threshold."
+		Tooltip = "Notifies you when your hp drops below the threshold."
 	})
 
 	Threshold = AntiDeath:CreateSlider({
