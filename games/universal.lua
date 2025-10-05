@@ -29,7 +29,10 @@ end
 local run = function(func)
 	func()
 end
-local queue_on_teleport = queue_on_teleport or function() end
+local queue_on_teleport = queue_on_teleport 
+	or (syn and syn.queue_on_teleport) 
+	or (fluxus and fluxus.queue_on_teleport) 
+	or function() end
 local cloneref = cloneref or function(obj)
 	return obj
 end
