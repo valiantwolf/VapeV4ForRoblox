@@ -16,10 +16,24 @@ local loadstring = function(...)
 	return res
 end
 
-local queue_on_teleport = queue_on_teleport 
-	or (syn and syn.queue_on_teleport) 
-	or (fluxus and fluxus.queue_on_teleport) 
-	or function() end
+local QOT = function() end
+local queue_on_teleport = queue_on_teleport
+	or (syn and syn.queue_on_teleport)
+	or (fluxus and fluxus.queue_on_teleport)
+	or (krnl and krnl.queue_on_teleport)
+	or (vega and vega.queue_on_teleport)
+	or (delta and delta.queue_on_teleport)
+	or (trigon and trigon.queue_on_teleport)
+	or (evon and evon.queue_on_teleport)
+	or (solara and solara.queue_on_teleport)
+	or (argon and argon.queue_on_teleport)
+	or QOT
+
+local queue_supported = queue_on_teleport ~= QOT
+if queue_supported then
+	local ok = pcall(function() queue_on_teleport("return true") end)
+	if not ok then queue_supported = false end
+end
 
 local isfile = isfile or function(file)
 	local suc, res = pcall(function()
@@ -121,7 +135,3 @@ local s, err = pcall(function()
 		return vape
 	end
 end)
-
-if not s then
-	loadfile("newvape/main.lua")() --queue on teleport i think
-end
