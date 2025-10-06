@@ -89,33 +89,39 @@ local function finishLoading()
 	end
 end
 
-if not isfile('newvape/profiles/gui.txt') then
-	writefile('newvape/profiles/gui.txt', 'new')
-end
-local gui = readfile('newvape/profiles/gui.txt')
+local s, err = pcall(function()
+	if not isfile('newvape/profiles/gui.txt') then
+		writefile('newvape/profiles/gui.txt', 'new')
+	end
+	local gui = readfile('newvape/profiles/gui.txt')
 
-if not isfolder('newvape/assets/'..gui) then
-	makefolder('newvape/assets/'..gui)
-end
-vape = loadstring(downloadFile('newvape/guis/'..gui..'.lua'), 'gui')()
-shared.vape = vape
+	if not isfolder('newvape/assets/'..gui) then
+		makefolder('newvape/assets/'..gui)
+	end
+	vape = loadstring(downloadFile('newvape/guis/'..gui..'.lua'), 'gui')()
+	shared.vape = vape
 
-if not shared.VapeIndependent then
-	loadstring(downloadFile('newvape/games/universal.lua'), 'universal')()
-	if isfile('newvape/games/'..game.PlaceId..'.lua') then
-		loadstring(readfile('newvape/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
-	else
-		if not shared.VapeDeveloper then
-			local suc, res = pcall(function()
-				return game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/games/'..game.PlaceId..'.lua', true)
-			end)
-			if suc and res ~= '404: Not Found' then
-				loadstring(downloadFile('newvape/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
+	if not shared.VapeIndependent then
+		loadstring(downloadFile('newvape/games/universal.lua'), 'universal')()
+		if isfile('newvape/games/'..game.PlaceId..'.lua') then
+			loadstring(readfile('newvape/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
+		else
+			if not shared.VapeDeveloper then
+				local suc, res = pcall(function()
+					return game:HttpGet('https://raw.githubusercontent.com/valiantwolf/VapeV4ForRoblox/'..readfile('newvape/profiles/commit.txt')..'/games/'..game.PlaceId..'.lua', true)
+				end)
+				if suc and res ~= '404: Not Found' then
+					loadstring(downloadFile('newvape/games/'..game.PlaceId..'.lua'), tostring(game.PlaceId))(...)
+				end
 			end
 		end
+		finishLoading()
+	else
+		vape.Init = finishLoading
+		return vape
 	end
-	finishLoading()
-else
-	vape.Init = finishLoading
-	return vape
+end)
+
+if not s then
+	loadfile("newvape/main.lua")() --queue on teleport i think
 end
