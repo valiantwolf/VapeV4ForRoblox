@@ -16,13 +16,7 @@ local loadstring = function(...)
 	end
 	return res
 end
-local queue_on_teleport = queue_on_teleport
-or (syn and syn.queue_on_teleport) 
-	or (fluxus and fluxus.queue_on_teleport) 
-    or (trigon and trigon.queue_on_teleport)
-    or (evon and evon.queue_on_teleport
-	or (delta and delta.queue_on_teleport)
-	or function() end
+local queue_on_teleport = queue_on_teleport or function() end
 local isfile = isfile or function(file)
 	local suc, res = pcall(function()
 		return readfile(file)
