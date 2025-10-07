@@ -8248,3 +8248,55 @@ run(function()
 		end
 	})
 end)																																																																																																																				
+
+--inspired off old vape private					
+run(function()
+	local Transparency = {Enabled = false}
+	local TransparencyValue = {Value = 50}
+
+	Transparency = vape.Categories.Utility:CreateModule({
+		Name = "Transparency",
+		Tooltip = "Changes your char transparency",
+		Function = function(call)
+			if call then
+				local plr = lplr
+				local char = plr.Character or plr.CharacterAdded:Wait()
+				local alpha = math.clamp(TransparencyValue.Value / 100, 0, 1)
+
+				for _, v in pairs(char:GetDescendants()) do
+					if (v:IsA("BasePart") or v:IsA("Decal")) and v.Name ~= "face" then
+						v.Transparency = alpha
+					end
+				end
+			else
+				local plr = lplr
+				local char = plr.Character
+				if char then
+					for _, v in pairs(char:GetDescendants()) do
+						if (v:IsA("BasePart") or v:IsA("Decal")) and v.Name ~= "face" then
+							v.Transparency = 0
+						end
+					end
+				end
+			end
+		end
+	})
+
+	TransparencyValue = Transparency:CreateSlider({
+		Name = "Transparency",
+		Min = 0,
+		Max = 100,
+		Default = 50,
+		Suffix = "%",
+		Function = function(val)
+			TransparencyValue.Value = val
+			if Transparency.Enabled and lplr.Character then
+				for _, v in pairs(lplr.Character:GetDescendants()) do
+					if (v:IsA("BasePart") or v:IsA("Decal")) and v.Name ~= "face" then
+						v.Transparency = val / 100
+					end
+				end
+			end
+		end
+	})
+end)					
