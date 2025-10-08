@@ -282,7 +282,7 @@ run(function()
 
 	local function searchFunction(name, i2, v2)
 		for i3, v3 in debug.getconstants(v2) do
-			if tostring(v3):find('-') == 9 then
+			--if tostring(v3):find('-') == 9 then
 				remotes[(rawget(remotes, i2) and name..':' or '')..i2] = v3
 			end
 		end
