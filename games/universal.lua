@@ -7037,10 +7037,21 @@ run(function()
 end)
 	
 run(function()
-	local Cape
-	local Texture
-	local part, motor
-	
+	local Cape: table = {["Enabled"] = false};
+	local Texture: any;
+	local part: any, motor: any
+	local CapeMode: table = {["Value"] = "Velocity"}
+	local capeModeMap: table = {
+		["Vape"] = "rbxassetid://13380453812",
+		["Portal"] = "rbxassetid://14694086869",
+		["Copium"] = "rbxassetid://14694061995",
+		["Velocity"] = "rbxassetid://16728149213",
+		["Azura"] = "rbxassetid://128937881305197",
+		["Ape"] = "rbxassetid://93367474508586",
+		["Laserware"] = "rbxassetid://125791563280089",
+		["Snoopy"] = "rbxassetid://89328429998004",
+		["Render"] = "rbxassetid://17140106485"
+	}
 	local function createMotor(char)
 		if motor then 
 			motor:Destroy() 
@@ -7056,8 +7067,8 @@ run(function()
 	end
 	
 	Cape = vape.Legit:CreateModule({
-		Name = 'Cape',
-		Function = function(callback)
+		["Name"] = 'Cape',
+		["Function"] = function(callback: boolean): void
 			if callback then
 				part = Instance.new('Part')
 				part.Size = Vector3.new(2, 4, 0.1)
@@ -7100,22 +7111,43 @@ run(function()
 						local velo = math.min(entitylib.character.RootPart.Velocity.Magnitude, 90)
 						motor.DesiredAngle = math.rad(6) + math.rad(velo) + (velo > 1 and math.abs(math.cos(tick() * 5)) / 3 or 0)
 					end
-					capesurface.Enabled = (gameCamera.CFrame.Position - gameCamera.Focus.Position).Magnitude > 0.6
+					capesurface["Enabled"] = (gameCamera.CFrame.Position - gameCamera.Focus.Position).Magnitude > 0.6
 					part.Transparency = (gameCamera.CFrame.Position - gameCamera.Focus.Position).Magnitude > 0.6 and 0 or 1
 					task.wait()
-				until not Cape.Enabled
+				until not Cape["Enabled"]
 			else
 				part = nil
 				motor = nil
 			end
 		end,
-		Tooltip = 'Add\'s a cape to your character'
+		["Tooltip"] = 'Add\'s a cape to your character'
 	})
 	Texture = Cape:CreateTextBox({
-		Name = 'Texture'
+		["Name"] = 'Texture'
+	})
+	CapeMode = Cape:CreateDropdown({
+		["Name"] ='Mode',
+		["List"] = {
+			'Vape',
+			'Render',
+			'Portal',
+			'Copium',
+			'Azura',
+			'Ape',
+			'Laserware',
+			'Snoopy',
+			'Velocity'
+		},
+		["HoverText"] = 'A cape mod.',
+		["Value"] = 'Velocity',
+		["Function"] = function(val) 
+			if capeModeMap[val] then
+                		Texture["Value"] = capeModeMap[val]
+            		end
+		end
 	})
 end)
-	
+																																																																																																																																																																																		
 run(function()
 	local ChinaHat
 	local Material
