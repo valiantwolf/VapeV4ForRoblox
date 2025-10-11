@@ -11503,8 +11503,8 @@ run(function()
 	HotbarHighlightColor.Object.Visible = false;
 end);
 
-run(function()
-	--[[local HealthbarVisuals = {};
+--[[run(function()
+	local HealthbarVisuals = {};
 	local HealthbarRound = {};
 	local HealthbarColorToggle = {};
 	local HealthbarGradientToggle = {};
@@ -11526,7 +11526,7 @@ run(function()
 	local healthbarobjects = Performance.new();
 	local oldhealthbar;
 	local healthbarhighlight;
-	local textconnection;--]]
+	local textconnection;
 	local function healthbarFunction()
 		if not HealthbarVisuals.Enabled then 
 			return 
@@ -11798,6 +11798,7 @@ run(function()
 	HealthbarRoundSize.Object.Visible = false;
 	HealthbarHighlightColor.Object.Visible = false;
 end)
+--]]
 																																																																																																																																																																																	
 run(function()
     local WTPA = {Enabled = false}
