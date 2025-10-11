@@ -33,8 +33,8 @@ local guiService = cloneref(game:GetService('GuiService'))
 local runService = cloneref(game:GetService('RunService'))
 local httpService = cloneref(game:GetService('HttpService'))
 
-local fontsize = Instance.new('GetTextBoundsParams')
-fontsize.Width = math.huge
+--local fontsize = Instance.new('GetTextBoundsParams')
+--fontsize.Width = math.huge
 local notifications
 local assetfunction = getcustomasset
 local getcustomasset
