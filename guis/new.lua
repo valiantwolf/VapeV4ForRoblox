@@ -33,8 +33,8 @@ local guiService = cloneref(game:GetService('GuiService'))
 local runService = cloneref(game:GetService('RunService'))
 local httpService = cloneref(game:GetService('HttpService'))
 
---local fontsize = Instance.new('GetTextBoundsParams')
---fontsize.Width = math.huge
+local fontsize = Instance.new('GetTextBoundsParams')
+fontsize.Width = math.huge
 local notifications
 local assetfunction = getcustomasset
 local getcustomasset
@@ -53,8 +53,8 @@ local tween = {
 local uipallet = {
 	Main = Color3.fromRGB(26, 25, 26),
 	Text = Color3.fromRGB(200, 200, 200),
-	--Font = Font.fromEnum(Enum.Font.Arial),
-	--FontSemiBold = Font.fromEnum(Enum.Font.Arial, Enum.FontWeight.SemiBold),
+	Font = Font.fromEnum(Enum.Font.),
+	FontSemiBold = Font.fromEnum(Enum.Font., Enum.FontWeight.SemiBold),
 	Tween = TweenInfo.new(0.16, Enum.EasingStyle.Linear)
 }
 
