@@ -8332,3 +8332,121 @@ run(function()
 		end
 	})
 end)					
+
+run(function()
+	local uhbye
+	local byebye
+	local charchams = {Enabled = false}
+	local charchamsfilltransparency = {Value = 0.5}
+	local charchamsfillcolor = {
+		Hue = 0,
+		Sat = 0,
+		Val = 0
+	}
+	local charchamsoutlinetransparency = {Value = 0}
+	local charchamsoutlinecolor = {
+		Hue = 0,
+		Sat = 0,
+		Val = 0
+	}
+	charchams = vape.Categories.Render:CreateModule({
+		Name = "LocalPlayerChams",
+		HoverText = "Made by dev @iraqicat",
+		Function = function(callback)
+			if callback then
+				local highlight = Instance.new("Highlight")
+				highlight.Parent = lplr.Character
+				highlight.DepthMode = "Occluded"
+				highlight.Enabled = true
+				highlight.FillColor = Color3.fromHSV(charchamsfillcolor.Hue,charchamsfillcolor.Sat,charchamsfillcolor.Val)
+				highlight.FillTransparency = charchamsfilltransparency.Value
+				highlight.Name = "ItemOutline"
+				highlight.OutlineColor = Color3.fromHSV(charchamsoutlinecolor.Hue,charchamsoutlinecolor.Sat,charchamsoutlinecolor.Val)
+				highlight.OutlineTransparency = charchamsoutlinetransparency.Value
+				highlight.Adornee = lplr.Character
+				uhbye = lplr.CharacterAdded:Connect(function()
+					byebye = lplr.Character.ChildAdded:Connect(function(child)
+						local highlight = Instance.new("Highlight")
+						highlight.Parent = child
+						highlight.DepthMode = "Occluded"
+						highlight.Enabled = true
+						highlight.FillColor = Color3.fromHSV(charchamsfillcolor.Hue,charchamsfillcolor.Sat,charchamsfillcolor.Val)
+						highlight.FillTransparency = charchamsfilltransparency.Value
+						highlight.Name = "ItemOutline"
+						highlight.OutlineColor = Color3.fromHSV(charchamsoutlinecolor.Hue,charchamsoutlinecolor.Sat,charchamsoutlinecolor.Val)
+						highlight.OutlineTransparency = charchamsoutlinetransparency.Value
+						highlight.Adornee = child
+					end)
+				end)
+			else
+				if uhbye then uhbye:Disconnect() end
+				if byebye then byebye:Disconnect() end
+				for i,v in pairs(lplr.Character:GetDescendants()) do
+					if v:IsA("Highlight") then
+						v:Destroy()
+					end
+				end
+			end
+		end
+	})
+	charchamsfilltransparency = charchams:CreateSlider({
+		Name = "Fill transparency",
+		Min = 0,
+		Max = 100,
+		Default = 50,
+		Function = function(val)
+			if charchams.Enabled then
+				for i,v in pairs(lplr.Character:GetDescendants()) do
+					if v:IsA("Highlight") then
+						v.FillTransparency = math.clamp(val / 100,0,1)
+					end
+				end
+			end
+		end
+	})
+	charchamsfillcolor = charchams:CreateColorSlider({
+		Name = "Fill Color",
+		Function = function(h, s, v) 
+			charchamsfillcolor.Hue = h
+			charchamsfillcolor.Sat = s
+			charchamsfillcolor.Val = v
+			if charchams.Enabled then
+				for i,v in pairs(lplr.Character:GetDescendants()) do
+					if v:IsA("Highlight") then
+						v.FillColor = Color3.fromHSV(charchamsfillcolor.Hue,charchamsfillcolor.Sat,charchamsfillcolor.Val)
+					end
+				end
+			end
+		end
+	})
+	charchamsoutlinetransparency = charchams:CreateSlider({
+		Name = "Outline transparency",
+		Min = 0,
+		Max = 100,
+		Default = 0,
+		Function = function(val)
+			if charchams.Enabled then
+				for i,v in pairs(lplr.Character:GetDescendants()) do
+					if v:IsA("Highlight") then
+						v.OutlineTransparency = math.clamp(val / 100,0,1)
+					end
+				end
+			end
+		end
+	})
+	charchamsoutlinecolor = charchams:CreateColorSlider({
+		Name = "Outline Color",
+		Function = function(h, s, v) 
+			charchamsoutlinecolor.Hue = h
+			charchamsoutlinecolor.Sat = s
+			charchamsoutlinecolor.Val = v
+			if charchams.Enabled then
+				for i,v in pairs(lplr.Character:GetDescendants()) do
+					if v:IsA("Highlight") then
+						v.OutlineColor = Color3.fromHSV(charchamsoutlinecolor.Hue,charchamsoutlinecolor.Sat,charchamsoutlinecolor.Val)
+					end
+				end
+			end
+		end
+	})
+end)				
