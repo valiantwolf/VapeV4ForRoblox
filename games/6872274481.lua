@@ -11504,7 +11504,7 @@ run(function()
 end);
 
 run(function()
-	local HealthbarVisuals = {};
+	--[[local HealthbarVisuals = {};
 	local HealthbarRound = {};
 	local HealthbarColorToggle = {};
 	local HealthbarGradientToggle = {};
@@ -11526,7 +11526,7 @@ run(function()
 	local healthbarobjects = Performance.new();
 	local oldhealthbar;
 	local healthbarhighlight;
-	local textconnection;
+	local textconnection;--]]
 	local function healthbarFunction()
 		if not HealthbarVisuals.Enabled then 
 			return 
