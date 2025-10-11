@@ -11992,3 +11992,78 @@ run(function()
 			Function = blankFunction
 		})
 	end)
+
+run(function()
+    local HealthbarMods = {}
+    local LabelText = {Value = ""}
+    local BarColor, TextColor
+
+    local function getHealthbarElements()
+        local gui = player:FindFirstChild("PlayerGui")
+        if not gui then return end
+
+        local hotbar = gui:FindFirstChild("hotbar")
+        if not hotbar or not hotbar:FindFirstChild("1") then return end
+
+        local container = hotbar["1"]:FindFirstChild("HotbarHealthbarContainer")
+        if not container then return end
+
+        local text = container:FindFirstChild("1")
+        local barWrapper = container:FindFirstChild("HealthbarProgressWrapper")
+        local bar = barWrapper and barWrapper:FindFirstChild("1")
+
+        return text, bar
+    end
+
+    HealthbarMods = vape.Categories.Render:CreateModule({
+        Name = "HealthbarMods",
+        Tooltip = "Customize your healthbar label and colors.",
+        Function = function(call)
+            if call then
+                HealthbarMods:Clean(task.spawn(function()
+                    local lastGui
+                    while HealthbarMods.Enabled do
+                        local gui = player:FindFirstChild("PlayerGui")
+                        if gui ~= lastGui then
+                            lastGui = gui
+                        end
+
+                        local text, bar = getHealthbarElements()
+
+                        if text and text:IsA("TextLabel") then
+                            text.Text = LabelText.Value
+                            if TextColor then
+                                text.TextColor3 = Color3.fromHSV(TextColor.Hue, TextColor.Sat, TextColor.Value)
+                            end
+                        end
+
+                        if bar and bar:IsA("Frame") and BarColor then
+                            bar.BackgroundColor3 = Color3.fromHSV(BarColor.Hue, BarColor.Sat, BarColor.Value)
+                        end
+
+                        task.wait(1)
+                    end
+                end))
+            end
+        end
+    })
+
+    LabelText = HealthbarMods:CreateTextBox({
+        Name = "Label",
+        Default = "",
+        FocusLost = true,
+        Function = function(val)
+            LabelText.Value = val
+        end
+    })
+
+    BarColor = HealthbarMods:CreateColorSlider({
+        Name = "Healthbar Color",
+        Default = 0.5,
+    })
+
+    TextColor = HealthbarMods:CreateColorSlider({
+        Name = "Text Color",
+        Default = 1,
+    })
+end)																																																																																																																																																																																						
