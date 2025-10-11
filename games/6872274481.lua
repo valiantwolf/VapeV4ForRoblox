@@ -12003,9 +12003,12 @@ run(function()
         if not gui then return end
 
         local hotbar = gui:FindFirstChild("hotbar")
-        if not hotbar or not hotbar:FindFirstChild("1") then return end
+        if not hotbar then return end
 
-        local container = hotbar["1"]:FindFirstChild("HotbarHealthbarContainer")
+        local hotbarChild = hotbar:FindFirstChild("1")
+        if not hotbarChild then return end
+
+        local container = hotbarChild:FindFirstChild("HotbarHealthbarContainer")
         if not container then return end
 
         local text = container:FindFirstChild("1")
@@ -12017,19 +12020,13 @@ run(function()
 
     HealthbarMods = vape.Categories.Render:CreateModule({
         Name = "HealthbarMods",
-        Tooltip = "Customize your healthbar label and colors.",
+        Tooltip = "",
         Function = function(call)
             if call then
                 HealthbarMods:Clean(task.spawn(function()
-                    local lastGui
                     while HealthbarMods.Enabled do
-                        local gui = player:FindFirstChild("PlayerGui")
-                        if gui ~= lastGui then
-                            lastGui = gui
-                        end
-
                         local text, bar = getHealthbarElements()
-
+                        
                         if text and text:IsA("TextLabel") then
                             text.Text = LabelText.Value
                             if TextColor then
@@ -12059,11 +12056,11 @@ run(function()
 
     BarColor = HealthbarMods:CreateColorSlider({
         Name = "Healthbar Color",
-        Default = 0.5,
+        Default = 0.5
     })
 
     TextColor = HealthbarMods:CreateColorSlider({
         Name = "Text Color",
-        Default = 1,
+        Default = 1
     })
-end)																																																																																																																																																																																						
+end)
