@@ -11730,7 +11730,7 @@ run(function()
 	})
 	HealthbarFont = HealthbarVisuals:CreateDropdown({
 		Name = 'Text Font',
-		List = GetEnumItems('Font'),
+		--List = GetEnumItems('Font'),
 		Function = function(calling)
 			if HealthbarVisuals.Enabled then
 				HealthbarVisuals:Toggle()
