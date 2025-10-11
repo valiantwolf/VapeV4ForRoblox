@@ -11585,8 +11585,8 @@ run(function()
 			return enderchest
 		end
 
-		local GetItem = bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGetItem")
-		local GiveItem = bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGiveItem")
+		--local GetItem = bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGetItem")
+		--local GiveItem = bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGiveItem")
 		local ResetRemote = bedwars.ClientHandler:Get(bedwars.ResetRemote)
 		local deposited = false
 
