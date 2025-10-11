@@ -11574,3 +11574,124 @@ run(function()
         end
     })
 end)
+
+run(function()
+		local KeepInventory = {Enabled = false}
+		local KeepInventoryLagback = {Enabled = false}
+
+		local enderchest
+		local function getEnderchest()
+			enderchest = enderchest or replicatedStorageService.Inventories[lplr.Name.."_personal"]
+			return enderchest
+		end
+
+		local GetItem = bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGetItem")
+		local GiveItem = bedwars.ClientHandler:GetNamespace("Inventory"):Get("ChestGiveItem")
+		local ResetRemote = bedwars.ClientHandler:Get(bedwars.ResetRemote)
+		local deposited = false
+
+		local function collectEnderchest()
+			if deposited then
+				deposited = false
+				repeat task.wait() until entityLibrary.isAlive
+				lplr.Character:WaitForChild("InventoryFolder", 999999)
+				repeat task.wait() until lplr.Character.InventoryFolder.Value ~= nil
+				local enderchest = getEnderchest()
+				for _, item in next, enderchest:GetChildren() do
+					GetItem:CallServerAsync(enderchest, item)
+				end
+			end
+		end
+
+		local function depositAndWaitForRespawn(yield)
+			if not deposited then
+				deposited = true
+				local inventory = lplr.Character:FindFirstChild("InventoryFolder")
+				if inventory then 
+					inventory = inventory.Value
+					local enderchest = getEnderchest()
+					local count = 0
+					for _, item in next, inventory:GetChildren() do
+						task.spawn(function()
+							GiveItem:CallServer(enderchest, item)
+							count -= 1
+						end)
+						count += 1
+					end
+					if yield then
+						repeat task.wait() until count <= 0
+					end
+					lplr.CharacterAdded:Once(collectEnderchest)
+				end
+			end
+		end
+
+		local resetCallback = Instance.new("BindableEvent")
+		resetCallback.Event:Connect(function()
+			--warningNotification("KeepInventory", "Resetting, storing items", 5)
+			depositAndWaitForRespawn(true)
+			ResetRemote:SendToServer()
+		end)
+
+		KeepInventory = vape.Categories.Utility:CreateModule({
+			Name = "KeepInventory",
+			Function = function(callback)
+				if callback then
+					starterGui:SetCore("ResetButtonCallback", resetCallback)
+					if KeepInventoryLagback.Enabled then
+						task.spawn(function()
+							repeat
+								task.wait(0.1)
+								if entityLibrary.isAlive then
+									if not isnetworkowner(entityLibrary.character.HumanoidRootPart) and bedwarsStore.queueType:find("skywars") == nil then
+										if not deposited then
+											--warningNotification("KeepInventory", "Lagback detected, storing items", 5)
+											task.spawn(function()
+												local suc, res = pcall(function() return lplr.leaderstats.Bed.Value == "✅"  end)
+												repeat task.wait() until not KeepInventory.Enabled or (isnetworkowner(entityLibrary.character.HumanoidRootPart) and suc and res) or (suc and res == nil)
+												if entityLibrary.isAlive then
+													collectEnderchest()
+												end
+											end)
+										end
+										depositAndWaitForRespawn(true)
+									end
+								end
+							until not (KeepInventory and KeepInventoryLagback.Enabled)
+						end)
+					end
+					table.insert(KeepInventory.Connections, vapeEvents.EntityDamageEvent.Event:Connect(function(damageTable)
+						if damageTable.entityInstance == lplr.Character and damageTable.fromEntity and damageTable.damage and bedwarsStore.queueType:find("skywars") == nil then
+							local plr = playersService:GetPlayerFromCharacter(damageTable.fromEntity)
+							local health = lplr.Character:GetAttribute("Health") or 150
+							local stash = (health / damageTable.damage) <= 2
+							if plr then
+								local winning, hits, _hits = calculateHits(plr, false)
+								stash = (_hits - hits) <= 2
+							end
+							if stash then
+								if not deposited then
+									--warningNotification("KeepInventory", "Possible death imminent, storing items", 5)
+									task.delay(2, function()
+										local suc, res = pcall(function() return lplr.leaderstats.Bed.Value == "✅"  end)
+										repeat task.wait() until not KeepInventory.Enabled or (suc and res and (workspace:GetServerTimeNow() - lplr.Character:GetAttribute("LastDamageTakenTime")) > 2) or (suc and res == nil)
+										if entityLibrary.isAlive then
+											collectEnderchest()
+										end
+									end)
+								end
+								depositAndWaitForRespawn(true)
+							end
+						end
+					end))
+				else
+					oldCallback = oldCallback or bedwars.ResetController:createBindable()
+					starterGui:SetCore("ResetButtonCallback", oldCallback)
+				end
+			end
+		})
+		KeepInventoryLagback = KeepInventory:CreateToggle({
+			Name = "Lagback",
+			Function = blankFunction
+		})
+	end)
