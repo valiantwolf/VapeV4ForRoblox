@@ -11499,31 +11499,53 @@ end);
 																																																																																																																																																																																	
 run(function()
     local WTPA = {Enabled = false}
-    local Speed = {Value = 25}
-    local Distance = {Value = 10}
+    local SpeedValue = 25
+    local TPDistanceValue = 10
+
+    local WTPA = {}
+    local Speed = {}
+    local TPDistance = {}
+    local Targets = {}
 
     WTPA = vape.Categories.Utility:CreateModule({
         Name = "Wurst TP Aura",
-        Tooltip = "",
+        Tooltip = "Teleports around selected targets.",
         Function = function(call)
+            WTPAEnabled = call
             if call then
-                if Killaura and not Killaura.Enabled then
-                    Killaura:Toggle()
-                end
-                task.spawn(function()
-                    while WTPA.Enabled and entitylib.isAlive and store.KillauraTarget and store.KillauraTarget.Character do
-                        local target = store.KillauraTarget.Character:FindFirstChild("HumanoidRootPart")
-                        local root = entitylib.character and entitylib.character:FindFirstChild("HumanoidRootPart")
-                        if target and root then
-                            local angle = tick() * Speed.Value
-                            local offset = Vector3.new(math.cos(angle) * Distance.Value, 0, math.sin(angle) * Distance.Value)
-                            root.CFrame = CFrame.new(target.Position + offset, target.Position)
-                        end
-                        task.wait(0.03)
-                    end
-                end)
+                WTPA:Clean(runService.Heartbeat:Connect(function()
+                    if not entitylib.isAlive then return end
+                    local char = entitylib.character
+                    if not char or not char.RootPart then return end
+                    local root = char.RootPart
+                    local ok, targets = pcall(function()
+                        return entitylib.AllPosition({
+                            Range = 1000,
+                            Wallcheck = Targets.Walls.Enabled or nil,
+                            Part = "RootPart",
+                            Players = Targets.Players.Enabled,
+                            NPCs = Targets.NPCs.Enabled,
+                            Limit = 1
+                        })
+                    end)
+                    if not ok or not targets or #targets == 0 then return end
+                    local target = targets[1]
+                    if not target or not target.RootPart then return end
+                    local angle = tick() * SpeedValue
+                    local dist = TPDistanceValue
+                    local offset = Vector3.new(math.cos(angle) * dist, 0, math.sin(angle) * dist)
+                    local pos = target.RootPart.Position + offset
+                    pcall(function()
+                        root.CFrame = CFrame.new(pos, target.RootPart.Position)
+                    end)
+                end))
             end
         end
+    })
+
+    Targets = WTPA:CreateTargets({
+        Players = true,
+        NPCs = true
     })
 
     Speed = WTPA:CreateSlider({
@@ -11531,18 +11553,18 @@ run(function()
         Min = 0,
         Max = 50,
         Default = 25,
-        Function = function(val)
-            Speed.Value = val
+        Function = function(v)
+            SpeedValue = v
         end
     })
 
-    Distance = WTPA:CreateSlider({
+    TPDistance = WTPA:CreateSlider({
         Name = "TP Distance",
         Min = 0,
         Max = 30,
         Default = 10,
-        Function = function(val)
-            Distance.Value = val
+        Function = function(v)
+            TPDistanceValue = v
         end
     })
 end)
