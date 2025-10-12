@@ -11993,3 +11993,68 @@ run(function()
 		})
 	end)
 
+run(function()
+local WinterSky
+
+WinterSky = vape.Categories.Render:CreateModule({
+	Name = 'WinterTheme',
+	Function = function(callback)
+		if callback then
+			repeat
+				if LightingService:FindFirstChild("Sky") then
+					LightingService.Sky.Parent = game:GetService("ReplicatedStorage")
+				end
+				
+				local WSky = LightingService:FindFirstChild("WinterSky") or Instance.new("Sky")
+				WSky.Parent = LightingService
+				WSky.Name = "WinterSky"
+				WSky.MoonAngularSize = 30
+				WSky.SunAngularSize = 11
+				WSky.MoonTextureId = "rbxassetid://8139665943"
+				WSky.SunTextureId = "rbxassetid://6196665106"
+				WSky.StarCount = 5000
+				WSky.SkyboxUp = "rbxassetid://8139676647"
+				WSky.SkyboxLf = "rbxassetid://8139676988"
+				WSky.SkyboxFt = "rbxassetid://8139677111"
+				WSky.SkyboxBk = "rbxassetid://8139677359"
+				WSky.SkyboxDn = "rbxassetid://8139677253"
+				WSky.SkyboxRt = "rbxassetid://8139676842"
+
+				if LightingService:FindFirstChildOfClass("SunRaysEffect") then
+					LightingService:FindFirstChildOfClass("SunRaysEffect"):Destroy()
+				end
+				local SunRaysEffect = Instance.new("SunRaysEffect")
+				SunRaysEffect.Parent = LightingService
+				SunRaysEffect.Intensity = 0.03
+
+				if LightingService:FindFirstChildOfClass("BloomEffect") then
+					LightingService:FindFirstChildOfClass("BloomEffect"):Destroy()
+				end
+				local BloomEffect = Instance.new("BloomEffect")
+				BloomEffect.Parent = LightingService
+				BloomEffect.Threshold = 2
+				BloomEffect.Intensity = 1
+				BloomEffect.Size = 2
+
+				if LightingService:FindFirstChildOfClass("Atmosphere") then
+					LightingService:FindFirstChildOfClass("Atmosphere"):Destroy()
+				end
+				local Atmosphere = Instance.new("Atmosphere")
+				Atmosphere.Parent = LightingService
+				Atmosphere.Density = 0.3
+				Atmosphere.Offset = 0.25
+				Atmosphere.Color = Color3.new(0.776471, 0.776471, 0.776471)
+				Atmosphere.Decay = Color3.new(0.407843, 0.439216, 0.486275)
+				Atmosphere.Glare = 0
+				Atmosphere.Haze = 0
+
+				task.wait()
+			until not WinterSky.Enabled
+		else
+			if LightingService:FindFirstChild("WinterSky") then
+				LightingService.WinterSky:Destroy()
+			end
+		end
+	end
+	})
+end)
