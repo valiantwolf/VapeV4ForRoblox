@@ -12379,7 +12379,7 @@ run(function()
 
 	local getY = function()
 		if oldroot and oldroot.Parent then
-			local lasty = -60
+			local lasty = -100
 			if not workspace:Raycast(oldroot.Position - Vector3.new(0, lasty, 0), Vector3.new(0, 5, 0), rayCheck) then
 				return lasty
 			end
