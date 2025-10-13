@@ -12279,3 +12279,34 @@ run(function()
 		Function = function(v) scanRad = v end
 	})
 end)
+
+run(function()
+    local Godmode = {Enabled = false}
+
+    Godmode = vape.Categories.Utility:CreateModule({
+        Name = "Position Raper",
+        Function = function(callback)
+            if callback then
+                setfflag("DFFlagPlayerHumanoidPropertyUpdateRestrict", "False")
+                setfflag("DFIntDebugDefaultTargetWorldStepsPerFrame", "-2147483648")
+                setfflag("DFIntMaxMissedWorldStepsRemembered", "-2147483648")
+                setfflag("DFIntWorldStepsOffsetAdjustRate", "2147483648")
+                setfflag("DFIntDebugSendDistInSteps", "-2147483648")
+                setfflag("DFIntWorldStepMax", "-2147483648")
+                setfflag("DFIntWarpFactor", "2147483648")
+
+                queue_on_teleport([[
+                    task.wait(1)
+                    setfflag("DFFlagPlayerHumanoidPropertyUpdateRestrict", "False")
+                    setfflag("DFIntDebugDefaultTargetWorldStepsPerFrame", "-2147483648")
+                    setfflag("DFIntMaxMissedWorldStepsRemembered", "-2147483648")
+                    setfflag("DFIntWorldStepsOffsetAdjustRate", "2147483648")
+                    setfflag("DFIntDebugSendDistInSteps", "-2147483648")
+                    setfflag("DFIntWorldStepMax", "-2147483648")
+                    setfflag("DFIntWarpFactor", "2147483648")
+                ]])
+            end
+        end,
+        Tooltip = ""
+    })
+end)
