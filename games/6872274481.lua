@@ -1740,8 +1740,8 @@ run(function()
 	Value = Reach:CreateSlider({
 		Name = 'Range',
 		Min = 0,
-		Max = 18,
-		Default = 18,
+		Max = 23,
+		Default = 23,
 		Function = function(val)
 			if Reach.Enabled then
 				bedwars.CombatConstant.RAYCAST_SWORD_CHARACTER_DISTANCE = val + 2
@@ -3473,6 +3473,67 @@ run(function()
 	})
 end)
 	
+						local balloons = plr.Character:GetAttribute('InflatedBalloons')
+						local playerGravity = workspace.Gravity
+	
+						if balloons and balloons > 0 then
+							playerGravity = (workspace.Gravity * (1 - ((balloons >= 4 and 1.2 or balloons >= 3 and 1 or 0.975))))
+						end
+	
+						if plr.Character.PrimaryPart:FindFirstChild('rbxassetid://8200754399') then
+							playerGravity = 6
+						end
+	
+						if plr.Player:GetAttribute('IsOwlTarget') then
+							for _, owl in collectionService:GetTagged('Owl') do
+								if owl:GetAttribute('Target') == plr.Player.UserId and owl:GetAttribute('Status') == 2 then
+									playerGravity = 0
+								end
+							end
+						end
+	
+						local newlook = CFrame.new(offsetpos, plr[TargetPart.Value].Position) * CFrame.new(projmeta.projectile == 'owl_projectile' and Vector3.zero or Vector3.new(bedwars.BowConstantsTable.RelX, bedwars.BowConstantsTable.RelY, bedwars.BowConstantsTable.RelZ))
+						local calc = prediction.SolveTrajectory(newlook.p, projSpeed, gravity, plr[TargetPart.Value].Position, projmeta.projectile == 'telepearl' and Vector3.zero or plr[TargetPart.Value].Velocity, playerGravity, plr.HipHeight, plr.Jumping and 42.6 or nil, rayCheck)
+						if calc then
+							targetinfo.Targets[plr] = tick() + 1
+							return {
+								initialVelocity = CFrame.new(newlook.Position, calc).LookVector * projSpeed,
+								positionFrom = offsetpos,
+								deltaT = lifetime,
+								gravitationalAcceleration = gravity,
+								drawDurationSeconds = 5
+							}
+						end
+					end
+	
+					return old(...)
+				end
+			else
+				bedwars.ProjectileController.calculateImportantLaunchValues = old
+			end
+		end,
+		Tooltip = 'Silently adjusts your aim towards the enemy'
+	})
+	Targets = ProjectileAimbot:CreateTargets({
+		Players = true,
+		Walls = true
+	})
+	TargetPart = ProjectileAimbot:CreateDropdown({
+		Name = 'Part',
+		List = {'RootPart', 'Head'}
+	})
+	FOV = ProjectileAimbot:CreateSlider({
+		Name = 'FOV',
+		Min = 1,
+		Max = 1000,
+		Default = 1000
+	})
+	OtherProjectiles = ProjectileAimbot:CreateToggle({
+		Name = 'Other Projectiles',
+		Default = true
+	})
+end)
+	
 run(function()
 	local ProjectileAura
 	local Targets
@@ -3536,8 +3597,11 @@ run(function()
 									local calc = prediction.SolveTrajectory(pos, projSpeed, gravity, ent.RootPart.Position, ent.RootPart.Velocity, workspace.Gravity, ent.HipHeight, ent.Jumping and 42.6 or nil, rayCheck)
 									if calc then
 										targetinfo.Targets[ent] = tick() + 1
-										local switched = switchItem(item.tool)
-	
+										local switched
+										for i,v in game:GetService("ReplicatedStorage"):GetDescendants() do
+											if v.Name == "SetInvItem" and v:IsA("RemoteFunction") then switched = v break end
+										end
+										switched:InvokeServer({hand = item.tool})
 										task.spawn(function()
 											local dir, id = CFrame.lookAt(pos, calc).LookVector, httpService:GenerateGUID(true)
 											local shootPosition = (CFrame.new(pos, calc) * CFrame.new(Vector3.new(-bedwars.BowConstantsTable.RelX, -bedwars.BowConstantsTable.RelY, -bedwars.BowConstantsTable.RelZ))).Position
@@ -3580,8 +3644,8 @@ run(function()
 	Range = ProjectileAura:CreateSlider({
 		Name = 'Range',
 		Min = 1,
-		Max = 1000,
-		Default = 1000,
+		Max = 500,
+		Default = 500,
 		Suffix = function(val)
 			return val == 1 and 'stud' or 'studs'
 		end
