@@ -2319,6 +2319,140 @@ run(function()
 	})
 end)
 				
+		Name = 'Speed',
+		Min = 1,
+		Max = 23,
+		Default = 23,
+		Suffix = function(val)
+			return val == 1 and 'stud' or 'studs'
+		end
+	})
+
+	VerticalValue = Fly:CreateSlider({
+		Name = 'Vertical Speed',
+		Min = 1,
+		Max = 150,
+		Default = 50,
+		Suffix = function(val)
+			return val == 1 and 'stud' or 'studs'
+		end
+	})
+
+	WallCheck = Fly:CreateToggle({
+		Name = 'Wall Check',
+		Default = true
+	})
+
+	PopBalloons = Fly:CreateToggle({
+		Name = 'Pop Balloons',
+		Default = true
+	})
+
+	TP = Fly:CreateToggle({
+		Name = 'TP Down',
+		Default = true
+	})
+end)
+
+run(function()
+	local Mode
+	local Expand
+	local objects, set = {}
+	
+	local function createHitbox(ent)
+		if ent.Targetable and ent.Player then
+			local hitbox = Instance.new('Part')
+			hitbox.Size = Vector3.new(3, 6, 3) + Vector3.one * (Expand.Value / 5)
+			hitbox.Position = ent.RootPart.Position
+			hitbox.CanCollide = false
+			hitbox.Massless = true
+			hitbox.Transparency = 1
+			hitbox.Parent = ent.Character
+			local weld = Instance.new('Motor6D')
+			weld.Part0 = hitbox
+			weld.Part1 = ent.RootPart
+			weld.Parent = hitbox
+			objects[ent] = hitbox
+		end
+	end
+	
+	HitBoxes = vape.Categories.Blatant:CreateModule({
+		Name = 'HitBoxes',
+		Function = function(call)
+			if call then
+				if Mode.Value == 'Sword' then
+					debug.setconstant(bedwars.SwordController.swingSwordInRegion, 6, (Expand.Value / 3))
+					set = true
+				else
+					HitBoxes:Clean(entitylib.Events.EntityAdded:Connect(createHitbox))
+					HitBoxes:Clean(entitylib.Events.EntityRemoving:Connect(function(ent)
+						if objects[ent] then
+							objects[ent]:Destroy()
+							objects[ent] = nil
+						end
+					end))
+					for _, ent in entitylib.List do
+						createHitbox(ent)
+					end
+				end
+			else
+				if set then
+					debug.setconstant(bedwars.SwordController.swingSwordInRegion, 6, 3.8)
+					set = nil
+				end
+				for _, part in objects do
+					part:Destroy()
+				end
+				table.clear(objects)
+			end
+		end,
+		Tooltip = 'Expands attack hitbox'
+	})
+	Mode = HitBoxes:CreateDropdown({
+		Name = 'Mode',
+		List = {'Sword', 'Player'},
+		Function = function()
+			if HitBoxes.Enabled then
+				HitBoxes:Toggle()
+				HitBoxes:Toggle()
+			end
+		end,
+		Tooltip = 'Sword - Increases the range around you to hit entities\nPlayer - Increases the players hitbox'
+	})
+	Expand = HitBoxes:CreateSlider({
+		Name = 'Expand amount',
+		Min = 0,
+		Max = 14.4,
+		Default = 14.4,
+		Decimal = 10,
+		Function = function(val)
+			if HitBoxes.Enabled then
+				if Mode.Value == 'Sword' then
+					debug.setconstant(bedwars.SwordController.swingSwordInRegion, 6, (val / 3))
+				else
+					for _, part in objects do
+						part.Size = Vector3.new(3, 6, 3) + Vector3.one * (val / 5)
+					end
+				end
+			end
+		end,
+		Suffix = function(val)
+			return val == 1 and 'stud' or 'studs'
+		end
+	})
+end)
+	
+run(function()
+	vape.Categories.Blatant:CreateModule({
+		Name = 'KeepSprint',
+		Function = function(call)
+			debug.setconstant(bedwars.SprintController.startSprinting, 5, call and 'blockSprinting' or 'blockSprint')
+			bedwars.SprintController:stopSprinting()
+		end,
+		Tooltip = 'Lets you sprint with a speed potion.'
+	})
+end)
+	
 local Attacking
 run(function()
 	local Killaura
@@ -2420,8 +2554,8 @@ run(function()
 
 	Killaura = vape.Categories.Blatant:CreateModule({
 		Name = 'Killaura',
-		Function = function(callback)
-			if callback then
+		Function = function(call)
+			if call then
 				if inputService.TouchEnabled then
 					pcall(function()
 						lplr.PlayerGui.MobileUI['2'].Visible = Limit.Enabled
@@ -2496,7 +2630,11 @@ run(function()
 						local validTargets = {}
 						
 						if #plrs > 0 then
-							switchItem(sword.tool, 0)
+							local path
+                            for i,v in game:GetDescendants() do
+                                if v.Name == "SetInvItem" and v:IsA("RemoteFunction") then path = v break end
+                            end
+							path:InvokeServer({hand = sword.tool})
 							local selfpos = entitylib.character.RootPart.Position
 							local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
 
@@ -2691,9 +2829,15 @@ run(function()
 		Name = 'Target Mode',
 		List = methods
 	})
-	Mouse = Killaura:CreateToggle({Name = 'Require mouse down'})
-	Swing = Killaura:CreateToggle({Name = 'No Swing'})
-	GUI = Killaura:CreateToggle({Name = 'GUI check'})
+	Mouse = Killaura:CreateToggle({
+	Name = 'Require mouse down',
+	})
+	Swing = Killaura:CreateToggle({
+	Name = 'No Swing',
+	})
+	GUI = Killaura:CreateToggle({
+	Name = 'GUI check',
+	})
 	Killaura:CreateToggle({
 		Name = 'Show target',
 		Function = function(callback)
@@ -2876,7 +3020,7 @@ run(function()
 		Name = 'Swing only',
 		Tooltip = 'Only attacks while swinging manually'
 	})]]
-end)			
+end)
 	
 run(function()
 	local Value
