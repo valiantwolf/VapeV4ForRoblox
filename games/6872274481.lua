@@ -2676,7 +2676,7 @@ run(function()
 			return val == 1 and 'stud' or 'studs'
 		end
 	})
-	--ChargeTime = Killaura:CreateSlider({
+	ChargeTime = Killaura:CreateSlider({
 		Name = 'Swing time',
 		Min = 0,
 		Max = 0,
