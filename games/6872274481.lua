@@ -2508,9 +2508,9 @@ run(function()
 						
 						if #plrs > 0 then
 							local path
-                            for i,v in game:GetDescendants() do
+                            --[[for i,v in game:GetDescendants() do
                                 if v.Name == "SetInvItem" and v:IsA("RemoteFunction") then path = v break end
-                            end
+                            end--]]
 							path:InvokeServer({hand = sword.tool})
 							local selfpos = entitylib.character.RootPart.Position
 							local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
@@ -2676,10 +2676,10 @@ run(function()
 			return val == 1 and 'stud' or 'studs'
 		end
 	})
-	ChargeTime = Killaura:CreateSlider({
+	--ChargeTime = Killaura:CreateSlider({
 		Name = 'Swing time',
 		Min = 0,
-		Max = 0.5,
+		Max = 0,
 		Default = 0,
 		Decimal = 100
 	})
