@@ -2510,8 +2510,8 @@ run(function()
 							local path
                             --[[for i,v in game:GetDescendants() do
                                 if v.Name == "SetInvItem" and v:IsA("RemoteFunction") then path = v break end
-                            end--]]
-							path:InvokeServer({hand = sword.tool})
+                            end
+							path:InvokeServer({hand = sword.tool})--]]
 							local selfpos = entitylib.character.RootPart.Position
 							local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
 
