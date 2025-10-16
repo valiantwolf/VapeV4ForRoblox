@@ -2502,7 +2502,7 @@ run(function()
 					Attacking = false
 					store.KillauraTarget = nil
 					
-					if sword then
+					--if sword then
 						local plrs = updateTargetCache()
 						local validTargets = {}
 						
