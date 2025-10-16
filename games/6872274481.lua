@@ -350,7 +350,7 @@ local function switchItem(tool, delayTime)
 	local check = lplr.Character and lplr.Character:FindFirstChild('HandInvItem') or nil
 	if check and check.Value ~= tool and tool.Parent ~= nil then
 		task.spawn(function()
-			bedwars.Client:Get(remotes.EquipItem):CallServerAsync({hand = tool})
+			bedwars.Client:Get(remotes.SetInvItem):CallServerAsync({hand = tool})
 		end)
 		check.Value = tool
 		if delayTime > 0 then
