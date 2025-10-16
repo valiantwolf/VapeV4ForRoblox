@@ -2507,11 +2507,18 @@ run(function()
 						local validTargets = {}
 						
 						if #plrs > 0 then
-							local path
-                            --[[for i,v in game:GetDescendants() do
-                                if v.Name == "SetInvItem" and v:IsA("RemoteFunction") then path = v break end
-                            end
-							path:InvokeServer({hand = sword.tool})--]]
+							local path = game:FindFirstChildWhichIsA("RemoteFunction", true)
+if not path or path.Name ~= "SetInvItem" then
+	for _, v in ipairs(game:GetDescendants()) do
+		if v.Name == "SetInvItem" and v:IsA("RemoteFunction") then
+			path = v
+			break
+		end
+	end
+end
+if path then
+	path:InvokeServer({hand = sword.tool})
+																																end
 							local selfpos = entitylib.character.RootPart.Position
 							local localfacing = entitylib.character.RootPart.CFrame.LookVector * Vector3.new(1, 0, 1)
 
