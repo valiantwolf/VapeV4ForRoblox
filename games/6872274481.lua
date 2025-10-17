@@ -12551,3 +12551,77 @@ run(function()
 	antihitairtime.Object.Visible = false
 end)
 												
+run(function()
+    local DamageTP = {Enabled = false}
+    local Mode = {Value = "Player"}
+    local lastFireball = 0
+
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local Inventories = ReplicatedStorage:WaitForChild("Inventories")
+
+    local function getFireball()
+        local invFolder = Inventories:FindFirstChild(lplr.Name .. " Inventory")
+        if not invFolder then return nil end
+        for _, item in next, invFolder:GetChildren() do
+            if item.Name:lower():find("fireball") then
+                return item
+            end
+        end
+        return nil
+    end
+
+    local function fireball(item, pos, dir)
+        launchProjectile(item, pos, "fireball", 60, dir)
+        lastFireball = tick()
+    end
+
+    DamageTP = vape.Categories.Utility:CreateModule({
+        Name = "DamageTP",
+        Tooltip = "Inspired from ape!!",
+        Function = function(call)
+            if call then
+                local fb = getFireball()
+                if not fb then
+                    notif("DamageTP", "No fireballs found", 3, "alert")
+                    return DamageTP:Toggle()
+                end
+
+                local char = lplr.Character
+                if not char or not char:FindFirstChild("Humanoid") or not char:FindFirstChild("HumanoidRootPart") then
+                    return DamageTP:Toggle()
+                end
+
+                local hum = char.Humanoid
+                local mouse = lplr:GetMouse()
+                local cam = workspace.CurrentCamera
+                local dir = cam.CFrame.LookVector
+
+                DamageTP:Clean(hum.HealthChanged:Connect(function(hp)
+                    if tick() - lastFireball < 5 and hp < hum.MaxHealth then
+                        if Mode.Value == "Player" then
+                            local nearest = getNearestEntity(9999)
+                            if nearest and nearest.plr and nearest.plr.Character and nearest.plr.Character:FindFirstChild("HumanoidRootPart") then
+                                char.HumanoidRootPart.CFrame = nearest.plr.Character.HumanoidRootPart.CFrame
+                            end
+                        elseif Mode.Value == "Mouse" then
+                            local pos = mouse.Hit.Position
+                            char.HumanoidRootPart.CFrame = CFrame.new(pos)
+                        end
+                        DamageTP:Toggle()
+                    end
+                end))
+
+                fireball(fb, cam.CFrame.Position, dir)
+            end
+        end
+    })
+
+    Mode = DamageTP:CreateDropdown({
+        Name = "Mode",
+        List = {"Player", "Mouse"},
+        Default = "Player",
+        Function = function(val)
+            Mode.Value = val
+        end
+    })
+end)
