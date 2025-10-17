@@ -12558,11 +12558,19 @@ run(function()
 
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
     local Inventories = ReplicatedStorage:WaitForChild("Inventories")
+    local Players = game:GetService("Players")
+    local lplr = Players.LocalPlayer
+    local mouse = lplr:GetMouse()
+    local cam = workspace.CurrentCamera
+
+    local function getInventoryFolder()
+        return Inventories:FindFirstChild(lplr.Name .. " Inventory")
+    end
 
     local function getFireball()
-        local invFolder = Inventories:FindFirstChild(lplr.Name .. " Inventory")
-        if not invFolder then return nil end
-        for _, item in next, invFolder:GetChildren() do
+        local inv = getInventoryFolder()
+        if not inv then return nil end
+        for _, item in next, inv:GetChildren() do
             if item.Name:lower():find("fireball") then
                 return item
             end
@@ -12577,7 +12585,7 @@ run(function()
 
     DamageTP = vape.Categories.Utility:CreateModule({
         Name = "DamageTP",
-        Tooltip = "Inspired from ape!!",
+        Tooltip = "",
         Function = function(call)
             if call then
                 local fb = getFireball()
@@ -12592,8 +12600,6 @@ run(function()
                 end
 
                 local hum = char.Humanoid
-                local mouse = lplr:GetMouse()
-                local cam = workspace.CurrentCamera
                 local dir = cam.CFrame.LookVector
 
                 DamageTP:Clean(hum.HealthChanged:Connect(function(hp)
