@@ -12556,26 +12556,15 @@ run(function()
     local Mode = {Value = "Player"}
     local lastFireball = 0
 
+    local Players = game:GetService("Players")
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
     local Inventories = ReplicatedStorage:WaitForChild("Inventories")
-    local Players = game:GetService("Players")
     local lplr = Players.LocalPlayer
     local mouse = lplr:GetMouse()
     local cam = workspace.CurrentCamera
 
     local function getInventoryFolder()
         return Inventories:FindFirstChild(lplr.Name .. " Inventory")
-    end
-
-    local function getFireball()
-        local inv = getInventoryFolder()
-        if not inv then return nil end
-        for _, item in next, inv:GetChildren() do
-            if item.Name:lower():find("fireball") then
-                return item
-            end
-        end
-        return nil
     end
 
     local function fireball(item, pos, dir)
@@ -12588,12 +12577,6 @@ run(function()
         Tooltip = "",
         Function = function(call)
             if call then
-                local fb = getFireball()
-                if not fb then
-                    notif("DamageTP", "No fireballs found", 3, "alert")
-                    return DamageTP:Toggle()
-                end
-
                 local char = lplr.Character
                 if not char or not char:FindFirstChild("Humanoid") or not char:FindFirstChild("HumanoidRootPart") then
                     return DamageTP:Toggle()
@@ -12601,6 +12584,8 @@ run(function()
 
                 local hum = char.Humanoid
                 local dir = cam.CFrame.LookVector
+                local inv = getInventoryFolder()
+                if not inv then return DamageTP:Toggle() end
 
                 DamageTP:Clean(hum.HealthChanged:Connect(function(hp)
                     if tick() - lastFireball < 5 and hp < hum.MaxHealth then
@@ -12617,7 +12602,7 @@ run(function()
                     end
                 end))
 
-                fireball(fb, cam.CFrame.Position, dir)
+                fireball(nil, cam.CFrame.Position, dir)
             end
         end
     })
