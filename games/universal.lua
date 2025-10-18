@@ -8501,13 +8501,13 @@ run(function()
                 if not entitylib.isAlive then return end
 
                 local char = entitylib.character
-                --local hrp = char:FindFirstChild("HumanoidRootPart")
+                --[[local hrp = char:FindFirstChild("HumanoidRootPart")
 
                 for _, v in pairs(char:GetDescendants()) do
                     if v:IsA("BasePart") or v:IsA("Decal") then
                         v.Transparency = 1
                     end
-                end
+                end--]]
 
                 playAnimation(char)
 
