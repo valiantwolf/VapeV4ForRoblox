@@ -8454,3 +8454,68 @@ run(function()
 		end
 	})
 end)				
+
+run(function()
+    local Invis = {}
+    local b = "16719053698"
+    local ShowRoot
+    local RootColor
+
+    Invis = vape.Categories.Utility:CreateModule({
+        Name = "Invisibility",
+        Tooltip = "",
+        Function = function(call)
+            if call then
+                local char = lplr.Character or lplr.CharacterAdded:Wait()
+                local hum = char:WaitForChild("Humanoid")
+
+                local anim = Instance.new("Animation")
+                anim.AnimationId = "rbxassetid://" .. b
+                local a = hum:LoadAnimation(anim)
+                a.Priority = Enum.AnimationPriority.Action4
+                a:AdjustSpeed(0.01)
+                a.Looped = true
+                a:Play()
+
+                Invis:Clean(function()
+                    a:Stop()
+                    for _, v in pairs(char:GetDescendants()) do
+                        if v:IsA("BasePart") or v:IsA("Decal") then
+                            v.Transparency = 0
+                        end
+                    end
+                    if ShowRoot.Enabled and char:FindFirstChild("HumanoidRootPart") then
+                        char.HumanoidRootPart.Transparency = 1
+                    end
+                end)
+
+                for _, v in pairs(char:GetDescendants()) do
+                    if v:IsA("BasePart") or v:IsA("Decal") then
+                        v.Transparency = 1
+                    end
+                end
+
+                if ShowRoot.Enabled and char:FindFirstChild("HumanoidRootPart") then
+                    local root = char.HumanoidRootPart
+                    root.Transparency = 0
+                    root.Color = RootColor.HueObject.Color
+                end
+            end
+        end
+    })
+
+    ShowRoot = Invis:CreateToggle({
+        Name = "Show Root",
+        Function = function(enabled)
+            RootColor.Object.Visible = enabled
+        end
+    })
+
+    RootColor = Invis:CreateColorSlider({
+        Name = "Root Color",
+        Visible = false,
+        DefaultHue = 0.7,
+        DefaultSat = 0.8,
+        DefaultValue = 0.6
+    })
+end)																																																																												
