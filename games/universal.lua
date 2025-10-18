@@ -8456,49 +8456,90 @@ run(function()
 end)				
 
 run(function()
-    local Invis = {}
+    local Invis
     local b = "16719053698"
+
+    local HRPTransparencySlider
+    local HRPColorSlider
     local ShowRoot
-    local RootColor
 
     Invis = vape.Categories.Utility:CreateModule({
         Name = "Invisibility",
         Tooltip = "",
         Function = function(call)
             if call then
-                local char = lplr.Character or lplr.CharacterAdded:Wait()
-                local hum = char:WaitForChild("Humanoid")
+                local function applyToCharacter(char)
+                    local humanoid = char:WaitForChild("Humanoid")
+                    local hrp = char:FindFirstChild("HumanoidRootPart")
 
-                local anim = Instance.new("Animation")
-                anim.AnimationId = "rbxassetid://" .. b
-                local a = hum:LoadAnimation(anim)
-                a.Priority = Enum.AnimationPriority.Action4
-                a:AdjustSpeed(0.01)
-                a.Looped = true
-                a:Play()
-
-                Invis:Clean(function()
-                    a:Stop()
+                    local originalPartTrans = {}
                     for _, v in pairs(char:GetDescendants()) do
                         if v:IsA("BasePart") or v:IsA("Decal") then
-                            v.Transparency = 0
+                            originalPartTrans[v] = v.Transparency
+                            v.Transparency = 1
                         end
                     end
-                    if ShowRoot.Enabled and char:FindFirstChild("HumanoidRootPart") then
-                        char.HumanoidRootPart.Transparency = 1
-                    end
-                end)
 
-                for _, v in pairs(char:GetDescendants()) do
-                    if v:IsA("BasePart") or v:IsA("Decal") then
-                        v.Transparency = 1
+                    local anim = Instance.new("Animation")
+                    anim.AnimationId = "rbxassetid://" .. b
+                    local a = humanoid:LoadAnimation(anim)
+                    a.Priority = Enum.AnimationPriority.Action
+                    a:AdjustSpeed(0.01)
+                    a:Play()
+
+                    local stoppedCon = a.Stopped:Connect(function()
+                        if Invis.Enabled then
+                            a:Play()
+                        end
+                    end)
+                    Invis:Clean(stoppedCon)
+
+                    local originalHRPTrans, originalHRPColor
+                    if hrp then
+                        originalHRPTrans = hrp.Transparency
+                        originalHRPColor = hrp.Color
                     end
+
+                    if ShowRoot.Enabled and hrp then
+                        hrp.Transparency = HRPTransparencySlider.Value / 100
+                        hrp.Color = Color3.fromHSV(HRPColorSlider.Hue, HRPColorSlider.Sat, HRPColorSlider.Value)
+                    end
+
+                    local charCleanup = function()
+                        pcall(function() a:Stop() end)
+                        for part, trans in pairs(originalPartTrans) do
+                            if part and part.Parent then
+                                part.Transparency = trans
+                            end
+                        end
+                        if hrp and hrp.Parent then
+                            if originalHRPTrans then hrp.Transparency = originalHRPTrans end
+                            if originalHRPColor then hrp.Color = originalHRPColor end
+                        end
+                    end
+
+                    Invis:Clean(charCleanup)
                 end
 
-                if ShowRoot.Enabled and char:FindFirstChild("HumanoidRootPart") then
-                    local root = char.HumanoidRootPart
-                    root.Transparency = 0
-                    root.Color = RootColor.HueObject.Color
+                if lplr.Character then
+                    applyToCharacter(lplr.Character)
+                end
+
+                local charAddedCon = lplr.CharacterAdded:Connect(function(ch)
+                    applyToCharacter(ch)
+                end)
+                Invis:Clean(charAddedCon)
+            else
+                if lplr.Character then
+                    for _, v in pairs(lplr.Character:GetDescendants()) do
+                        if v:IsA("BasePart") or v:IsA("Decal") then
+                            pcall(function() v.Transparency = 0 end)
+                        end
+                    end
+                    local hrp = lplr.Character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        pcall(function() hrp.Transparency = 1 end)
+                    end
                 end
             end
         end
@@ -8507,15 +8548,39 @@ run(function()
     ShowRoot = Invis:CreateToggle({
         Name = "Show Root",
         Function = function(enabled)
-            RootColor.Object.Visible = enabled
+            if HRPColorSlider then HRPColorSlider.Object.Visible = enabled end
+            if HRPTransparencySlider then HRPTransparencySlider.Object.Visible = enabled end
         end
     })
 
-    RootColor = Invis:CreateColorSlider({
-        Name = "Root Color",
-        Visible = false,
-        DefaultHue = 0.7,
-        DefaultSat = 0.8,
-        DefaultValue = 0.6
+    HRPTransparencySlider = Invis:CreateSlider({
+        Name = "HRP Transparency",
+        Min = 0,
+        Max = 100,
+        Default = 0,
+        Function = function(val)
+            local char = lplr.Character
+            if ShowRoot.Enabled and char then
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                if hrp then hrp.Transparency = val / 100 end
+            end
+        end
     })
-end)																																																																												
+
+    HRPColorSlider = Invis:CreateColorSlider({
+        Name = "HRP Color",
+        DefaultHue = 0,
+        DefaultSat = 0,
+        DefaultValue = 1,
+        Function = function(hue, sat, value)
+            local char = lplr.Character
+            if ShowRoot.Enabled and char then
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                if hrp then hrp.Color = Color3.fromHSV(hue, sat, value) end
+            end
+        end
+    })
+
+    HRPColorSlider.Object.Visible = false
+    HRPTransparencySlider.Object.Visible = false
+end)
