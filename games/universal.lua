@@ -8459,95 +8459,117 @@ run(function()
     local Invis
     local b = "16719053698"
 
-    local HRPTransparencySlider
-    local HRPColorSlider
     local ShowRoot
+    local HRPTransparency
+    local HRPColor
+    local animobject, anim
+
+    local function playAnimation(char)
+        if anim then
+            anim:Stop()
+            anim = nil
+        end
+
+        animobject = Instance.new("Animation")
+        animobject.AnimationId = "rbxassetid://" .. b
+
+        local success, result = pcall(function()
+            return char.Humanoid.Animator:LoadAnimation(animobject)
+        end)
+
+        if success and result then
+            anim = result
+            anim.Looped = true
+            anim:AdjustSpeed(0.01)
+            anim:Play()
+
+            Invis:Clean(anim.Stopped:Connect(function()
+                if anim == result then
+                    anim:Play()
+                end
+            end))
+        else
+            notif("Invisibility", "Failed to load animation.", 4, "warning")
+        end
+    end
 
     Invis = vape.Categories.Utility:CreateModule({
         Name = "Invisibility",
         Tooltip = "",
         Function = function(call)
             if call then
-                local function applyToCharacter(char)
-                    local humanoid = char:WaitForChild("Humanoid")
-                    local hrp = char:FindFirstChild("HumanoidRootPart")
+                if not entitylib.isAlive then return end
 
-                    for _, v in pairs(char:GetDescendants()) do
-                        if v:IsA("BasePart") or v:IsA("Decal") then
-                            v.Transparency = 1
+                local char = entitylib.character
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+
+                for _, v in pairs(char:GetDescendants()) do
+                    if v:IsA("BasePart") or v:IsA("Decal") then
+                        v.Transparency = 1
+                    end
+                end
+
+                playAnimation(char)
+
+                task.spawn(function()
+                    while Invis.Enabled and hrp do
+                        task.wait(0.05)
+                        if ShowRoot.Enabled then
+                            hrp.Transparency = HRPTransparency.Value / 100
+                            hrp.Color = Color3.fromHSV(HRPColor.Hue, HRPColor.Sat, HRPColor.Value)
                         end
                     end
+                end)
 
-                    local anim = Instance.new("Animation")
-                    anim.AnimationId = "rbxassetid://" .. b
-                    local a = humanoid:LoadAnimation(anim)
-                    a:AdjustSpeed(0.01)
-                    a.Looped = true
-                    a:Play()
-
-                    Invis:Clean(function()
-                        a:Stop()
-                        for _, v in pairs(char:GetDescendants()) do
-                            if v:IsA("BasePart") or v:IsA("Decal") then
-                                pcall(function() v.Transparency = 0 end)
-                            end
-                        end
-                        if hrp then hrp.Transparency = 1 end
-                    end)
-
-                    task.spawn(function()
-                        while Invis.Enabled and hrp do
-                            task.wait(0.05)
-                            if ShowRoot.Enabled then
-                                hrp.Transparency = HRPTransparencySlider.Value / 100
-                                hrp.Color = Color3.fromHSV(HRPColorSlider.Hue, HRPColorSlider.Sat, HRPColorSlider.Value)
-                            end
-                        end
-                    end)
-                end
-
-                if lplr.Character then
-                    applyToCharacter(lplr.Character)
-                end
-
-                Invis:Clean(lplr.CharacterAdded:Connect(function(ch)
-                    applyToCharacter(ch)
+                Invis:Clean(entitylib.Events.LocalAdded:Connect(function(newChar)
+                    playAnimation(newChar)
                 end))
+            else
+                if anim then anim:Stop() end
+                if entitylib.isAlive then
+                    for _, v in pairs(entitylib.character:GetDescendants()) do
+                        if v:IsA("BasePart") or v:IsA("Decal") then
+                            v.Transparency = 0
+                        end
+                    end
+                    local hrp = entitylib.character:FindFirstChild("HumanoidRootPart")
+                    if hrp then hrp.Transparency = 1 end
+                end
             end
         end
     })
 
     ShowRoot = Invis:CreateToggle({
         Name = "Show Root",
-        Function = function(enabled)
-            HRPColorSlider.Object.Visible = enabled
-            HRPTransparencySlider.Object.Visible = enabled
+        Function = function(state)
+            HRPTransparency.Object.Visible = state
+            HRPColor.Object.Visible = state
         end
     })
 
-    HRPTransparencySlider = Invis:CreateSlider({
+    HRPTransparency = Invis:CreateSlider({
         Name = "HRP Transparency",
         Min = 0,
         Max = 100,
         Default = 0,
         Function = function(val)
-            if ShowRoot.Enabled and lplr.Character then
-                local hrp = lplr.Character:FindFirstChild("HumanoidRootPart")
+            if ShowRoot.Enabled and entitylib.isAlive then
+                local hrp = entitylib.character:FindFirstChild("HumanoidRootPart")
                 if hrp then hrp.Transparency = val / 100 end
             end
         end
     })
 
-    HRPColorSlider = Invis:CreateColorSlider({
+    HRPColor = Invis:CreateColorSlider({
         Name = "HRP Color",
-        Function = function(hue, sat, value)
-            if ShowRoot.Enabled and lplr.Character then
-                local hrp = lplr.Character:FindFirstChild("HumanoidRootPart")
-                if hrp then hrp.Color = Color3.fromHSV(hue, sat, value) end
+        Function = function(h, s, v)
+            if ShowRoot.Enabled and entitylib.isAlive then
+                local hrp = entitylib.character:FindFirstChild("HumanoidRootPart")
+                if hrp then hrp.Color = Color3.fromHSV(h, s, v) end
             end
         end
     })
 
-    HRPColorSlider.Object.Visible = false
-    HRPTransparencySlider.Object.Visible = false
+    HRPTransparency.Object.Visible = false
+    HRPColor.Object.Visible = false
 end)
