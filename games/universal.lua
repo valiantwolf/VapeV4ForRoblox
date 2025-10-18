@@ -8472,10 +8472,8 @@ run(function()
                     local humanoid = char:WaitForChild("Humanoid")
                     local hrp = char:FindFirstChild("HumanoidRootPart")
 
-                    local originalPartTrans = {}
                     for _, v in pairs(char:GetDescendants()) do
                         if v:IsA("BasePart") or v:IsA("Decal") then
-                            originalPartTrans[v] = v.Transparency
                             v.Transparency = 1
                         end
                     end
@@ -8483,64 +8481,38 @@ run(function()
                     local anim = Instance.new("Animation")
                     anim.AnimationId = "rbxassetid://" .. b
                     local a = humanoid:LoadAnimation(anim)
-                    a.Priority = Enum.AnimationPriority.Action
                     a:AdjustSpeed(0.01)
+                    a.Looped = true
                     a:Play()
 
-                    local stoppedCon = a.Stopped:Connect(function()
-                        if Invis.Enabled then
-                            a:Play()
-                        end
-                    end)
-                    Invis:Clean(stoppedCon)
-
-                    local originalHRPTrans, originalHRPColor
-                    if hrp then
-                        originalHRPTrans = hrp.Transparency
-                        originalHRPColor = hrp.Color
-                    end
-
-                    if ShowRoot.Enabled and hrp then
-                        hrp.Transparency = HRPTransparencySlider.Value / 100
-                        hrp.Color = Color3.fromHSV(HRPColorSlider.Hue, HRPColorSlider.Sat, HRPColorSlider.Value)
-                    end
-
-                    local charCleanup = function()
-                        pcall(function() a:Stop() end)
-                        for part, trans in pairs(originalPartTrans) do
-                            if part and part.Parent then
-                                part.Transparency = trans
+                    Invis:Clean(function()
+                        a:Stop()
+                        for _, v in pairs(char:GetDescendants()) do
+                            if v:IsA("BasePart") or v:IsA("Decal") then
+                                pcall(function() v.Transparency = 0 end)
                             end
                         end
-                        if hrp and hrp.Parent then
-                            if originalHRPTrans then hrp.Transparency = originalHRPTrans end
-                            if originalHRPColor then hrp.Color = originalHRPColor end
-                        end
-                    end
+                        if hrp then hrp.Transparency = 1 end
+                    end)
 
-                    Invis:Clean(charCleanup)
+                    task.spawn(function()
+                        while Invis.Enabled and hrp do
+                            task.wait(0.05)
+                            if ShowRoot.Enabled then
+                                hrp.Transparency = HRPTransparencySlider.Value / 100
+                                hrp.Color = Color3.fromHSV(HRPColorSlider.Hue, HRPColorSlider.Sat, HRPColorSlider.Value)
+                            end
+                        end
+                    end)
                 end
 
                 if lplr.Character then
                     applyToCharacter(lplr.Character)
                 end
 
-                local charAddedCon = lplr.CharacterAdded:Connect(function(ch)
+                Invis:Clean(lplr.CharacterAdded:Connect(function(ch)
                     applyToCharacter(ch)
-                end)
-                Invis:Clean(charAddedCon)
-            else
-                if lplr.Character then
-                    for _, v in pairs(lplr.Character:GetDescendants()) do
-                        if v:IsA("BasePart") or v:IsA("Decal") then
-                            pcall(function() v.Transparency = 0 end)
-                        end
-                    end
-                    local hrp = lplr.Character:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        pcall(function() hrp.Transparency = 1 end)
-                    end
-                end
+                end))
             end
         end
     })
@@ -8548,8 +8520,8 @@ run(function()
     ShowRoot = Invis:CreateToggle({
         Name = "Show Root",
         Function = function(enabled)
-            if HRPColorSlider then HRPColorSlider.Object.Visible = enabled end
-            if HRPTransparencySlider then HRPTransparencySlider.Object.Visible = enabled end
+            HRPColorSlider.Object.Visible = enabled
+            HRPTransparencySlider.Object.Visible = enabled
         end
     })
 
@@ -8559,9 +8531,8 @@ run(function()
         Max = 100,
         Default = 0,
         Function = function(val)
-            local char = lplr.Character
-            if ShowRoot.Enabled and char then
-                local hrp = char:FindFirstChild("HumanoidRootPart")
+            if ShowRoot.Enabled and lplr.Character then
+                local hrp = lplr.Character:FindFirstChild("HumanoidRootPart")
                 if hrp then hrp.Transparency = val / 100 end
             end
         end
@@ -8569,13 +8540,9 @@ run(function()
 
     HRPColorSlider = Invis:CreateColorSlider({
         Name = "HRP Color",
-        DefaultHue = 0,
-        DefaultSat = 0,
-        DefaultValue = 1,
         Function = function(hue, sat, value)
-            local char = lplr.Character
-            if ShowRoot.Enabled and char then
-                local hrp = char:FindFirstChild("HumanoidRootPart")
+            if ShowRoot.Enabled and lplr.Character then
+                local hrp = lplr.Character:FindFirstChild("HumanoidRootPart")
                 if hrp then hrp.Color = Color3.fromHSV(hue, sat, value) end
             end
         end
