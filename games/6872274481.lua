@@ -32,6 +32,7 @@ local cam = workspace.CurrentCamera --yes yes ik
 local lplr = playersService.LocalPlayer
 local assetfunction = getcustomasset
 
+local GuiLibrary = shared.GuiLibrary
 local vape = shared.vape
 local entitylib = vape.Libraries.entity
 local targetinfo = vape.Libraries.targetinfo
