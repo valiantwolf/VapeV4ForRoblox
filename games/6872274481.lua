@@ -12660,6 +12660,8 @@ run(function()
 end)
 
 run(function()
+	local a = {Enabled = false}
+						
     a = vape.Categories.Utility:CreateModule({
         Name = 'a',
         Function = function(call)            
@@ -12669,7 +12671,6 @@ game.ReplicatedStorage.Items.emerald_boots:Clone().Parent = game.ReplicatedStora
 game.ReplicatedStorage.Items.emerald_chestplate:Clone().Parent = game.ReplicatedStorage.Inventories[lplr.Name]
         end
     end,
-        Default = false,
-        --Tooltip = ""
+        tooltip = ""
     })
 end)									
