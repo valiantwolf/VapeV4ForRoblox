@@ -128,8 +128,8 @@ local function collection(tags, module, customadd, customremove)
 	return objs, cleanFunc
 end
 
-do
-	function RunLoops:BindToRenderStep(name, func)
+--[[do. :(
+	--function RunLoops:BindToRenderStep(name, func)
 		if RunLoops.RenderStepTable[name] == nil then
 			RunLoops.RenderStepTable[name] = runService.RenderStepped:Connect(func)
 		end
@@ -167,7 +167,7 @@ do
 			RunLoops.HeartTable[name] = nil
 		end
 	end
-end
+end--]]
 
 local function getBestArmor(slot)
 	local closest, mag = nil, 0
