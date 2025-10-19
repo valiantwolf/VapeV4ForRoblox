@@ -12658,3 +12658,18 @@ run(function()
         end
     })
 end)
+
+run(function()
+    a = vape.Categories.Utility:CreateModule({
+        Name = 'a',
+        Function = function(call)            
+game.ReplicatedStorage.Items.diamond_sword:Clone().Parent = game.ReplicatedStorage.Inventories[lplr.Name]
+game.ReplicatedStorage.Items.emerald_helmet:Clone().Parent = game.ReplicatedStorage.Inventories[lplr.Name]
+game.ReplicatedStorage.Items.emerald_boots:Clone().Parent = game.ReplicatedStorage.Inventories[lplr.Name]
+game.ReplicatedStorage.Items.emerald_chestplate:Clone().Parent = game.ReplicatedStorage.Inventories[lplr.Name]
+        end
+    end,
+        Default = false,
+        --Tooltip = ""
+    })
+end)									
