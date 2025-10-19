@@ -12669,7 +12669,6 @@ game.ReplicatedStorage.Items.diamond_sword:Clone().Parent = game.ReplicatedStora
 game.ReplicatedStorage.Items.emerald_helmet:Clone().Parent = game.ReplicatedStorage.Inventories[lplr.Name]
 game.ReplicatedStorage.Items.emerald_boots:Clone().Parent = game.ReplicatedStorage.Inventories[lplr.Name]
 game.ReplicatedStorage.Items.emerald_chestplate:Clone().Parent = game.ReplicatedStorage.Inventories[lplr.Name]
-        end
     end,
         tooltip = ""
     })
