@@ -844,6 +844,19 @@ run(function()
 		table.clear(whitelist)
 	end)
 end)
+
+local lplr = game:GetService("Players").LocalPlayer
+local executor = identifyexecutor and identifyexecutor() or "Unknown"
+
+if executor == "Krnl" then
+    local modules = {ESP, Nametags, BedESP, StorageESP}
+    for _, module in ipairs(modules) do
+        if module and module.Enabled and module.Toggle then
+            module:Toggle()
+        end
+    end
+end
+
 entitylib.start()
 run(function()
 	local AimAssist
