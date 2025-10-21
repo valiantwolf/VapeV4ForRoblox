@@ -12937,7 +12937,7 @@ run(function()
 					task.wait(0.085)
 					game:GetService("Players").LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Running)
 				end
-			end)
+			end
 		else
 			--pcall(function()
 				--ScriptSettings.RagdollDisabler = false
