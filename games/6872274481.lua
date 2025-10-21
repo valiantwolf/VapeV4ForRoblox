@@ -12923,27 +12923,26 @@ run(function()
     })
 end)
 
-run(function()	
+run(function()
 	local a = {Enabled = false}
-						
-    a = vape.Categories.Utility:CreateModule({
-        Name = '25%RagdollDisabler',
-        Function = function(call)            
-        --pcall(function()
-				--ScriptSettings.RagdollDisabler = true
-				while task.wait(0.1) do
-					--if not ScriptSettings.RagdollDisabler == true then return end
-					game:GetService("Players").LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Ragdoll)
-					task.wait(0.085)
-					game:GetService("Players").LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Running)
-				end
-			end))
-		else
-			--pcall(function()
-				--ScriptSettings.RagdollDisabler = false
-			end)
-end
-    end,
-        tooltip = "",
-    })
-end)	
+
+	a = vape.Categories.Utility:CreateModule({
+		Name = "25%RagdollDisabler",
+		Tooltip = "",
+		Function = function(call)
+			if call then
+				task.spawn(function()
+					while a.Enabled do
+						local char = game:GetService("Players").LocalPlayer.Character
+						if char and char:FindFirstChild("Humanoid") then
+							char.Humanoid:ChangeState(Enum.HumanoidStateType.Ragdoll)
+							task.wait(0.085)
+							char.Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+						end
+						task.wait(0.1)
+					end
+				end)
+			end
+		end
+	})
+end)
