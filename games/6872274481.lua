@@ -12923,27 +12923,7 @@ run(function()
     })
 end)
 
-	["Name"]  = "RagdollDisabler",
-	["Function"] = function(callback)
-		if callback then
-			pcall(function()
-				ScriptSettings.RagdollDisabler = true
-				while task.wait(0.1) do
-					if not ScriptSettings.RagdollDisabler == true then return end
-					game:GetService("Players").LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Ragdoll)
-					task.wait(0.085)
-					game:GetService("Players").LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Running)
-				end
-			end)
-		else
-			pcall(function()
-				--ScriptSettings.RagdollDisabler = false
-			end)
-		end
-	end,
-	["Default"] = false,
-	["HoverText"] = "Makes you ragdoll to bypass anticheat"
-
+run(function()	
 	local a = {Enabled = false}
 						
     a = vape.Categories.Utility:CreateModule({
