@@ -44,6 +44,7 @@ local whitelist = vape.Libraries.whitelist
 local prediction = vape.Libraries.prediction
 local getfontsize = vape.Libraries.getfontsize
 local getcustomasset = vape.Libraries.getcustomasset
+local downButton = vape.DownButton
 
 local store = {
 	attackReach = 0,
