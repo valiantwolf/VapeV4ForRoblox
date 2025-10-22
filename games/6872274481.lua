@@ -66,7 +66,9 @@ local store = {
 local Reach = {}
 local HitBoxes = {}
 local InfiniteFly = {}
+getgenv().CancelSwitch = os.clock()
 local TrapDisabler
+getgenv().FlyLandTick = os.clock()
 local AntiFallPart
 local bedwars, remotes, sides, oldinvrender, oldSwing = {}, {}, {}
 
