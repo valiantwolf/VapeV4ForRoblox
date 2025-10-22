@@ -2941,8 +2941,8 @@ run(function()
 		end
 	longjumppath:InvokeServer({hand = item.tool})
 		task.wait(0.1)
-		--bedwars.ProjectileController:createLocalProjectile(
-			--bedwars.ProjectileMeta[proj], proj, proj, shootPosition.Position, '', shootPosition.LookVector * speed, {drawDurationSeconds = 1}
+		bedwars.ProjectileController:createLocalProjectile(
+			bedwars.ProjectileMeta[proj], proj, proj, shootPosition.Position, '', shootPosition.LookVector * speed, {drawDurationSeconds = 1}
 		)
 
 		if projectileRemote:InvokeServer(item.tool, proj, proj, shootPosition.Position, pos,
