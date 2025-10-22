@@ -2114,6 +2114,7 @@ run(function()
 	})
 end)
 	
+		
 local Fly
 local LongJump
 run(function()
@@ -2131,10 +2132,13 @@ run(function()
 		Function = function(callback)
 			frictionTable.Fly = callback or nil
 			updateVelocity()
+			if downButton and downButton.Parent then
+				downButton.Visible = callback
+			end
 			if callback then
 				up, down, old = 0, 0, bedwars.BalloonController.deflateBalloon
 				bedwars.BalloonController.deflateBalloon = function() end
-				local tpTick, tpToggle, oldy = tick(), true
+				local tpTick, tpToggle, oldy = os.clock(), true
 
 				if lplr.Character and (lplr.Character:GetAttribute('InflatedBalloons') or 0) == 0 and getItem('balloon') then
 					bedwars.BalloonController:inflateBalloon()
@@ -2145,9 +2149,9 @@ run(function()
 					end
 				end))
 				Fly:Clean(runService.PreSimulation:Connect(function(dt)
-					if entitylib.isAlive and not InfiniteFly.Enabled and isnetworkowner(entitylib.character.RootPart) then
+					if entitylib.isAlive and os.clock() > FlyLandTick and isnetworkowner(entitylib.character.RootPart) then
 						local flyAllowed = (lplr.Character:GetAttribute('InflatedBalloons') and lplr.Character:GetAttribute('InflatedBalloons') > 0) or store.matchState == 2
-						local mass = (1.5 + (flyAllowed and 6 or 0) * (tick() % 0.4 < 0.2 and -1 or 1)) + ((up + down) * VerticalValue.Value)
+						local mass = (1.5 + (flyAllowed and 6 or 0) * (os.clock() % 0.4 < 0.2 and -1 or 1)) + ((up + down) * VerticalValue.Value)
 						local root, moveDirection = entitylib.character.RootPart, entitylib.character.Humanoid.MoveDirection
 						local velo = getSpeed()
 						local destination = (moveDirection * math.max(Value.Value - velo, 0) * dt)
@@ -2158,34 +2162,6 @@ run(function()
 							local ray = workspace:Raycast(root.Position, destination, rayCheck)
 							if ray then
 								destination = ((ray.Position + ray.Normal) - root.Position)
-							end
-						end
-
-						if not flyAllowed then
-							if tpToggle then
-								local airleft = (tick() - entitylib.character.AirTime)
-								if airleft > 2 then
-									if not oldy then
-										local ray = workspace:Raycast(root.Position, Vector3.new(0, -1000, 0), rayCheck)
-										if ray and TP.Enabled then
-											tpToggle = false
-											oldy = root.Position.Y
-											tpTick = tick() + 0.11
-											root.CFrame = CFrame.lookAlong(Vector3.new(root.Position.X, ray.Position.Y + entitylib.character.HipHeight, root.Position.Z), root.CFrame.LookVector)
-										end
-									end
-								end
-							else
-								if oldy then
-									if tpTick < tick() then
-										local newpos = Vector3.new(root.Position.X, oldy, root.Position.Z)
-										root.CFrame = CFrame.lookAlong(newpos, root.CFrame.LookVector)
-										tpToggle = true
-										oldy = nil
-									else
-										mass = 0
-									end
-								end
 							end
 						end
 
@@ -2216,6 +2192,9 @@ run(function()
 							up = jumpButton.ImageRectOffset.X == 146 and 1 or 0
 						end))
 					end)
+					Fly:Clean(downButton:GetPropertyChangedSignal('ImageRectOffset'):Connect(function()
+						down = downButton.ImageRectOffset.X == 146 and -1 or 0
+					end))
 				end
 			else
 				bedwars.BalloonController.deflateBalloon = old
@@ -2261,7 +2240,7 @@ run(function()
 		Name = 'TP Down',
 		Default = true
 	})
-end)
+end)								
 	
 run(function()
 	local Mode
