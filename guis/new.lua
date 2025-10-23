@@ -5498,7 +5498,7 @@ function mainapi:Load(skipgui, profile)
 
 	if inputService.TouchEnabled and #self.Keybind == 1 and self.Keybind[1] == 'RightShift' then
 	local button = Instance.new('TextButton')
-	button.Position = UDim2.new(1, -30, 0.2, 0)
+	button.Position = UDim2.new(1, -31, 0, 0)
 	button.Text = "Vape"
 	button.BackgroundColor3 = Color3.fromRGB(26, 25, 26)
 	button.TextColor3 = Color3.new(1, 1, 1)
