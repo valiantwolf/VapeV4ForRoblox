@@ -2343,17 +2343,6 @@ run(function()
 	})
 end)
 	
-run(function()
-	vape.Categories.Blatant:CreateModule({
-		Name = 'KeepSprint',
-		Function = function(call)
-			debug.setconstant(bedwars.SprintController.startSprinting, 5, call and 'blockSprinting' or 'blockSprint')
-			bedwars.SprintController:stopSprinting()
-		end,
-		Tooltip = 'Lets you sprint with a speed potion.'
-	})
-end)
-	
 local Attacking
 run(function()
 	local Killaura
