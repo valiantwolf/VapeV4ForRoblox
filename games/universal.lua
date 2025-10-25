@@ -239,10 +239,35 @@ local whitelist = {
 	localprio = 0,
 	said = {}
 }
+
+local downButton
+do
+    pcall(function() if inputService.TouchEnabled then
+        local jump = lplr.PlayerGui.TouchGui.TouchControlFrame.JumpButton
+        downButton = jump:Clone()
+        downButton.Parent = lplr.PlayerGui.TouchGui.TouchControlFrame
+        downButton.Name = 'DownButton'
+        downButton.Position = UDim2.fromScale(jump.Position.X.Scale - 0.08, jump.Position.Y.Scale)
+        downButton.Visible = false
+        downButton.ImageRectOffset = Vector2.new(0, 146)
+        downButton.Image = 'rbxassetid://116011397928605'
+        
+        vape:Clean(downButton.MouseButton1Down:Connect(function()
+            downButton.ImageRectOffset = Vector2.new(146, 146)
+        end))
+        vape:Clean(downButton.MouseButton1Up:Connect(function()
+            downButton.ImageRectOffset = Vector2.new(0, 146)
+        end))
+        
+        vape:Clean(downButton)
+    end end)
+end
+
 vape.Libraries.entity = entitylib
 vape.Libraries.whitelist = whitelist
 vape.Libraries.prediction = prediction
 vape.Libraries.hash = hash
+vape.DownButton = downButton
 vape.Libraries.auraanims = {
 	Normal = {
 		{CFrame = CFrame.new(-0.17, -0.14, -0.12) * CFrame.Angles(math.rad(-53), math.rad(50), math.rad(-64)), Time = 0.1},
