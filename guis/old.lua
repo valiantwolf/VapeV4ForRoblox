@@ -60,8 +60,8 @@ local uipallet = {
 
 local getcustomassets = {
 	['newvape/assets/old/barlogo.png'] = 'rbxasset://barlogo.png',
-	['newvape/assets/old/blatanticon.png'] = 'rbxasset://blatanticon.png',
-	['newvape/assets/old/checkbox.png'] = 'rbxasset://checkbox.png',
+	['newvape/assets/old/blatanticon.png'] = 'rbxasset://96977147602749',
+	['newvape/assets/old/checkbox.png'] = 'rbxasset://114471027129056',
 	['newvape/assets/old/combaticon.png'] = 'rbxasset://combaticon.png',
 	['newvape/assets/old/friendsicon.png'] = 'rbxasset://friendsicon.png',
 	['newvape/assets/old/guiicon.png'] = 'rbxasset://guiicon.png',
