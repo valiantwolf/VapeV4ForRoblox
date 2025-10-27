@@ -11346,7 +11346,7 @@ run(function()
 	local antihitting = false
 	local antihitsky = tick()
 	antihit = vape.Categories.Blatant:CreateModule({
-		Name = 'AntiHit',
+		Name = 'antihit',
 		Function = function(call)
 			if call then
 				local lastypos
@@ -11406,9 +11406,9 @@ run(function()
 							lastNotif = tick()
 							notif("AntiDeath", "Prevented Death", 4, "warning")
 
-							local AntiHit = vape.Modules.AntiHit
-							if AntiHit and not AntiHit.Enabled then
-								AntiHit:Toggle()
+							local antihit = vape.Modules.antihit
+							if antiHit and not antiHit.Enabled then
+								antiHit:Toggle()
 							end
 						end
 					until not AntiDeath.Enabled
@@ -11917,78 +11917,6 @@ end)
 --]]
 																																																																																																																																																																																	
 run(function()
-    local WTPA = {Enabled = false}
-    local SpeedValue = 25
-    local TPDistanceValue = 10
-
-    local WTPA = {}
-    local Speed = {}
-    local TPDistance = {}
-    local Targets = {}
-
-    WTPA = vape.Categories.Utility:CreateModule({
-        Name = "Wurst TP Aura",
-        Tooltip = "Teleports around selected targets.",
-        Function = function(call)
-            WTPAEnabled = call
-            if call then
-                WTPA:Clean(runService.Heartbeat:Connect(function()
-                    if not entitylib.isAlive then return end
-                    local char = entitylib.character
-                    if not char or not char.RootPart then return end
-                    local root = char.RootPart
-                    local ok, targets = pcall(function()
-                        return entitylib.AllPosition({
-                            Range = 1000,
-                            Wallcheck = Targets.Walls.Enabled or nil,
-                            Part = "RootPart",
-                            Players = Targets.Players.Enabled,
-                            NPCs = Targets.NPCs.Enabled,
-                            Limit = 1
-                        })
-                    end)
-                    if not ok or not targets or #targets == 0 then return end
-                    local target = targets[1]
-                    if not target or not target.RootPart then return end
-                    local angle = tick() * SpeedValue
-                    local dist = TPDistanceValue
-                    local offset = Vector3.new(math.cos(angle) * dist, 0, math.sin(angle) * dist)
-                    local pos = target.RootPart.Position + offset
-                    pcall(function()
-                        root.CFrame = CFrame.new(pos, target.RootPart.Position)
-                    end)
-                end))
-            end
-        end
-    })
-
-    Targets = WTPA:CreateTargets({
-        Players = true,
-        NPCs = true
-    })
-
-    Speed = WTPA:CreateSlider({
-        Name = "Speed",
-        Min = 0,
-        Max = 50,
-        Default = 25,
-        Function = function(v)
-            SpeedValue = v
-        end
-    })
-
-    TPDistance = WTPA:CreateSlider({
-        Name = "TP Distance",
-        Min = 0,
-        Max = 30,
-        Default = 10,
-        Function = function(v)
-            TPDistanceValue = v
-        end
-    })
-end)
-
-run(function()
 		local KeepInventory = {Enabled = false}
 		local KeepInventoryLagback = {Enabled = false}
 
@@ -12345,7 +12273,7 @@ run(function()
 		self.on = false
 		local success, err = pcall(resetCore)
 		if not success then
-			warn("AntiHit resetCore failed: " .. tostring(err))
+			--warn("AntiHit resetCore failed: " .. tostring(err))
 		end
 		if self.physHook then
 			self.physHook:Disconnect()
@@ -12394,37 +12322,6 @@ run(function()
 		Suffix = function(v) return v == 1 and "span" or "spans" end,
 		Function = function(v) scanRad = v end
 	})
-end)
-
-run(function()
-    local Godmode = {Enabled = false}
-
-    Godmode = vape.Categories.Utility:CreateModule({
-        Name = "Position Raper",
-        Function = function(callback)
-            if callback then
-                setfflag("DFFlagPlayerHumanoidPropertyUpdateRestrict", "False")
-                setfflag("DFIntDebugDefaultTargetWorldStepsPerFrame", "-2147483648")
-                setfflag("DFIntMaxMissedWorldStepsRemembered", "-2147483648")
-                setfflag("DFIntWorldStepsOffsetAdjustRate", "2147483648")
-                setfflag("DFIntDebugSendDistInSteps", "-2147483648")
-                setfflag("DFIntWorldStepMax", "-2147483648")
-                setfflag("DFIntWarpFactor", "2147483648")
-
-                queue_on_teleport([[
-                    task.wait(1)
-                    setfflag("DFFlagPlayerHumanoidPropertyUpdateRestrict", "False")
-                    setfflag("DFIntDebugDefaultTargetWorldStepsPerFrame", "-2147483648")
-                    setfflag("DFIntMaxMissedWorldStepsRemembered", "-2147483648")
-                    setfflag("DFIntWorldStepsOffsetAdjustRate", "2147483648")
-                    setfflag("DFIntDebugSendDistInSteps", "-2147483648")
-                    setfflag("DFIntWorldStepMax", "-2147483648")
-                    setfflag("DFIntWarpFactor", "2147483648")
-                ]])
-            end
-        end,
-        Tooltip = ""
-    })
 end)
 
 run(function()
@@ -12610,88 +12507,7 @@ run(function()
 	})
 	antihitgroundtime.Object.Visible = false
 	antihitairtime.Object.Visible = false
-end)
-												
-run(function()
-    local DamageTP = {Enabled = false}
-    local Mode = {Value = "Player"}
-    local lastFireball = 0
-
-    local Players = game:GetService("Players")
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local Inventories = ReplicatedStorage:WaitForChild("Inventories")
-    local lplr = Players.LocalPlayer
-    local mouse = lplr:GetMouse()
-    local cam = workspace.CurrentCamera
-
-    local function getInventoryFolder()
-        return Inventories:FindFirstChild(lplr.Name .. " Inventory")
-    end
-
-    local function fireball(item, pos, dir)
-        launchProjectile(item, pos, "fireball", 60, dir)
-        lastFireball = tick()
-    end
-
-    DamageTP = vape.Categories.Utility:CreateModule({
-        Name = "DamageTP",
-        Tooltip = "",
-        Function = function(call)
-            if call then
-                local char = lplr.Character
-                if not char or not char:FindFirstChild("Humanoid") or not char:FindFirstChild("HumanoidRootPart") then
-                    return DamageTP:Toggle()
-                end
-
-                local hum = char.Humanoid
-                local dir = cam.CFrame.LookVector
-                local inv = getInventoryFolder()
-                if not inv then return DamageTP:Toggle() end
-
-                DamageTP:Clean(hum.HealthChanged:Connect(function(hp)
-                    if tick() - lastFireball < 5 and hp < hum.MaxHealth then
-                        if Mode.Value == "Player" then
-                            local nearest = getNearestEntity(9999)
-                            if nearest and nearest.plr and nearest.plr.Character and nearest.plr.Character:FindFirstChild("HumanoidRootPart") then
-                                char.HumanoidRootPart.CFrame = nearest.plr.Character.HumanoidRootPart.CFrame
-                            end
-                        elseif Mode.Value == "Mouse" then
-                            local pos = mouse.Hit.Position
-                            char.HumanoidRootPart.CFrame = CFrame.new(pos)
-                        end
-                        DamageTP:Toggle()
-                    end
-                end))
-
-                fireball(nil, cam.CFrame.Position, dir)
-            end
-        end
-    })
-
-    Mode = DamageTP:CreateDropdown({
-        Name = "Mode",
-        List = {"Player", "Mouse"},
-        Default = "Player",
-        Function = function(val)
-            Mode.Value = val
-        end
-    })
-end)
-
-run(function()
-	local a = {Enabled = false}
-						
-    a = vape.Categories.Utility:CreateModule({
-        Name = 'a',
-        Function = function(call)            
-game.ReplicatedStorage.Items.diamond_sword:Clone().Parent = game.ReplicatedStorage.Inventories[lplr.Name]
-game.ReplicatedStorage.Items.emerald_helmet:Clone().Parent = game.ReplicatedStorage.Inventories[lplr.Name]
-game.ReplicatedStorage.Items.emerald_boots:Clone().Parent = game.ReplicatedStorage.Inventories[lplr.Name]
-game.ReplicatedStorage.Items.emerald_chestplate:Clone().Parent = game.ReplicatedStorage.Inventories[lplr.Name]
-    end,
-        tooltip = ""
-    })
-end)									
+end)																				
 
 run(function()
     Shaders = vape.Categories.Render:CreateModule({
@@ -12942,51 +12758,3 @@ run(function()
     })
 end)
 
-run(function()
-	local a = {Enabled = false}
-
-	a = vape.Categories.Utility:CreateModule({
-		Name = "25%RagdollDisabler",
-		Tooltip = "",
-		Function = function(call)
-			if call then
-				task.spawn(function()
-					while a.Enabled do
-						local char = game:GetService("Players").LocalPlayer.Character
-						if char and char:FindFirstChild("Humanoid") then
-							char.Humanoid:ChangeState(Enum.HumanoidStateType.Ragdoll)
-							task.wait(0.085)
-							char.Humanoid:ChangeState(Enum.HumanoidStateType.Running)
-						end
-						task.wait(0.1)
-					end
-				end)
-			end
-		end
-	})
-end)
-
-run(function()
-    local Exploit
-
-    Exploit = vape.Categories.Blatant:CreateModule({
-        Name = "TP Aura",
-        Function = function(callback)
-            if callback then
-                repeat
-                    for i, v in pairs(game.Players:GetPlayers()) do
-                        if v ~= game.Players.LocalPlayer 
-                        and v.Team ~= game.Players.LocalPlayer.Team 
-                        and v.Character 
-                        and v.Character.PrimaryPart then
-                            v.Character:SetPrimaryPartCFrame(
-                                game.Players.LocalPlayer.Character.PrimaryPart.CFrame * CFrame.new(0, -12, 0)
-                            )
-                        end
-                    end
-                    task.wait()
-                until not callback
-            end
-        end
-    })
-end)
