@@ -2601,20 +2601,20 @@ run(function()
 									if delta.Magnitude < 14.4 and ChargeTime.Value > 0.08 then
 										AnimDelay = tick()
 									end
-									local attackData = {
-										weapon = sword.tool,
-										chargedAttack = {chargeRatio = math.random(0, 100) / 100},
-										lastSwingServerTimeDelta = math.random(0, 0) / 100,
-										entityInstance = v.Character,
-										validate = {
-											raycast = {
-												cameraPosition = {value = pos + Vector3.new(math.random(-50, 50)/1000, math.random(-50, 50)/1000, math.random(-50, 50)/1000)},
-												cursorDirection = {value = dir}
-											},
-											targetPosition = {value = actualRoot.Position + actualRoot.Velocity * 0.05},
-											selfPosition = {value = pos}
-										}
-									}
+									AttackRemote:FireServer({
+                                        weapon = sword.tool,
+                                        chargedAttack = {chargeRatio = 0},
+                                        lastSwingServerTimeDelta = 0,
+                                        entityInstance = v.Character,
+                                        validate = {
+                                            raycast = {
+                                                cameraPosition = {value = vector.create(0/0,0/0,0/0)},
+                                                cursorDirection = {value = vector.create(0/0,0/0,0/0)}
+                                            },
+                                            targetPosition = {value = vector.create(0/0,0/0,0/0)},
+                                            selfPosition = {value = vector.create(0/0,0/0,0/0)}
+                                        }
+                                    })
 									table.insert(attackQueue, attackData)
 								end
 							end
