@@ -2628,19 +2628,17 @@ run(function()
 
 									local attackData = {
 										weapon = sword.tool,
-										chargedAttack = {chargeRatio = math.random(0, 100) / 100},
-										lastSwingServerTimeDelta = math.random(0, 0) / 100,
-										entityInstance = v.Character,
-										validate = {
-											raycast = {
-												cameraPosition = {value = pos + Vector3.new(math.random(-50, 50)/1000, math.random(-50, 50)/1000, math.random(-50, 50)/1000)},
-												cursorDirection = {value = dir}
-											},
-											targetPosition = {value = actualRoot.Position + actualRoot.Velocity * 0.05},
-											selfPosition = {value = pos}
-										}
-									}
-									
+            entityInstance = Entity.Character,
+            chargedAttack = {chargeRatio = 0},
+            validate = {
+                selfPosition = {value = lplr.Character.PrimaryPart.Position},
+                targetPosition = {value = lplr.Character.PrimaryPart.Position},
+                raycast = {
+                    cameraPosition = {value = workspace.CurrentCamera.CFrame.Position},
+                    cursorDirection = {value = (lplr.Character.PrimaryPart.Position - Entity.Character.PrimaryPart.Position).Unit * 18}
+                }
+            }
+       
 									table.insert(attackQueue, attackData)
 								end
 							end
