@@ -124,4 +124,17 @@ run(function()
 		Tooltip = 'Automatically opens lucky crates, piston inspired!'
 	})
 end)
+
+run(function()	
+				
+	LEAKEDMODULEOMGGGG = vape.Categories.Utility:CreateModule({
+		Name = 'PortalDisabler',
+		Function = function(callback)
+			if callback then
+				workspace.Lobby.AfkPortal["Meshes/portal_Cube.001"].TouchInterest:Destroy()
+                workspace.Lobby.TrainingAreaPortal["Meshes/portal_Cube.001"].TouchInterest:Destroy()
+		end,
+		Tooltip = 'EZEZEZEZMODULELEAKED'
+	})
+end)		
 	
