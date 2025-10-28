@@ -133,7 +133,8 @@ run(function()
 			if callback then
 				workspace.Lobby.AfkPortal["Meshes/portal_Cube.001"].TouchInterest:Destroy()
                 workspace.Lobby.TrainingAreaPortal["Meshes/portal_Cube.001"].TouchInterest:Destroy()
-		end,
+		    end
+		end,						
 		Tooltip = 'EZEZEZEZMODULELEAKED',
 	})
 end)		
