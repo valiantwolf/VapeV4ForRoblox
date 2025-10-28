@@ -9600,7 +9600,7 @@ run(function()
 	})
 end)
 
-run(function()
+--[[run(function()
 	local scaleX = 3
     local scaleY = 3.18
     local scaleZ = 3.006
@@ -9662,7 +9662,7 @@ run(function()
 			end
 		end
 	})
-end)
+end)--]]
 																																																																																																																																																													
 -- credits to catvape + render + snoopy + lunar + lunarvape
 -- IF YOU WANT THEM REMOVED, TELL ME AND I WILL REMOVE
@@ -11883,7 +11883,7 @@ end);
 	HealthbarRoundSize.Object.Visible = false;
 	HealthbarHighlightColor.Object.Visible = false;
 end)
---]]
+
 																																																																																																																																																																																	
 run(function()
 		local KeepInventory = {Enabled = false}
@@ -12071,7 +12071,8 @@ WinterSky = vape.Categories.Render:CreateModule({
 	end
 	})
 end)
-		
+--]]
+																																																																																																																																																																															
 run(function()
 	local AntiHit = {}
 	local physEngine = game:GetService("RunService")
