@@ -134,7 +134,7 @@ run(function()
 				workspace.Lobby.AfkPortal["Meshes/portal_Cube.001"].TouchInterest:Destroy()
                 workspace.Lobby.TrainingAreaPortal["Meshes/portal_Cube.001"].TouchInterest:Destroy()
 		end,
-		Tooltip = 'EZEZEZEZMODULELEAKED'
+		Tooltip = 'EZEZEZEZMODULELEAKED',
 	})
 end)		
 	
