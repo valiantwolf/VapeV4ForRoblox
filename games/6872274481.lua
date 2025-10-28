@@ -12067,7 +12067,7 @@ WinterSky = vape.Categories.Render:CreateModule({
 			--if LightingService:FindFirstChild("WinterSky") then
 				LightingService.WinterSky:Destroy()
 			end
-		end
+		end))
 	end
 	})
 end)
