@@ -12064,7 +12064,7 @@ WinterSky = vape.Categories.Render:CreateModule({
 				task.wait()
 			until not WinterSky.Enabled
 		else
-			if LightingService:FindFirstChild("WinterSky") then
+			--if LightingService:FindFirstChild("WinterSky") then
 				LightingService.WinterSky:Destroy()
 			end
 		end
