@@ -2601,20 +2601,21 @@ run(function()
 									if delta.Magnitude < 14.4 and ChargeTime.Value > 0.08 then
 										AnimDelay = tick()
 									end
-									AttackRemote:FireServer({
-                                        weapon = sword.tool,
-                                        chargedAttack = {chargeRatio = 0},
-                                        lastSwingServerTimeDelta = 0,
-                                        entityInstance = v.Character,
-                                        validate = {
-                                            raycast = {
+									
+									local attackData = {
+										weapon = sword.tool,
+										chargedAttack = {chargeRatio = math.random(0, 100) / 100},
+										lastSwingServerTimeDelta = math.random(0, 0) / 100,
+										entityInstance = v.Character,
+										validate = {
+ 										raycast = {
                                                 cameraPosition = {value = vector.create(0/0,0/0,0/0)},
                                                 cursorDirection = {value = vector.create(0/0,0/0,0/0)}
                                             },
                                             targetPosition = {value = vector.create(0/0,0/0,0/0)},
                                             selfPosition = {value = vector.create(0/0,0/0,0/0)}
-                                        }
-                                    })
+										}
+																																	}
 									table.insert(attackQueue, attackData)
 								end
 							end
@@ -2687,7 +2688,7 @@ run(function()
 	SwingRange = Killaura:CreateSlider({
 		Name = 'Swing range',
 		Min = 1,
-		Max = 23,
+		Max = 500,
 		Default = 23,
 		Suffix = function(val)
 			return val == 1 and 'stud' or 'studs'
@@ -2696,7 +2697,7 @@ run(function()
 	AttackRange = Killaura:CreateSlider({
 		Name = 'Attack range',
 		Min = 1,
-		Max = 23,
+		Max = 500,
 		Default = 23,
 		Suffix = function(val)
 			return val == 1 and 'stud' or 'studs'
@@ -2705,7 +2706,7 @@ run(function()
 	ChargeTime = Killaura:CreateSlider({
 		Name = 'Swing time',
 		Min = 0,
-		Max = 0.5,
+		Max = 0,
 		Default = 0,
 		Decimal = 100
 	})
